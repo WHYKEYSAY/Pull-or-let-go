@@ -8,6 +8,7 @@ Harlowe 3
 (set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
+(set: $friendImg to "")
 
 :: UI-Status [header]
 <div style="position:fixed; top:12px; right:12px; z-index:9999;">
@@ -23,9 +24,17 @@ Harlowe 3
 (if: $statusOpen is true)[
   <div style="position:fixed; top:50px; right:12px; width:220px; z-index:9998; background:#ffffff; color:#111; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
     <h3 style="margin:0 0 8px 0; font-size:15px; color:#333;">Status</h3>
+    (if: $friendImg is not "")[
+        (set: _imgSrc to $friendImg)
+        (if: $bullyingLevel is 1)[(set: _imgSrc to "person1_1.png")]
+        (else-if: $bullyingLevel is 2)[(set: _imgSrc to "person1_2.png")]
+        (else-if: $bullyingLevel is 3)[(set: _imgSrc to "person2_1.png")]
+        (else-if: $bullyingLevel >= 4)[(set: _imgSrc to "person2_2.png")]
+        (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 6px; margin-bottom: 8px;">')
+    ]
     <b>Name:</b> (print:$friendName)<br>
     <b>Friendship:</b> (print:$friendship)<br>
-    <b>Bullying State:</b>
+    <b>Mental State:</b>
     (cond:
       $bullyingLevel is 0, "Safe",
       $bullyingLevel is 1, "Feels isolated",
@@ -39,6 +48,7 @@ Harlowe 3
 (set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
+(set: $friendImg to "")
 
 <h2>Pull or Let Go</h2>
 It’s the beginning of the semester. Two weeks have passed, and today a <b>new student</b> arrives.
@@ -46,19 +56,45 @@ It’s the beginning of the semester. Two weeks have passed, and today a <b>new 
 [[Let's go and check them out->NewStudent]]
 
 :: NewStudent
+<style>
+.char-choice-container { display: flex; justify-content: space-around; text-align: center; }
+.char-choice { width: 150px; }
+.char-choice .image-wrapper { position: relative; width: 150px; height: 150px; cursor: pointer; }
+.char-choice img { width: 100%; height: 150px; border-radius: 10px; display: block; position: absolute; top: 0; left: 0; border: 3px solid transparent; transition: border-color 0.3s; }
+.char-choice .image-wrapper:hover img { border-color: #4a90e2; }
+.char-choice .img-hover { opacity: 0; transition: opacity 0.3s; }
+.char-choice .image-wrapper:hover .img-hover { opacity: 1; }
+.char-choice .hidden-link { display: none; } /* Hide the text of link-reveal */
+</style>
+
 <h2>The new student looks like...</h2>
-(link: "Short hair, casual hoodie")[
-	(set: $friendLook to "a short-haired student in a hoodie")
-	(goto: "NameChoice")
-]
-(link: "Long hair, with glasses")[
-	(set: $friendLook to "a long-haired student with glasses")
-	(goto: "NameChoice")
-]
-(link: "Sporty, with a backpack")[
-	(set: $friendLook to "a sporty student with a backpack")
-	(goto: "NameChoice")
-]
+<div class="char-choice-container">
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person1_1.png" class="img-normal"><img src="person1_2.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a short-haired student in a hoodie")
+            (set: $friendImg to "person1_1.png")
+            (goto: "NameChoice")
+        ]
+        Short hair, casual hoodie
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person2_1.png" class="img-normal"><img src="person2_2.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a long-haired student with glasses")
+            (set: $friendImg to "person2_1.png")
+            (goto: "NameChoice")
+        ]
+        Long hair, with glasses
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person3_1.png" class="img-normal"><img src="person3_2.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a sporty student with a backpack")
+            (set: $friendImg to "person3_1.png")
+            (goto: "NameChoice")
+        ]
+        Sporty, with a backpack
+    </div>
+</div>
+
 
 :: NameChoice
 The (print:$friendLook) steps forward and introduces themselves:
@@ -252,9 +288,11 @@ You see a group "accidentally" trip (print:$friendName) in the hallway. They kno
 
 :: BullyingChoice
 (if: $playerBullied is true)[
-  You feel a grim satisfaction watching.
+  You've joined them before. What now?
   <br>
-  [[Just walk away. Not your problem.->BullyChoice-Ignore]]
+  [[Join in again->BullyChoice-Bully]]
+  <br>
+  [[Walk away this time.->BullyChoice-Ignore]]
 ]
 (else-if: $playerHelped is true)[
   You've helped before. Do you step in again?
@@ -353,8 +391,15 @@ The final bullying incident was too much to bear, and your classmate took their 
 [[Play Again?->Start]]
 
 :: MiniGame1
+<style>
+.crossed-out {
+    text-decoration: line-through;
+    color: grey;
+    pointer-events: none;
+}
+</style>
 (if: not ((history:) contains "MiniGame1"))[
-  (set: $wrongChoices to (array:
+  (set: $allWrongChoices to (array:
     "Start a loud conversation on your phone.",
     "Go up to the group and ask for a pen.",
     "Start coughing loudly.",
@@ -362,17 +407,26 @@ The final bullying incident was too much to bear, and your classmate took their 
     "Pretend to trip and fall near another table.",
     "Start humming a distracting tune."
   ))
+  (set: $chosenWrongChoices to (a:))
 ]
 You decide to intervene. A direct confrontation might make things worse. You need to create a distraction to break the awkward silence and give (print:$friendName) an out.
 <br>
 What do you do?
-
+(set: _displayChoices to (shuffled: ...$allWrongChoices))
+(for: each _choice, ..._displayChoices)[
+    (if: $chosenWrongChoices contains _choice)[
+        (print: '<span class="crossed-out">' + _choice + '</span><br>')
+    ]
+    (else:)[
+      (link: _choice)[
+        (set: $chosenWrongChoices to it + (a: _choice))
+        (goto: "MiniGame1")
+      ]<br>
+    ]
+]
 <br>
 [[‘Accidentally’ drop your heavy stack of books near their table.->MiniGame1-Win]]
 <br>
-(for: each _choice, ...$wrongChoices)[
-  (link-goto: _choice, "MiniGame1")[(set: $wrongChoices to it - (a: _choice))]<br>
-]
 
 :: MiniGame1-Win
 You create a loud clatter. Everyone turns to look. In the confusion, you walk over to (print:$friendName) and whisper, "Let's get out of here." It works perfectly.
@@ -394,21 +448,23 @@ You create a loud clatter. Everyone turns to look. In the confusion, you walk ov
 :: MiniGame2-Display
 You want to step in, but the words freeze in your throat. You need to find the right word to confront them. The word you're looking for is scrambled in your mind: (print: $tempScramble)
 <br>
-(if: (visits: "MiniGame2-Display") > 1)[That's not quite right. The words get jumbled again in your panic. Try this one.<br>]
+(set: _mg2_visits to 0)
+(for: each _p where _p is "MiniGame2-Display", ...(history:))[
+    (set: _mg2_visits to _mg2_visits + 1)
+]
+(if: _mg2_visits > 1)[That's not quite right. The words get jumbled again in your panic. Try this one.<br>]
+<div style="margin-top: 1.5em;">
 (link: "Try to speak up")[
-	(set: _input to (prompt: "Unscramble the word to find your voice:", ""))
-	(set: _formattedInput to (_input's lowercase).trim())
-	
+	(set: $userInput to (prompt: "Unscramble the word to find your voice:", ""))
+	(set: _formattedInput to ($userInput's lowercase).trim())
 	(if: _formattedInput is $tempAnswer)[
 		(goto: "MiniGame2-Win")
 	]
 	(else:)[
-		(set: $challenge to (either: ..._wordList))
-		(set: $tempAnswer to $challenge's "answer")
-		(set: $tempScramble to $challenge's "scramble")
-		(goto: "MiniGame2-Display")
+		(rerender: ?_hook)
 	]
 ]
+</div>
 
 :: MiniGame2-Win
 The word "(print: $tempAnswer)" solidifies in your mind. You take a deep breath and speak up, your voice clear and firm. "Hey, leave them alone."
