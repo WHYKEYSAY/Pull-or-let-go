@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="4" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="3E3F8D3F-E412-4472-AE4E-1188C08A72E3" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="" position="150,25" size="100,100">(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
+<tw-storydata name="Pull or Let Go" startnode="4" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="A8D099CB-21EE-43DE-8E29-75B79B4EBF1C" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="" position="150,25" size="100,100">(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to &quot;&quot;, $friendName to &quot;???&quot;, $statusOpen to false)
 (set: $friendImg to &quot;&quot;)</tw-passagedata><tw-passagedata pid="3" name="UI-Status" tags="header" position="275,25" size="100,100">&lt;div style=&quot;position:fixed; top:12px; right:12px; z-index:9999;&quot;&gt;
@@ -198,14 +198,14 @@ You greet them warmly and learn their name is **(print:$friendName)**.
   You&#39;ve helped before. Do you step in again?
   &lt;br&gt;
   (if: $gameProgress is 2)[[[Step in and confront them-&gt;MiniGame1]]]
-  (else-if: $gameProgress is 6)[[[Step in and confront them-&gt;MiniGame2-Setup]]]
+  (else-if: $gameProgress is 6)[[[Step in and confront them-&gt;MiniGame2]]]
   (else-if: $gameProgress is 9)[[[Step in and confront them-&gt;MiniGame3]]]
   &lt;br&gt;
   [[This time, you don&#39;t intervene-&gt;BullyChoice-Ignore]]
 ]
 (else:)[
   (if: $gameProgress is 2)[[[Step in and confront them-&gt;MiniGame1]]]
-  (else-if: $gameProgress is 6)[[[Step in and confront them-&gt;MiniGame2-Setup]]]
+  (else-if: $gameProgress is 6)[[[Step in and confront them-&gt;MiniGame2]]]
   (else-if: $gameProgress is 9)[[[Step in and confront them-&gt;MiniGame3]]]
   &lt;br&gt;
   [[Pretend you saw nothing and walk away-&gt;BullyChoice-Ignore]]
@@ -289,36 +289,122 @@ What do you do?
       ]&lt;br&gt;
     ]
 ]</tw-passagedata><tw-passagedata pid="49" name="MiniGame1-Win" tags="" position="1025,525" size="100,100">You create a loud clatter. Everyone turns to look. In the confusion, you walk over to (print:$friendName) and whisper, &quot;Let&#39;s get out of here.&quot; It works perfectly.
-[[Success!-&gt;BullyChoice-Win]]</tw-passagedata><tw-passagedata pid="50" name="MiniGame2-Setup" tags="" position="1150,525" size="100,100">(set: _wordList to (array:
-  (datamap: &quot;answer&quot;, &quot;courage&quot;, &quot;scramble&quot;, &quot;R-O-C-E-G-U-A&quot;),
-  (datamap: &quot;answer&quot;, &quot;support&quot;, &quot;scramble&quot;, &quot;P-S-U-P-O-R-T&quot;),
-  (datamap: &quot;answer&quot;, &quot;kindness&quot;, &quot;scramble&quot;, &quot;S-D-N-I-K-E-N-S&quot;),
-  (datamap: &quot;answer&quot;, &quot;friend&quot;, &quot;scramble&quot;, &quot;E-F-I-R-N-D&quot;),
-  (datamap: &quot;answer&quot;, &quot;bravery&quot;, &quot;scramble&quot;, &quot;Y-B-V-R-E-A-R&quot;)
-))
-(set: $challenge to (either: ..._wordList))
-(set: $tempAnswer to $challenge&#39;s &quot;answer&quot;)
-(set: $tempScramble to $challenge&#39;s &quot;scramble&quot;)
-(goto: &quot;MiniGame2-Display&quot;)</tw-passagedata><tw-passagedata pid="51" name="MiniGame2-Display" tags="" position="25,650" size="100,100">You want to step in, but the words freeze in your throat. You need to find the right word to confront them. The word you&#39;re looking for is scrambled in your mind: (print: $tempScramble)
-&lt;br&gt;
-(set: _mg2_visits to 0)
-(for: each _p where _p is &quot;MiniGame2-Display&quot;, ...(history:))[
-    (set: _mg2_visits to _mg2_visits + 1)
-]
-(if: _mg2_visits &gt; 1)[That&#39;s not quite right. The words get jumbled again in your panic. Try this one.&lt;br&gt;]
-&lt;div style=&quot;margin-top: 1.5em;&quot;&gt;
-(link: &quot;Try to speak up&quot;)[
-	(set: $userInput to (prompt: &quot;Unscramble the word to find your voice:&quot;, &quot;&quot;))
-	(set: _formattedInput to ($userInput&#39;s lowercase).trim())
-	(if: _formattedInput is $tempAnswer)[
-		(goto: &quot;MiniGame2-Win&quot;)
-	]
-	(else:)[
-		(rerender: ?_hook)
-	]
-]
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="52" name="MiniGame2-Win" tags="" position="150,650" size="100,100">The word &quot;(print: $tempAnswer)&quot; solidifies in your mind. You take a deep breath and speak up, your voice clear and firm. &quot;Hey, leave them alone.&quot;
-[[Success!-&gt;BullyChoice-Win]]</tw-passagedata><tw-passagedata pid="53" name="MiniGame3" tags="" position="275,650" size="100,100">You see (print:$friendName) stumble and their books go flying. The bullies are laughing. You need to rush over and help them collect their scattered belongings before they get more embarrassed.
+[[Success!-&gt;BullyChoice-Win]]</tw-passagedata><tw-passagedata pid="50" name="MiniGame2" tags="" position="1150,525" size="100,100">You need to gather your thoughts to say the right thing. Repeat the pattern of colors to focus your mind.
+&lt;br&gt;&lt;br&gt;
+&lt;style&gt;
+    #pattern-game { text-align: center; }
+    .pattern-btn { width: 80px; height: 80px; border-radius: 50%; margin: 10px; border: 3px solid #555; cursor: pointer; display: inline-block; transition: background-color 0.2s; }
+    .pattern-btn.red { background-color: #fca5a5; }
+    .pattern-btn.blue { background-color: #93c5fd; }
+    .pattern-btn.green { background-color: #86efac; }
+    .pattern-btn.yellow { background-color: #fde047; }
+    .pattern-btn.lit { filter: brightness(1.5); }
+    #pattern-message { font-weight: bold; height: 2em; }
+&lt;/style&gt;
+&lt;div id=&quot;pattern-game&quot;&gt;
+    &lt;div id=&quot;pattern-message&quot;&gt;Watch the pattern...&lt;/div&gt;
+    &lt;div&gt;
+        &lt;div class=&quot;pattern-btn red&quot; data-color=&quot;0&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pattern-btn blue&quot; data-color=&quot;1&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;div class=&quot;pattern-btn green&quot; data-color=&quot;2&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;pattern-btn yellow&quot; data-color=&quot;3&quot;&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id=&quot;start-pattern-btn-container&quot; style=&quot;margin-top: 1em;&quot;&gt;
+        (link: &quot;Start&quot;)[ ]
+    &lt;/div&gt;
+    &lt;div id=&quot;pattern-win-container&quot; style=&quot;display:none;&quot;&gt;(link-goto:&quot;Success!&quot;, &quot;BullyChoice-Win&quot;)&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+setTimeout(() =&gt; {
+    const gameContainer = document.getElementById(&#39;pattern-game&#39;);
+    if (!gameContainer) return;
+
+    const messageEl = gameContainer.querySelector(&#39;#pattern-message&#39;);
+    const startBtnContainer = gameContainer.querySelector(&#39;#start-pattern-btn-container&#39;);
+    const winContainer = gameContainer.querySelector(&#39;#pattern-win-container&#39;);
+    const buttons = Array.from(gameContainer.querySelectorAll(&#39;.pattern-btn&#39;));
+    
+    let sequence = [];
+    let playerSequence = [];
+    let level = 3;
+    let playerTurn = false;
+
+    function generateSequence() {
+        sequence = [];
+        for (let i = 0; i &lt; level; i++) {
+            sequence.push(Math.floor(Math.random() * 4));
+        }
+    }
+
+    function lightUp(index) {
+        return new Promise((resolve) =&gt; {
+            const btn = buttons[index];
+            btn.classList.add(&#39;lit&#39;);
+            setTimeout(() =&gt; {
+                btn.classList.remove(&#39;lit&#39;);
+                setTimeout(resolve, 250);
+            }, 500);
+        });
+    }
+
+    async function playSequence() {
+        playerTurn = false;
+        messageEl.textContent = &quot;Watch carefully...&quot;;
+        startBtnContainer.style.display = &#39;none&#39;;
+        await new Promise(resolve =&gt; setTimeout(resolve, 1000));
+        for (const index of sequence) {
+            await lightUp(index);
+        }
+        playerTurn = true;
+        messageEl.textContent = &quot;Your turn...&quot;;
+    }
+
+    function handlePlayerClick(e) {
+        if (!playerTurn) return;
+
+        const colorIndex = parseInt(e.target.dataset.color, 10);
+        playerSequence.push(colorIndex);
+        lightUp(colorIndex);
+
+        const currentStep = playerSequence.length - 1;
+        if (playerSequence[currentStep] !== sequence[currentStep]) {
+            messageEl.textContent = &quot;That&#39;s not right. Let&#39;s try again.&quot;;
+            playerSequence = [];
+            setTimeout(playSequence, 1500);
+            return;
+        }
+
+        if (playerSequence.length === sequence.length) {
+            playerTurn = false;
+            if (level &gt;= 5) {
+                messageEl.textContent = &quot;You focused your thoughts and found your voice!&quot;;
+                winContainer.style.display = &#39;block&#39;;
+                 startBtnContainer.style.display = &#39;none&#39;;
+            } else {
+                messageEl.textContent = &quot;Good! Next level...&quot;;
+                level++;
+                playerSequence = [];
+                generateSequence();
+                setTimeout(playSequence, 1500);
+            }
+        }
+    }
+    
+    const startLink = startBtnContainer.querySelector(&#39;tw-link&#39;);
+    if (startLink) {
+        startLink.addEventListener(&#39;click&#39;, () =&gt; {
+            generateSequence();
+            playSequence();
+        });
+    }
+
+    buttons.forEach(btn =&gt; btn.addEventListener(&#39;click&#39;, handlePlayerClick));
+
+}, 0);
+&lt;/script&gt;</tw-passagedata><tw-passagedata pid="51" name="MiniGame3" tags="" position="25,650" size="100,100">You see (print:$friendName) stumble and their books go flying. The bullies are laughing. You need to rush over and help them collect their scattered belongings before they get more embarrassed.
 &lt;br&gt;&lt;br&gt;
 &lt;b&gt;Use the arrow keys to collect all three stars (representing their books).&lt;/b&gt;
 &lt;style&gt;

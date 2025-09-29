@@ -298,14 +298,14 @@ You see a group "accidentally" trip (print:$friendName) in the hallway. They kno
   You've helped before. Do you step in again?
   <br>
   (if: $gameProgress is 2)[[[Step in and confront them->MiniGame1]]]
-  (else-if: $gameProgress is 6)[[[Step in and confront them->MiniGame2]]]
+  (else-if: $gameProgress is 6)[[[Step in and confront them->MiniGame2-Setup]]]
   (else-if: $gameProgress is 9)[[[Step in and confront them->MiniGame3]]]
   <br>
   [[This time, you don't intervene->BullyChoice-Ignore]]
 ]
 (else:)[
   (if: $gameProgress is 2)[[[Step in and confront them->MiniGame1]]]
-  (else-if: $gameProgress is 6)[[[Step in and confront them->MiniGame2]]]
+  (else-if: $gameProgress is 6)[[[Step in and confront them->MiniGame2-Setup]]]
   (else-if: $gameProgress is 9)[[[Step in and confront them->MiniGame3]]]
   <br>
   [[Pretend you saw nothing and walk away->BullyChoice-Ignore]]
@@ -434,123 +434,43 @@ What do you do?
 You create a loud clatter. Everyone turns to look. In the confusion, you walk over to (print:$friendName) and whisper, "Let's get out of here." It works perfectly.
 [[Success!->BullyChoice-Win]]
 
-:: MiniGame2
-You need to gather your thoughts to say the right thing. Repeat the pattern of colors to focus your mind.
-<br><br>
-<style>
-    #pattern-game { text-align: center; }
-    .pattern-btn { width: 80px; height: 80px; border-radius: 50%; margin: 10px; border: 3px solid #555; cursor: pointer; display: inline-block; transition: background-color 0.2s; }
-    .pattern-btn.red { background-color: #fca5a5; }
-    .pattern-btn.blue { background-color: #93c5fd; }
-    .pattern-btn.green { background-color: #86efac; }
-    .pattern-btn.yellow { background-color: #fde047; }
-    .pattern-btn.lit { filter: brightness(1.5); }
-    #pattern-message { font-weight: bold; height: 2em; }
-</style>
-<div id="pattern-game">
-    <div id="pattern-message">Watch the pattern...</div>
-    <div>
-        <div class="pattern-btn red" data-color="0"></div>
-        <div class="pattern-btn blue" data-color="1"></div>
-    </div>
-    <div>
-        <div class="pattern-btn green" data-color="2"></div>
-        <div class="pattern-btn yellow" data-color="3"></div>
-    </div>
-    <div id="start-pattern-btn-container" style="margin-top: 1em;">
-        (link: "Start")[ ]
-    </div>
-    <div id="pattern-win-container" style="display:none;">(link-goto:"Success!", "BullyChoice-Win")</div>
+:: MiniGame2-Setup
+(set: _wordList to (array:
+  (datamap: "answer", "courage", "scramble", "R-O-C-E-G-U-A"),
+  (datamap: "answer", "support", "scramble", "P-S-U-P-O-R-T"),
+  (datamap: "answer", "kindness", "scramble", "S-D-N-I-K-E-N-S"),
+  (datamap: "answer", "friend", "scramble", "E-F-I-R-N-D"),
+  (datamap: "answer", "bravery", "scramble", "Y-B-V-R-E-A-R")
+))
+(set: $challenge to (either: ..._wordList))
+(set: $tempAnswer to $challenge's "answer")
+(set: $tempScramble to $challenge's "scramble")
+(goto: "MiniGame2-Display")
+
+:: MiniGame2-Display
+You want to step in, but the words freeze in your throat. You need to find the right word to confront them. The word you're looking for is scrambled in your mind: (print: $tempScramble)
+<br>
+(set: _mg2_visits to 0)
+(for: each _p where _p is "MiniGame2-Display", ...(history:))[
+    (set: _mg2_visits to _mg2_visits + 1)
+]
+(if: _mg2_visits > 1)[That's not quite right. The words get jumbled again in your panic. Try this one.<br>]
+<div style="margin-top: 1.5em;">
+(link: "Try to speak up")[
+	(set: $userInput to (prompt: "Unscramble the word to find your voice:", ""))
+	(set: _formattedInput to ($userInput's lowercase).trim())
+	(if: _formattedInput is $tempAnswer)[
+		(goto: "MiniGame2-Win")
+	]
+	(else:)[
+		(rerender: ?_hook)
+	]
+]
 </div>
 
-<script>
-setTimeout(() => {
-    const gameContainer = document.getElementById('pattern-game');
-    if (!gameContainer) return;
-
-    const messageEl = gameContainer.querySelector('#pattern-message');
-    const startBtnContainer = gameContainer.querySelector('#start-pattern-btn-container');
-    const winContainer = gameContainer.querySelector('#pattern-win-container');
-    const buttons = Array.from(gameContainer.querySelectorAll('.pattern-btn'));
-    
-    let sequence = [];
-    let playerSequence = [];
-    let level = 3;
-    let playerTurn = false;
-
-    function generateSequence() {
-        sequence = [];
-        for (let i = 0; i < level; i++) {
-            sequence.push(Math.floor(Math.random() * 4));
-        }
-    }
-
-    function lightUp(index) {
-        return new Promise((resolve) => {
-            const btn = buttons[index];
-            btn.classList.add('lit');
-            setTimeout(() => {
-                btn.classList.remove('lit');
-                setTimeout(resolve, 250);
-            }, 500);
-        });
-    }
-
-    async function playSequence() {
-        playerTurn = false;
-        messageEl.textContent = "Watch carefully...";
-        startBtnContainer.style.display = 'none';
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        for (const index of sequence) {
-            await lightUp(index);
-        }
-        playerTurn = true;
-        messageEl.textContent = "Your turn...";
-    }
-
-    function handlePlayerClick(e) {
-        if (!playerTurn) return;
-
-        const colorIndex = parseInt(e.target.dataset.color, 10);
-        playerSequence.push(colorIndex);
-        lightUp(colorIndex);
-
-        const currentStep = playerSequence.length - 1;
-        if (playerSequence[currentStep] !== sequence[currentStep]) {
-            messageEl.textContent = "That's not right. Let's try again.";
-            playerSequence = [];
-            setTimeout(playSequence, 1500);
-            return;
-        }
-
-        if (playerSequence.length === sequence.length) {
-            playerTurn = false;
-            if (level >= 5) {
-                messageEl.textContent = "You focused your thoughts and found your voice!";
-                winContainer.style.display = 'block';
-                 startBtnContainer.style.display = 'none';
-            } else {
-                messageEl.textContent = "Good! Next level...";
-                level++;
-                playerSequence = [];
-                generateSequence();
-                setTimeout(playSequence, 1500);
-            }
-        }
-    }
-    
-    const startLink = startBtnContainer.querySelector('tw-link');
-    if (startLink) {
-        startLink.addEventListener('click', () => {
-            generateSequence();
-            playSequence();
-        });
-    }
-
-    buttons.forEach(btn => btn.addEventListener('click', handlePlayerClick));
-
-}, 0);
-</script>
+:: MiniGame2-Win
+The word "(print: $tempAnswer)" solidifies in your mind. You take a deep breath and speak up, your voice clear and firm. "Hey, leave them alone."
+[[Success!->BullyChoice-Win]]
 
 :: MiniGame3
 You see (print:$friendName) stumble and their books go flying. The bullies are laughing. You need to rush over and help them collect their scattered belongings before they get more embarrassed.
