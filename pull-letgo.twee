@@ -8,7 +8,29 @@ Harlowe 3
 (set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
-(set: $friendImg to "")
+(set: $friendImgBase to "", $friendImgExt to "")
+(set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
+(set: $doomedToEnd1 to false)
+
+:: StoryStylesheet [stylesheet]
+tw-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 50px;
+}
+
+tw-passage {
+    width: 100%;
+    max-width: 800px; /* Increased width to accommodate four choices */
+    text-align: left;
+}
+
+tw-passage:not(:last-of-type) {
+    display: none;
+}
+
 
 :: UI-Status [header]
 <div style="position:fixed; top:12px; right:12px; z-index:9999;">
@@ -24,16 +46,40 @@ Harlowe 3
 (if: $statusOpen is true)[
   <div style="position:fixed; top:50px; right:12px; width:220px; z-index:9998; background:#ffffff; color:#111; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
     <h3 style="margin:0 0 8px 0; font-size:15px; color:#333;">Status</h3>
-    (if: $friendImg is not "")[
-        (set: _imgSrc to $friendImg)
-        (if: $bullyingLevel is 1)[(set: _imgSrc to "person1_1.png")]
-        (else-if: $bullyingLevel is 2)[(set: _imgSrc to "person1_2.png")]
-        (else-if: $bullyingLevel is 3)[(set: _imgSrc to "person2_1.png")]
-        (else-if: $bullyingLevel >= 4)[(set: _imgSrc to "person2_2.png")]
+    (if: $friendImgBase is not "")[
+        (set: _state to "_safe")
+        (if: (passage:)'s name is "Ending5")[
+            (set: _state to "_golden")
+        ]
+        (else-if: $bullyingLevel >= 3)[
+            (set: _state to "_trauma")
+        ]
+        (else-if: $bullyingLevel is 2)[
+            (set: _state to "_suffer")
+        ]
+        (else-if: $bullyingLevel is 1)[
+            (set: _state to "_isolated")
+        ]
+        (else:) [<!-- Only check friendship if bullying level is 0 -->
+            (if: $friendship < 0)[
+                (set: _state to "_suffer")
+            ]
+            (else-if: $friendship < 20)[
+                (set: _state to "_isolated")
+            ]
+        ]
+
+        (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
         (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 6px; margin-bottom: 8px;">')
     ]
     <b>Name:</b> (print:$friendName)<br>
-    <b>Friendship:</b> (print:$friendship)<br>
+    <b>Friendship:</b>
+    (cond:
+        $friendship >= 40, "Vibrant",
+        $friendship >= 20, "Peaceful",
+        $friendship >= 0, "Isolated",
+        true, "Suffer"
+    )<br>
     <b>Mental State:</b>
     (cond:
       $bullyingLevel is 0, "Safe",
@@ -48,7 +94,9 @@ Harlowe 3
 (set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
-(set: $friendImg to "")
+(set: $friendImgBase to "", $friendImgExt to "")
+(set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
+(set: $doomedToEnd1 to false)
 
 <h2>Pull or Let Go</h2>
 It’s the beginning of the semester. Two weeks have passed, and today a <b>new student</b> arrives.
@@ -64,34 +112,46 @@ It’s the beginning of the semester. Two weeks have passed, and today a <b>new 
 .char-choice .image-wrapper:hover img { border-color: #4a90e2; }
 .char-choice .img-hover { opacity: 0; transition: opacity 0.3s; }
 .char-choice .image-wrapper:hover .img-hover { opacity: 1; }
-.char-choice .hidden-link { display: none; } /* Hide the text of link-reveal */
+.char-choice .hidden-link { display: none; }
 </style>
 
 <h2>The new student looks like...</h2>
 <div class="char-choice-container">
     <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person1_1.png" class="img-normal"><img src="person1_2.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a short-haired student in a hoodie")
-            (set: $friendImg to "person1_1.png")
+        (link-reveal: '<div class="image-wrapper"><img src="person1_safe.jpg" class="img-normal"><img src="person1_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with spiky blond hair and a sporty headband")
+            (set: $friendImgBase to "person1")
+            (set: $friendImgExt to ".jpg")
             (goto: "NameChoice")
         ]
-        Short hair, casual hoodie
+        Brown hair, friendly wink
     </div>
     <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person2_1.png" class="img-normal"><img src="person2_2.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a long-haired student with glasses")
-            (set: $friendImg to "person2_1.png")
+        (link-reveal: '<div class="image-wrapper"><img src="person2_safe.jpg" class="img-normal"><img src="person2_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with brown hair and a friendly wink")
+            (set: $friendImgBase to "person2")
+            (set: $friendImgExt to ".jpg")
             (goto: "NameChoice")
         ]
-        Long hair, with glasses
+        Braided pigtails, red glasses
     </div>
     <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person3_1.png" class="img-normal"><img src="person3_2.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a sporty student with a backpack")
-            (set: $friendImg to "person3_1.png")
+        (link-reveal: '<div class="image-wrapper"><img src="person3_safe.jpg" class="img-normal"><img src="person3_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with cute double buns and earrings")
+            (set: $friendImgBase to "person3")
+            (set: $friendImgExt to ".jpg")
             (goto: "NameChoice")
         ]
-        Sporty, with a backpack
+        Cute double buns, earrings
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person4_safe.jpg" class="img-normal"><img src="person4_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with braided pigtails and red glasses")
+            (set: $friendImgBase to "person4")
+            (set: $friendImgExt to ".jpg")
+            (goto: "NameChoice")
+        ]
+        Spiky blond hair, sporty headband
     </div>
 </div>
 
@@ -99,11 +159,10 @@ It’s the beginning of the semester. Two weeks have passed, and today a <b>new 
 :: NameChoice
 The (print:$friendLook) steps forward and introduces themselves:
 “Hi everyone, my name is…”
-
 (set: _n to (prompt: "Enter their name:", "Alex"))
 (set: $friendName to (cond: _n is "", "???", true, _n))
-
 You greet them warmly and learn their name is **(print:$friendName)**.
+<br>
 [[Let's begin->SemesterHub]]
 
 :: SemesterHub
@@ -112,13 +171,13 @@ You greet them warmly and learn their name is **(print:$friendName)**.
 ]
 (else:)[
   <h2>
-    (cond: 
-      $gameProgress <= 3, "Year 1", 
+    (cond:
+      $gameProgress <= 3, "Year 1",
       $gameProgress <= 7, "Year 2",
       $gameProgress <= 11, "Year 3",
       true, "Year 4"
-    ), 
-    (cond: 
+    ),
+    (cond:
       $gameProgress is 0 or $gameProgress is 1 or $gameProgress is 4 or $gameProgress is 8 or $gameProgress is 12 or $gameProgress is 13, "Fall Semester",
       true, "Winter Semester"
     )
@@ -135,13 +194,13 @@ You greet them warmly and learn their name is **(print:$friendName)**.
   (else-if: $gameProgress is 5)[ [[March: Time to choose an interest club->Year2-Event]] ]
   (else-if: $gameProgress is 6)[ [[You overhear some harsh words near the lockers...->BullyingEvent2]] ]
   (else-if: $gameProgress is 7)[ [[May: Attend the end-of-finals party->RecurringEvent-Party]] ]
-  
+
   <!-- Year 3 Events -->
   (else-if: $gameProgress is 8)[ [[October: Review for midterm exams->RecurringEvent-Midterm]] ]
   (else-if: $gameProgress is 9)[ [[You see a group cornering (print:$friendName) after school...->BullyingEvent3]] ]
   (else-if: $gameProgress is 10)[ [[May: Attend the end-of-finals party->RecurringEvent-Party]] ]
   (else-if: $gameProgress is 11)[ [[June: It's time to find an internship->Year3-Event]] ]
-  
+
   <!-- Year 4 Events -->
   (else-if: $gameProgress is 12)[ [[October: Review for midterm exams->RecurringEvent-Midterm]] ]
   (else-if: $gameProgress is 13)[ [[December: It's almost Christmas->RecurringEvent-Christmas]] ]
@@ -152,22 +211,30 @@ You greet them warmly and learn their name is **(print:$friendName)**.
 
 :: RecurringEvent-Midterm
 It's October. You're studying in the library for midterms. (print:$friendName) is struggling with a concept you understand well.
+<br>
 [[Offer to study together->Midterm-Help]]
+<br>
 [[Focus on your own review->Midterm-Ignore]]
 
 :: RecurringEvent-Christmas
 It's December, the last day of class before the holiday.
+<br>
 [[Wish (print:$friendName) a Merry Christmas->Christmas-Help]]
+<br>
 [[Just pack your bag and leave->Christmas-Ignore]]
 
 :: RecurringEvent-FindClass
 It's February, the start of the winter semester. You and (print:$friendName) have a class in the confusing 'C-Wing'.
+<br>
 [[Suggest you find the classroom together->FindClass-Help]]
+<br>
 [[Let them figure it out on their own->FindClass-Ignore]]
 
 :: RecurringEvent-Party
 It's May, and the stress of final exams is over. Someone is hosting a party to celebrate.
+<br>
 [[Ask (print:$friendName) if they want to go with you->Party-Help]]
+<br>
 [[You'd rather go alone->Party-Ignore]]
 
 :: Midterm-Help
@@ -212,7 +279,9 @@ You head to the party by yourself. You see (print:$friendName) there, standing a
 
 :: Year1-Event
 At the new student orientation, everyone is trying to make friends. You see (print:$friendName) standing alone by the punch bowl.
+<br>
 [[Walk over and say hello->Y1-Help]]
+<br>
 [[Hang out with your other friends->Y1-Ignore]]
 
 :: Y1-Help
@@ -228,7 +297,9 @@ You decide to hang out with your other friends instead. You glance over later, b
 
 :: Year2-Event
 It's time to join an after-school club. There are posters everywhere for sports, arts, and academic clubs. (print:$friendName) seems interested in the same one as you.
+<br>
 [[Encourage them and join together->Y2-Help]]
+<br>
 [[Decide to join a different club->Y2-Ignore]]
 
 :: Y2-Help
@@ -244,7 +315,9 @@ You decide it's better to do your own thing. You see them less and less outside 
 
 :: Year3-Event
 The pressure is on to find a good internship. You find an opening at a great company, but there's only one spot you can recommend a friend for. (print:$friendName) is on your mind—but so is another classmate who’s also qualified.
+<br>
 [[Recommend (print:$friendName)->Y3-Help]]
+<br>
 [[Recommend someone else->Y3-Ignore]]
 
 :: Y3-Help
@@ -260,7 +333,9 @@ You forward the opening to someone else. (print:$friendName) hears about it late
 
 :: Year4-Event
 The final graduation project determines everything. It’s a massive undertaking, and choosing a partner will shape the last months of your degree.
+<br>
 [[Partner with (print:$friendName) on the capstone->Y4-Help]]
+<br>
 [[Work with someone else / go solo->Y4-Ignore]]
 
 :: Y4-Help
@@ -276,42 +351,53 @@ You decide it’s better to team with someone else—or go it alone. (print:$fri
 
 :: BullyingEvent1
 You're in the library and notice a group get up and move away the moment (print:$friendName) sits at their table. They are being intentionally **isolated**.
+<br>
 [[What do you do?->BullyingChoice]]
 
 :: BullyingEvent2
 You overhear a group whispering cruel jokes about (print:$friendName)'s appearance near the lockers. The **verbal attacks** are sharp and meant to be heard.
+<br>
 [[What do you do?->BullyingChoice]]
 
 :: BullyingEvent3
 You see a group "accidentally" trip (print:$friendName) in the hallway. They knock books to the ground and laugh. The **physical aggression** was clearly intentional.
+<br>
 [[What do you do?->BullyingChoice]]
 
 :: BullyingChoice
-(if: $playerBullied is true)[
-  You've joined them before. What now?
+(if: $gameProgress is 9 and ($bulliedInEvent1 or $bulliedInEvent2)) [
+  The situation is escalating. After what happened before, you feel a pang of guilt. This is your chance to make things right... or make them much worse.
   <br>
-  [[Join in again->BullyChoice-Bully]]
+  [[Have a change of heart and protect them.->RedemptionChoice]]
   <br>
-  [[Walk away this time.->BullyChoice-Ignore]]
+  [[Look away. It's not your problem.->Redemption-Ignore]]
+  <br>
+  [[Join the bullies. It's just easier.->BullyChoice-Bully]]
 ]
-(else-if: $playerHelped is true)[
-  You've helped before. Do you step in again?
-  <br>
-  (if: $gameProgress is 2)[[[Step in and confront them->MiniGame1]]]
-  (else-if: $gameProgress is 6)[[[Step in and confront them->MiniGame2]]]
-  (else-if: $gameProgress is 9)[[[Step in and confront them->MiniGame3]]]
-  <br>
-  [[This time, you don't intervene->BullyChoice-Ignore]]
-]
-(else:)[
-  (if: $gameProgress is 2)[[[Step in and confront them->MiniGame1]]]
-  (else-if: $gameProgress is 6)[[[Step in and confront them->MiniGame2]]]
-  (else-if: $gameProgress is 9)[[[Step in and confront them->MiniGame3]]]
+(else:) [
+  [[Step in and confront them->Bullying-Help]]
   <br>
   [[Pretend you saw nothing and walk away->BullyChoice-Ignore]]
   <br>
   [[Join in. It's easier than being the next target.->BullyChoice-Bully]]
 ]
+
+:: Bullying-Help
+(if: $gameProgress is 2)[(goto: "MiniGame1")]
+(else-if: $gameProgress is 6)[(goto: "MiniGame2")]
+(else-if: $gameProgress is 9)[(goto: "MiniGame3")]
+
+:: RedemptionChoice
+You have a change of heart. Remembering how you treated them before fills you with shame, and you resolve to stand up for them now. You step in, shielding them from the bullies. "Leave them alone," you say, your voice firm. The bullies, surprised by your sudden intervention, back off.
+<br><br>
+[[Your choice is made...->Ending2]]
+
+:: Redemption-Ignore
+You look away. The guilt is heavy, but you do nothing. The laughter of the bullies echoes in your ears.
+(set: $doomedToEnd1 to true)
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to it - 10)
+(set: $gameProgress to $gameProgress + 1)(link-goto: "Continue", "SemesterHub")
 
 :: BullyChoice-Win
 You intervene successfully. The bullies back off. (print:$friendName) looks at you with gratitude. You've made it clear whose side you're on.
@@ -335,59 +421,72 @@ You tried to help, but it didn't work out. The result is the same as if you had 
 You join the bullies with a cruel laugh or shove. A line has been crossed. You've chosen your path.
 (set: $playerBullied to true)
 (set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to it - 30)
+(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
+(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
+(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
+
 (set: $gameProgress to $gameProgress + 1)(link-goto: "There's no going back.", "SemesterHub")
 
+
 :: Graduation
-(if: $playerBullied)[
-  [[Your journey ends here.->Ending1]]
+(if: $doomedToEnd1)[
+    [[Your journey ends here.->Ending1]]
 ]
 (else:)[
-  (if: $friendship >= 40)[ <!-- Good Friend Path -->
-    (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending5]] ]
-    (else-if: $bullyingLevel is 1 or $bullyingLevel is 2)[ [[Your journey ends here.->Ending2]] ]
-    (else:)[ [[Your journey ends here.->Ending6]] ]
-  ]
-  (else:)[ <!-- Normal Classmate Path -->
-    (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending2]] ]
-    (else-if: $bullyingLevel is 1)[ [[Your journey ends here.->Ending3]] ]
-    (else-if: $bullyingLevel is 2)[ [[Your journey ends here.->Ending4]] ]
-    (else:)[ [[Your journey ends here.->Ending7]] ]
-  ]
+    (if: $friendship >= 40)[ <!-- Good Friend Path -->
+        (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending5]] ]
+        (else-if: $bullyingLevel is 1 or $bullyingLevel is 2)[ [[Your journey ends here.->Ending2]] ]
+        (else:)[ [[Your journey ends here.->Ending6]] ]
+    ]
+    (else:)[ <!-- Normal Classmate Path -->
+        (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending2]] ]
+        (else-if: $bullyingLevel is 1)[ [[Your journey ends here.->Ending3]] ]
+        (else-if: $bullyingLevel is 2)[ [[Your journey ends here.->Ending4]] ]
+        (else:)[ [[Your journey ends here.->Ending7]] ]
+    ]
 ]
 
 :: Ending1
 <h2>Ending 1: The Cycle of Violence</h2>
 After graduation, a twist of fate finds you. You ultimately become a victim of bullying yourself.
+<br>
 [[Play Again?->Start]]
 
 :: Ending2
 <h2>Ending 2: Minor Trauma</h2>
 Your classmate graduates, but because of what they went through, they are left with minor psychological trauma. They move to an ordinary small town to start over, and you never hear from them again.
+<br>
 [[Play Again?->Start]]
 
 :: Ending3
 <h2>Ending 3: Disappearance</h2>
 After graduation, you never hear from your classmate again. It's as if they vanished from the face of the earth.
+<br>
 [[Play Again?->Start]]
 
 :: Ending4
 <h2>Ending 4: New Target</h2>
-Your classmate discusses with their family and decides to transfer schools to leave the sad city behind. Though they escaped, the culture of bullying didn't disappear. Soon, they find a new target—you, the one who once stood by and watched.
+Your classmate discusses with their family and decides to transfer schools to leave the sad city behind. Though they escaped, the culture of bullying didn't disappear. Soon, a new target—you, the one who once stood by and watched.
+<br>
 [[Play Again?->Start]]
 
 :: Ending5
 <h2>Ending 5: Golden Ending</h2>
 You two support each other, and in the end, you both graduate successfully and join a great company together. Your friendship became the strongest shield.
+<br>
 [[Play Again?->Start]]
 
 :: Ending6
 <h2>Ending 6: Shared Scars</h2>
 Because you chose to be their good friend, you also became a target. In the end, both you and your classmate are bullied. You graduate together, bearing shared scars.
+<br>
 [[Play Again?->Start]]
 
 :: Ending7
 <h2>Ending 7: Tragedy & Repercussion</h2>
 The final bullying incident was too much to bear, and your classmate took their own life.
+<br>
 [[Play Again?->Start]]
 
 :: MiniGame1
@@ -413,9 +512,7 @@ You decide to intervene. A direct confrontation might make things worse. You nee
 <br>
 What do you do?
 
-<br>
-[[‘Accidentally’ drop your heavy stack of books near their table.->MiniGame1-Win]]
-<br>
+
 (set: _displayChoices to (shuffled: ...$allWrongChoices))
 (for: each _choice, ..._displayChoices)[
     (if: $chosenWrongChoices contains _choice)[
@@ -428,10 +525,13 @@ What do you do?
       ]<br>
     ]
 ]
-
+<br>
+[[‘Accidentally’ drop your heavy stack of books near their table.->MiniGame1-Win]]
+<br>
 
 :: MiniGame1-Win
 You create a loud clatter. Everyone turns to look. In the confusion, you walk over to (print:$friendName) and whisper, "Let's get out of here." It works perfectly.
+<br>
 [[Success!->BullyChoice-Win]]
 
 :: MiniGame2
@@ -460,7 +560,7 @@ You need to gather your thoughts to say the right thing. Repeat the pattern of c
     <div id="start-pattern-btn-container" style="margin-top: 1em;">
         (link: "Start")[ ]
     </div>
-    <div id="pattern-win-container" style="display:none;">(link-goto:"Success!", "BullyChoice-Win")</div>
+    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win")]</div>
 </div>
 
 <script>
@@ -472,7 +572,7 @@ setTimeout(() => {
     const startBtnContainer = gameContainer.querySelector('#start-pattern-btn-container');
     const winContainer = gameContainer.querySelector('#pattern-win-container');
     const buttons = Array.from(gameContainer.querySelectorAll('.pattern-btn'));
-    
+
     let sequence = [];
     let playerSequence = [];
     let level = 3;
@@ -538,7 +638,7 @@ setTimeout(() => {
             }
         }
     }
-    
+
     const startLink = startBtnContainer.querySelector('tw-link');
     if (startLink) {
         startLink.addEventListener('click', () => {
@@ -569,9 +669,9 @@ You see (print:$friendName) stumble and their books go flying. The bullies are l
 <div id="maze-win-container" style="text-align: center; display: none;">
     Success! You helped them gather their things.
     <br>
-    (link-goto: "Continue", "BullyChoice-Win")
+    (link:"Continue")[(goto:"BullyChoice-Win")]
 </div>
-<div id="maze-fail-container" style="display:none;">(link-goto: "Continue", "BullyChoice-Fail")</div>
+<div id="maze-fail-container" style="display:none;">(link:"Continue")[(goto:"BullyChoice-Fail")]</div>
 
 <script>
   setTimeout(() => {
@@ -590,7 +690,7 @@ You see (print:$friendName) stumble and their books go flying. The bullies are l
             let maze = Array.from({ length: height }, () => Array(width).fill(1));
             let stack = [];
             let startX = 1, startY = 1;
-            
+
             maze[startY][startX] = 0;
             stack.push([startX, startY]);
 
@@ -637,7 +737,7 @@ You see (print:$friendName) stumble and their books go flying. The bullies are l
                 maze[openSpots[i].y][openSpots[i].x] = 3;
             }
         }
-        
+
         placeStars(maze, totalStars);
 
         let player = { x: 1, y: 1 };
@@ -682,7 +782,7 @@ You see (print:$friendName) stumble and their books go flying. The bullies are l
 
         function movePlayer(dx, dy) {
             if (window.mazeGameWon) return;
-            
+
             const newX = player.x + dx;
             const newY = player.y + dy;
 
@@ -715,7 +815,7 @@ You see (print:$friendName) stumble and their books go flying. The bullies are l
                 }
             }
         }
-        
+
         if(canvas) {
           canvas.cleanup = () => {
               window.removeEventListener('keydown', handleKey);
@@ -732,4 +832,5 @@ You see (print:$friendName) stumble and their books go flying. The bullies are l
     }
   }, 100);
 </script>
+
 
