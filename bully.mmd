@@ -1,74 +1,77 @@
 flowchart TD
-subgraph Initialization
-A[Start Game] --> B{Choose Friend's Look & Name}
-end
+    %% ========= Entry & Setup =========
+    A[Start Game] --> B{Choose Friend's Look & Name}
+    B --> Y1_Hub
 
-B --> Y1_Hub
+    %% ========= Year 1 (Events 0-3) =========
+    subgraph "Year 1 (Events 0-3)"
+        Y1_Hub[SEMESTER HUB] --> Y1_E1(Sept: New Student Orientation<br><i>Major Friendship +/-</i>)
+        Y1_E1 --> Y1_E2(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
+        Y1_E2 --> Y1_Bully(Bullying Event 1: <b>Isolation</b>)
+        Y1_Bully --> Y1_Choice{What do you do?}
+        Y1_Choice -- Help --> Y1_MG1[Mini-Game 1<br>Distraction Puzzle]
+        Y1_MG1 -- Success --> Y1_B_Help(<b>Outcome: Help</b><br>+Friendship<br>Lock 'Bully' option)
+        Y1_Choice -- Ignore --> Y1_B_Ignore(<b>Outcome: Ignore</b><br>-Friendship<br>+Bullying Level)
+        Y1_Choice -- Bully --> Y1_B_Bully(<b>Outcome: Bully</b><br>+Bullying Level<br>Lock 'Help' option)
+        Y1_B_Help --> Y1_E3
+        Y1_B_Ignore --> Y1_E3
+        Y1_B_Bully --> Y1_E3
+        Y1_E3(May: Finals Party<br><i>Minor Friendship +/-</i>)
+    end
 
-subgraph "Year 1 (Events 0-3)"
-    Y1_Hub[SEMESTER HUB] --> Y1_E1(Sept: New Student Orientation<br><i>Major Friendship +/-</i>)
-    Y1_E1 --> Y1_E2(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-    Y1_E2 --> Y1_Bully(Bullying Event 1: <b>Isolation</b>)
-    Y1_Bully --> Y1_Choice{What do you do?}
-    Y1_Choice -- Help --> Y1_MG1[Mini-Game 1<br>Distraction Puzzle]
-    Y1_MG1 -- Success --> Y1_B_Help(<b>Outcome: Help</b><br>+Friendship<br>Lock 'Bully' option)
-    Y1_Choice -- Ignore --> Y1_B_Ignore(<b>Outcome: Ignore</b><br>-Friendship<br>+Bullying Level)
-    Y1_Choice -- Bully --> Y1_B_Bully(<b>Outcome: Bully</b><br>+Bullying Level<br>Lock 'Help' option)
-    Y1_B_Help --> Y1_E3
-    Y1_B_Ignore --> Y1_E3
-    Y1_B_Bully --> Y1_E3
-    Y1_E3(May: Finals Party<br><i>Minor Friendship +/-</i>)
-end
+    Y1_E3 --> Y2_Hub
 
-Y1_E3 --> Y2_Hub
+    %% ========= Year 2 (Events 4-7) =========
+    subgraph "Year 2 (Events 4-7)"
+        Y2_Hub[SEMESTER HUB] --> Y2_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
+        Y2_E1 --> Y2_E2(Mar: Join Interest Club<br><i>Major Friendship +/-</i>)
+        Y2_E2 --> Y2_Bully(Bullying Event 2: <b>Verbal Abuse</b>)
+        Y2_Bully -- Help --> Y2_MG2[Mini-Game 2<br>Pattern Matching]
+        Y2_MG2 -- Success --> Y2_B_Outcome(Apply Outcome...)
+        Y2_Bully -- Ignore / Bully --> Y2_B_Outcome(Apply Outcome...)
+        Y2_B_Outcome --> Y2_E3(May: Finals Party<br><i>Minor Friendship +/-</i>)
+    end
 
-subgraph "Year 2 (Events 4-7)"
-    Y2_Hub[SEMESTER HUB] --> Y2_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-    Y2_E1 --> Y2_E2(Mar: Join Interest Club<br><i>Major Friendship +/-</i>)
-    Y2_E2 --> Y2_Bully(Bullying Event 2: <b>Verbal Abuse</b>)
-    Y2_Bully -- Help --> Y2_MG2[Mini-Game 2<br>Pattern Matching]
-    Y2_MG2 -- Success --> Y2_B_Outcome(Apply Outcome...)
-    Y2_Bully -- Ignore / Bully --> Y2_B_Outcome(Apply Outcome...)
-    Y2_B_Outcome --> Y2_E3(May: Finals Party<br><i>Minor Friendship +/-</i>)
-end
+    Y2_E3 --> Y3_Hub
 
-Y2_E3 --> Y3_Hub
+    %% ========= Year 3 (Events 8-11) =========
+    subgraph "Year 3 (Events 8-11)"
+        Y3_Hub[SEMESTER HUB] --> Y3_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
+        Y3_E1 --> Y3_Bully(Bullying Event 3: <b>Physical Aggression</b>)
+        Y3_Bully -- Help --> Y3_MG3[Mini-Game 3<br>Maze Puzzle]
+        Y3_MG3 -- Success --> Y3_B_Outcome(Apply Outcome...)
+        Y3_Bully -- Ignore / Bully --> Y3_B_Outcome(Apply Outcome...)
+        Y3_B_Outcome --> Y3_E2(May: Finals Party<br><i>Minor Friendship +/-</i>)
+        Y3_E2 --> Y3_E3(June: Find Internship<br><i>Major Friendship +/-</i>)
+    end
 
-subgraph "Year 3 (Events 8-11)"
-    Y3_Hub[SEMESTER HUB] --> Y3_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-    Y3_E1 --> Y3_Bully(Bullying Event 3: <b>Physical Aggression</b>)
-    Y3_Bully -- Help --> Y3_MG3[Mini-Game 3<br>Maze Puzzle]
-    Y3_MG3 -- Success --> Y3_B_Outcome(Apply Outcome...)
-    Y3_Bully -- Ignore / Bully --> Y3_B_Outcome(Apply Outcome...)
-    Y3_B_Outcome --> Y3_E2(May: Finals Party<br><i>Minor Friendship +/-</i>)
-    Y3_E2 --> Y3_E3(June: Find Internship<br><i>Major Friendship +/-</i>)
-end
+    Y3_E3 --> Y4_Hub
 
-Y3_E3 --> Y4_Hub
+    %% ========= Year 4 (Events 12-16) =========
+    subgraph "Year 4 (Events 12-16)"
+        Y4_Hub[SEMESTER HUB] --> Y4_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
+        Y4_E1 --> Y4_E2(Dec: Christmas Greeting<br><i>Minor Friendship +/-</i>)
+        Y4_E2 --> Y4_E3(Feb: Find Classroom<br><i>Minor Friendship +/-</i>)
+        Y4_E3 --> Y4_E4(Mar: Graduation Project<br><i>Major Friendship +/-</i>)
+        Y4_E4 --> Y4_E5(May: Finals Party<br><i>Minor Friendship +/-</i>)
+    end
 
-subgraph "Year 4 (Events 12-16)"
-    Y4_Hub[SEMESTER HUB] --> Y4_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-    Y4_E1 --> Y4_E2(Dec: Christmas Greeting<br><i>Minor Friendship +/-</i>)
-    Y4_E2 --> Y4_E3(Feb: Find Classroom<br><i>Minor Friendship +/-</i>)
-    Y4_E3 --> Y4_E4(Mar: Graduation Project<br><i>Major Friendship +/-</i>)
-    Y4_E4 --> Y4_E5(May: Finals Party<br><i>Minor Friendship +/-</i>)
-end
+    Y4_E5 --> Grad{Graduation}
 
-Y4_E5 --> Grad{Graduation}
+    %% ========= Endings =========
+    subgraph Endings
+        Grad --> Cond1{Player Bullied?}
+        Cond1 -- Yes --> End1([<b>Ending 1</b><br>Cycle of Violence])
+        Cond1 -- No --> Cond2{Friendship >= 40?}
+        
+        Cond2 -- "Yes (Good Friend)" --> Cond3{Mental State?}
+        Cond3 -- "Safe" --> End5([<b>Ending 5</b><br>Golden Ending])
+        Cond3 -- "Isolated / Attacked" --> End2_A([<b>Ending 2</b><br>Minor Trauma])
+        Cond3 -- "Trauma" --> End6([<b>Ending 6</b><br>Shared Scars])
 
-subgraph Endings
-    Grad --> Cond1{Player Bullied?}
-    Cond1 -- Yes --> End1([<b>Ending 1</b><br>Cycle of Violence])
-    Cond1 -- No --> Cond2{Friendship >= 40?}
-    
-    Cond2 -- "Yes (Good Friend)" --> Cond3{Mental State?}
-    Cond3 -- "Safe" --> End5([<b>Ending 5</b><br>Golden Ending])
-    Cond3 -- "Isolated / Attacked" --> End2_A([<b>Ending 2</b><br>Minor Trauma])
-    Cond3 -- "Trauma" --> End6([<b>Ending 6</b><br>Shared Scars])
-
-    Cond2 -- "No (Classmate)" --> Cond4{Mental State?}
-    Cond4 -- "Safe" --> End2_B([<b>Ending 2</b><br>Minor Trauma])
-    Cond4 -- "Isolated" --> End3([<b>Ending 3</b><br>Disappearance])
-    Cond4 -- "Attacked" --> End4([<b>Ending 4</b><br>New Target])
-    Cond4 -- "Trauma" --> End7([<b>Ending 7</b><br>Tragedy & Repercussion])
-end
+        Cond2 -- "No (Classmate)" --> Cond4{Mental State?}
+        Cond4 -- "Safe" --> End2_B([<b>Ending 2</b><br>Minor Trauma])
+        Cond4 -- "Isolated" --> End3([<b>Ending 3</b><br>Disappearance])
+        Cond4 -- "Attacked" --> End4([<b>Ending 4</b><br>New Target])
+        Cond4 -- "Trauma" --> End7([<b>Ending 7</b><br>Tragedy & Repercussion])
+    end
