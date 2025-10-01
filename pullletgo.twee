@@ -1,0 +1,158 @@
+:: StoryTitle
+Pull or Let Go
+
+:: StoryFormat
+Harlowe 3
+
+:: StoryInit
+(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
+(set: $gameProgress to 0)
+(set: $friendLook to "", $friendName to "???", $statusOpen to false)
+(set: $friendImgBase to "", $friendImgExt to "")
+(set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
+(set: $doomedToEnd1 to false)
+
+:: StoryStylesheet [stylesheet]
+tw-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 50px;
+}
+
+tw-passage {
+    width: 100%;
+    max-width: 800px; /* Increased width to accommodate four choices */
+    text-align: left;
+}
+
+tw-passage:not(:last-of-type) {
+    display: none;
+}
+
+
+:: UI-Status [header]
+<div style="position:fixed; top:12px; right:12px; z-index:9999;">
+  <span style="display:inline-block; background:#4a90e2; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-family:sans-serif; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;">
+    (if: $statusOpen is true)[
+      (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
+    ]
+    (else:)[
+      (link: "☰ Field Notes")[ (set: $statusOpen to true)(goto: (passage:)'s name) ]
+    ]
+  </span>
+</div>
+(if: $statusOpen is true)[
+  <div style="position:fixed; top:50px; right:12px; width:220px; z-index:9998; background:#ffffff; color:#111; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
+    <h3 style="margin:0 0 8px 0; font-size:15px; color:#333;">Field Notes</h3>
+    (if: $friendImgBase is not "")[
+        (set: _state to "_safe")
+        (if: (passage:)'s name is "Ending5")[
+            (set: _state to "_golden")
+        ]
+        (else-if: $bullyingLevel >= 3)[
+            (set: _state to "_trauma")
+        ]
+        (else-if: $bullyingLevel is 2)[
+            (set: _state to "_suffer")
+        ]
+        (else-if: $bullyingLevel is 1)[
+            (set: _state to "_isolated")
+        ]
+        (else:) [<!-- Only check friendship if bullying level is 0 -->
+            (if: $friendship < 0)[
+                (set: _state to "_suffer")
+            ]
+            (else-if: $friendship < 20)[
+                (set: _state to "_isolated")
+            ]
+        ]
+
+        (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
+        (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 6px; margin-bottom: 8px;">')
+    ]
+    <b>Codename:</b> (print:$friendName)<br>
+    <b>Bond:</b>
+    (cond:
+        $friendship >= 40, "Solid",
+        $friendship >= 20, "Steady",
+        $friendship >= 0, "Distant",
+        true, "Frayed"
+    )<br>
+    <b>Headspace:</b>
+    (cond:
+      $bullyingLevel is 0, "Safe ground",
+      $bullyingLevel is 1, "Alone in the crowd",
+      $bullyingLevel is 2, "Under verbal fire",
+      true, "Trauma critical"
+    )<br>
+  </div>
+]
+
+:: Start
+<h2>Pull or Let Go</h2>
+First day back, two quiet weeks in. Then the classroom door slides open—and a <b>new student</b> steps in. My stomach does that nervous flip.
+<h3>What do they look like?</h3>
+[[I lean in for a better look->NewStudent]]
+
+:: NewStudent
+<style>
+.char-choice-container { display: flex; justify-content: space-around; text-align: center; }
+.char-choice { width: 150px; }
+.char-choice .image-wrapper { position: relative; width: 150px; height: 150px; cursor: pointer; }
+.char-choice img { width: 100%; height: 150px; border-radius: 10px; display: block; position: absolute; top: 0; left: 0; border: 3px solid transparent; transition: border-color 0.3s; }
+.char-choice .image-wrapper:hover img { border-color: #4a90e2; }
+.char-choice .img-hover { opacity: 0; transition: opacity 0.3s; }
+.char-choice .image-wrapper:hover .img-hover { opacity: 1; }
+.char-choice .hidden-link { display: none; }
+</style>
+
+<h2>The new student looks like...</h2>
+<div class="char-choice-container">
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person1_safe.jpg" class="img-normal"><img src="person1_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with spiky blond hair and a sporty headband")
+            (set: $friendImgBase to "person1")
+            (set: $friendImgExt to ".jpg")
+            (goto: "NameChoice")
+        ]
+        Spiky blond hair, sporty headband
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person2_safe.jpg" class="img-normal"><img src="person2_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with brown hair and a friendly wink")
+            (set: $friendImgBase to "person2")
+            (set: $friendImgExt to ".jpg")
+            (goto: "NameChoice")
+        ]
+        Brown hair, a warm, easy wink
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person3_safe.jpg" class="img-normal"><img src="person3_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with cute double buns and earrings")
+            (set: $friendImgBase to "person3")
+            (set: $friendImgExt to ".jpg")
+            (goto: "NameChoice")
+        ]
+        Double buns, tiny silver earrings
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person4_safe.jpg" class="img-normal"><img src="person4_hover.jpg" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with braided pigtails and red glasses")
+            (set: $friendImgBase to "person4")
+            (set: $friendImgExt to ".jpg")
+            (goto: "NameChoice")
+        ]
+        Braided pigtails, bright red glasses
+    </div>
+</div>
+
+:: NameChoice
+The (print:$friendLook) steps forward and clears their throat.  
+“Hey… my name is…”  
+(set: _n to (prompt: "Enter their name:", "Alex"))  
+(set: $friendName to (cond: _n is "", "???", true, _n))  
+I smile before I can stop myself. So it’s **(print:$friendName)**.  
+<br>  
+[[Okay. Deep breath. Let’s start this semester->SemesterHub]]
