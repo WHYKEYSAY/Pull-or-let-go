@@ -1,0 +1,998 @@
+:: StoryTitle
+Pull or Let Go
+
+:: StoryFormat
+Harlowe 3
+
+:: StoryInit
+(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
+(set: $gameProgress to 0)
+(set: $friendLook to "", $friendName to "???", $statusOpen to false)
+(set: $friendImgBase to "", $friendImgExt to "")
+(set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
+(set: $doomedToEnd1 to false)
+(set: $redemption to 0)
+
+:: StoryStylesheet [stylesheet]
+tw-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 0px; /* Adjusted padding-top to 0 to allow body background to show */
+}
+
+tw-passage {
+    width: 100%;
+    max-width: 800px;
+    text-align: left;
+    background-color: transparent; /* Ensure passage background is transparent */
+    padding: 2em; /* Add some padding to passage content */
+}
+
+tw-passage:not(:last-of-type) {
+    display: none;
+}
+
+a.link-internal, a.link-external {
+    color: #fca5a5;
+    border-bottom: 1px solid #fca5a5;
+}
+
+.char-choice-container { 
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 30px; /* Space between items */
+    place-items: center; /* Center items in their grid cells */
+    margin-top: 20px;
+}
+.char-choice { 
+    width: 250px; /* Maintain individual choice width */
+    text-align: center;
+    font-size: 1.2em;
+}
+.char-choice .image-wrapper { 
+    position: relative; 
+    width: 200px; /* Increased image size */
+    height: 200px; /* Increased image size */
+    cursor: pointer; 
+}
+.char-choice img { 
+    width: 100%; 
+    height: 200px; 
+    border-radius: 10px; 
+    display: block; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    border: 3px solid transparent; 
+    transition: border-color 0.3s; 
+}
+.char-choice .image-wrapper:hover img { 
+    border-color: #4a90e2; 
+}
+.char-choice .img-hover { 
+    opacity: 0; 
+    transition: opacity 0.3s; 
+}
+.char-choice .image-wrapper:hover .img-hover { 
+    opacity: 1; 
+}
+.char-choice .hidden-link { 
+    display: none; 
+}
+
+
+:: UI-Status [header]
+<div style="position:fixed; top:12px; right:12px; z-index:9999;">
+  <span style="display:inline-block; background:#4a90e2; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-family:sans-serif; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;">
+    (if: $statusOpen is true)[
+      (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
+    ]
+    (else:)[
+      (link: "☰ Field Notes")[ (set: $statusOpen to true)(goto: (passage:)'s name) ]
+    ]
+  </span>
+</div>
+(if: $statusOpen is true)[
+    <style>
+        .field-notes-bg {
+            background-image: url("start.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: rgba(0, 0, 0, 0.7); /* Black overlay with 70% opacity */
+            color: #fff !important;
+            text-shadow: 1px 1px 2px #000;
+        }
+    </style>
+  <div class="field-notes-bg" style="position:fixed; top:50px; right:12px; width:220px; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
+    <h3 style="margin:0 0 8px 0; font-size:15px; color:#fff;">Field Notes</h3>
+    (if: $friendImgBase is not "")[
+        (set: _state to "_safe")
+        (if: (passage:)'s name is "Ending5")[
+            (set: _state to "_golden")
+        ]
+        (else-if: $bullyingLevel >= 3)[
+            (set: _state to "_trauma")
+        ]
+        (else-if: $bullyingLevel is 2)[
+            (set: _state to "_suffer")
+        ]
+        (else-if: $bullyingLevel is 1)[
+            (set: _state to "_isolated")
+        ]
+        (else:) [(if: $friendship < 0)[
+                (set: _state to "_suffer")
+            ]
+            (else-if: $friendship < 20)[
+                (set: _state to "_isolated")
+            ]
+        ]
+
+        (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
+        (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 6px; margin-bottom: 8px;">')
+    ]
+    <b>Codename:</b> (print:$friendName)<br>
+    <b>Bond:</b>
+    (cond:
+        $friendship >= 40, "Solid",
+        $friendship >= 20, "Steady",
+        $friendship >= 0, "Distant",
+        true, "Frayed"
+    )<br>
+    <b>Headspace:</b>
+    (cond:
+      $bullyingLevel is 0, "Safe ground",
+      $bullyingLevel is 1, "Alone in the crowd",
+      $bullyingLevel is 2, "Under verbal fire",
+      true, "Trauma critical"
+    )<br>
+  </div>
+]
+
+:: Start
+(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
+(set: $gameProgress to 0)
+(set: $friendLook to "", $friendName to "???", $statusOpen to false)
+(set: $friendImgBase to "", $friendImgExt to "")
+(set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
+(set: $doomedToEnd1 to false)
+(set: $redemption to 0)
+
+<h2>Pull or Let Go</h2>
+我​怀​着​激动​的​心情​开启​了​我​的​高中​生活，​我​也​结交​了​很多​新​的​朋友，​第三​周​突然班里​出现​了​一​个​新面孔，​原来​是​**转校生**​因为​家里​原因​所以​晚到​了​三​周。。。​
+
+[[​我​看​着​they ->NewStudent]]
+
+:: NewStudent
+<style>
+/* This block is repeated for clarity, but ideally belongs in StoryStylesheet */
+.char-choice-container { 
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 30px; /* Space between items */
+    place-items: center; /* Center items in their grid cells */
+    margin-top: 20px;
+}
+.char-choice { 
+    width: 250px; /* Maintain individual choice width */
+    text-align: center;
+    font-size: 1.2em;
+}
+.char-choice .image-wrapper { 
+    position: relative; 
+    width: 200px; /* Increased image size */
+    height: 200px; /* Increased image size */
+    cursor: pointer; 
+}
+.char-choice img { 
+    width: 100%; 
+    height: 200px; 
+    border-radius: 10px; 
+    display: block; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    border: 3px solid transparent; 
+    transition: border-color 0.3s; 
+}
+.char-choice .image-wrapper:hover img { 
+    border-color: #4a90e2; 
+}
+.char-choice .img-hover { 
+    opacity: 0; 
+    transition: opacity 0.3s; 
+}
+.char-choice .image-wrapper:hover .img-hover { 
+    opacity: 1; 
+}
+.char-choice .hidden-link { 
+    display: none; 
+}
+</style>
+
+<h2>The new student looks like...</h2>
+<div class="char-choice-container">
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person1_safe.png" class="img-normal"><img src="person1_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with brown hair and a friendly wink")
+            (set: $friendImgBase to "person1")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+        chubby boy，bowl haircut, cute, acne on his face
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person2_safe.png" class="img-normal"><img src="person2_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with braided pigtails and red glasses")
+            (set: $friendImgBase to "person2")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+        twin braids, wearing glasses, freckles
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person3_safe.png" class="img-normal"><img src="person3_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with cute double buns and earrings")
+            (set: $friendImgBase to "person3")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+        A double bun hairstyle, neat and elegant, quiet demeanor
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person4_safe.png" class="img-normal"><img src="person4_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with spiky blond hair and a sporty headband")
+            (set: $friendImgBase to "person4")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+        gentle, sunny, sporty and refined, without glasses
+    </div>
+</div>
+
+
+:: NameChoice
+
+一​个(print:$friendLook)样​的​学生​清​了​清嗓子：​“嗨，​大家​好，​我​是。。。​很​高兴​认识​大家​~”​新同学​介绍​完坐​到​座位​上，​其他​同学​因为​这​三​周​的​了解​已经​开始​打成​一片。​
+”​安静​一下，​我们​开始​上​课啦​“老师​像​哄​小​朋友​一样​开始​讲课。​
+(set: _n to (prompt: "Enter their name:", "Alex"))
+(set: $friendName to (cond: _n is "", "???", true, _n))
+I smile before I can stop myself. So it’s **(print:$friendName)**.
+<br>
+[[好​吧，​我​深呼​吸，​让​我们​开启​我们​的​新​旅程​吧！​->NewStudentHub]]
+:: NewStudentHub
+第一​年​刚​开学​不久，​我​怀​着​轻松​的​学习​和​激动​兴奋​的​心。​一​部分​同学自发​组织​起派​对​活动​邀请​大家​参加​
+<br>
+[[哇好​激动，​我​当然​要​去​参加​啦！​->MeetNewstudent]]
+
+:: MeetNewstudent
+在​我​填​完报​名​表后​开心​地​哼​着​歌时，​突然​看到​在​那边​自己​坐​着​的​新​同学。​
+​“诶？​她​/​他​怎么​一​个​人​在​那​坐​着，​看​着​好像​很​孤独​的​样子，​估计​刚​来​谁​都​不​认识​吧，​那​他​/​她​会​去​参加派​对​吗？”​我​内心​产生​了​疑惑​
+<br>
+[[​我​去​问​问看，​尝试​邀约​一下​看​想​不​想​和​我​一起​去​~->NewParty-Help]]
+<br>
+[[算​了，​估计​她​/​他​有​自己​的​安排，​我​还是​先​和​我​刚​结交​的​朋友们​去​一起​玩​吧~->NewParty-Ignore]]
+
+:: NewParty-Help
+“hi，​怎么​一​个​人​坐​着​呢？​你​填报​名​表​了​吗？​要​不​要​一起​去​par​ty​呀？！”​我​询问​到​
+“啊。。​em。。​我​还​没。。。​但是​可以​呀，​我​现在​去​报名”​新生磕​磕​巴巴地​说​完​就​去填​写​报​名​表​了​
+<br>
+[[​参加​完​这​次​活动​过​了​一​段​很​平静​的​学习​生活->Midterm]]
+
+:: NewParty-Ignore
+“he​y!​你们​打算​几​点​出​发！​我​还​挺​激动​的​不​知道​有​什么​好玩​的”​
+“是​呀，​我​家​里​比较​远，​我​可能​会​晚点到”​
+“你​家​在​哪，​我​说​不定​可以​顺路带​你们，​顺便​去​兜兜​风！”​
+“哇，​好酷！！！​“
+。。。​
+<br>
+[[们​你​一言​我​一语​地​计划​着​我们​的​行程，​我​想，​我​的​高中​生活​一定​会​很​有​趣​吧！->Midterm]]
+
+:: Midterm
+转眼​来到​了​十月，​我​面对​即将​到​来​的​期​中​考试​发愁​了​起来​“啊，​还​好学​的​内容​还​不​多，​好好​复习​一下​应该​没​问题！”​
+​正​在​给​自己​打气​的​时候​突然​抬头​看到​了​正在​那皱​着​眉毛​托​着​腮​帮子​的​(print:$friendName),​看样子​他​/​她​犯​了​难。​
+<br>
+[[​我​去​问​一下​需​不​需要​帮忙把，​说​不定​两​个​人​一起​复习​效果​更棒​呢->Midterm-Help]]
+<br>
+[[哦估计​也​在​发愁​考试​吧，​但是​我​现在​也​没​精力​去​管​别人​了，​先​好​好​准备​好​自己​的​吧，​毕竟​我​还是​自己​复习​效率​更​大->Midterm-Ignore]]
+
+:: Midterm-Help
+我们​把​笔记像​地图​一样​摊​在​桌子​上。​我​解释​了​章节里​所有​不​清楚​的​知识点，​我们​一起​整理​出来​一​份​更加​完善​的​复习​资料，​(print:$friendName)和我开心​的​露出​了​笑容。​我​的​心放松​了​下来。​
+(set: $friendship to it + 2)
+(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "BullyingEvent1")
+
+:: Midterm-Ignore
+我​收起​思绪，​专心​致志地​开始​我​的​复习，​这些​知识点​也​不​难​嘛！​
+[[结束​复习​准备​回家，​路​过​瞟​到​(print:$friendName)​还​在​复习，​看样子​被​难住​了，​但​我​的​肚子​已经​发起​抗议，​我​要​去​好​好​奖励​自己​大​吃特​吃​一顿！->BullyingEvent1]]
+(set: $friendship to it - 1)
+(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "BullyingEvent1")
+
+:: BullyingEvent1
+Library. (print:$friendName) sits; a whole table stands and drifts off like a tide pulling back. The silence screams: **isolation**.
+终于​结束​了​所有​的​考试，​我​可以​放松​一下​啦！​正在​图书馆​还​书​的​我​突然​听到​有​人​在​议论​(print:$friendName)
+"​你​听说​了​吗，​(print:$friendName)以前​好​像​偷​过​东西​所以​才​被​学校​开除​转来​我们​学校​的​“
+”​啊​是​吗？​怪​不​得​我​总感觉​他​/​她​奇奇​怪怪​的，​总像​是​在​提防​些​什么​贼眉​鼠眼​的​“
+”​而且​你们​不​觉得​她​/​他​行为​很​诡异​吗？​总是​一​个​人​也​不​和​我们​打招​呼​“
+​“你们​都​离​他​/​她​远点​吧！​太​恐怖​了”​
+我​心里​一惊，​他们​说​的​是​(print:$friendName)吧？！​居然​还​有​这些​事？！​但是​他们​说​的​都​是​真的​吗？。。。​
+扭头​我​突然​发现​(print:$friendName)​就​在​不远​处​低​着​头抱​紧​怀​抱里​的​书，​看样子​是​听到​了​他们​所有​的​对话​内容，​我​该​怎么​办​呢。。。
+<br>
+[[Step in and confront them->Bullying-Help]]
+<br>
+[[Pretend I saw nothing and walk away->BullyChoice-Ignore1]]
+<br>
+[[​好​好奇，​让​我​加入​他们​吧，​这样​我​就​有​更​多​的​话题​可以​融入​他们​了->BullyChoice-Bully1]]
+
+:: BullyChoice-Win1
+"​啊，​对​不起，​我​不​是​故意​偷听​你们​对话​的，​但是​如果​(print:$friendName)​​不​是​这样​的​人​的​话，​这样​会​不​会​不​大好？​“
+”​关​你​什么​事。。。​我们​也​只​是​在​闲聊而​已​“他们​表示​出​不​满但​没多​说​什么​转身​离开​了。​
+我​朝(print:$friendName)​走​了​过去​说​到：”​别介意，​有些​人​就​是​喜欢​没​事闲聊​说​别人​的​八卦，​你​别放​在​心上，​我​觉得​你​不​是​这样​的​人！​“(set: $playerHelped to true)
+(set: $friendship to $friendship + 15)
+(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "FinalParty")
+
+:: BullyChoice-Ignore1
+哎，​虽然​背后​八卦​不​好，​但是​我​也​不​知道​是否​是​事实，(print:$friendName)​和我也​不​熟，​还是​不​要​多​管​闲事​了。
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to $friendship - 10)
+(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "Ignore1")
+
+:: Ignore1
+那​天​后来​有​没​有​别​的​事情​发生​我​也​不​知道，​但是​看到​(print:$friendName)​还​总是​独自​一​人​
+<br>
+[[每​个​人​都​有​自己​的​生活​习惯​吧！->FinalParty]]
+
+:: BullyChoice-Bully1
+”​欸​你们​是​在​聊(print:$friendName)​​吗？！​我​也​觉得​他​/​她​有点奇怪​“
+"​是​啊，​你​不​觉得​她​/​他​很​古怪​吗？​"
+​“就是​说，​我​之前​看​他​/​她​总是​一​个​人，​我​还​主动​搭​过话，​但​感觉​相处​不来。”​
+(set: $playerBullied to true)
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to it - 30)
+(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
+(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
+(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
+(set: $gameProgress to $gameProgress + 1)(link-goto: "There’s no going back.", "Bully1")
+
+::Bully1
+我​偷​偷瞄​了​一​眼​​(print:$friendName)​原本​站​着​的​地方，​看样子​已经​离开​了。​
+<br>
+[[后来​她​/​他​每​次​见到​我​眼神​都​多​避开​了->FinalParty]]
+
+:: FinalParty
+又​一​学期​过去​了，​班里​有​同学​组织​期​末聚会，​有​人​发​信息​给​我​地址​---低音​已经​在​夜空​中​震动。​我​注意​到​(print:$friendName)​并​没有​在​我们​的​聊天​群里。。。​
+<br>
+[[我​找到​(print:$friendName)​的​联系​方式，​问：”​要​一起​去​聚会​吗？​“->FinalParty-Help]]
+<br>
+[[他们​没有​拉(print:$friendName)入​群聊，​我​还是​不​要​多​管​闲事​了​吧，​毕竟​不​是​我​组织​的​活动。->FinalParty-Ignore]]
+
+::FinalParty-Help
+“期末​聚会​跟​我​一起​去​吗？”​
+”​啊？​期​末聚会​吗。。​可是​我​没有​收到​消息​邀请​我​欸。。​“
+”​咳，​他们​肯定​是​漏掉忘​了​发，​没事，​我们​一起​去​呗~​“
+”​啊。。。​好​吧​“
+​我​拉着​(print:$friendName)​一起​去​了​聚会，​时间​在​欢声​笑语​和​音乐​中​流逝。​我们​彼此​又​熟悉​了​一些。。。​
+
+[[​开启​下​一​年​的​高中​生活​->Year2]]
+::FinalParty-Ignore
+“这​件​衣服​搭配​这个​裤子？​啊​不​要​我​要​穿裙子​~​我​要​准备​点​什么​带去​吗？”​
+​我​兴奋​的​期待​着​那天​的​到​来​一​边​准备​参加​聚会​的​东西，​并​在​群里​和​大家​分享​我们​各自​都​要​带​什么​过去。​
+<br>
+[[我们​度​过​了​一​个​超级​快乐​的​聚会，​谁​都​没有​想​起来​或​提到​没来​的​那个​人->Year2]]
+
+::Year2
+第二​年​转眼​来到​了​十月，​耶，​终于​可以​选择​社团​活动​了，​我​已经​期​待​好久​了！​俱乐部​周。​到处​都​是​海报，​突然​(print:$friendName)​出现在​我​身​后​拍​了​拍​我​肩膀​说：”​你​想好​参加​什么​了​吗？​我们​要​不​要​一起​去​木​工社？！​一定​很​有​趣！​“
+<br>
+[[”​好​啊​好​啊，​我​也​觉得​一定​很​有​趣！​“->Year2-Help]]
+<br>
+[[”​em。。。​其实​我​对​木工​还​好，​我​更​想​去​电影社，​你​想​一起​参加​吗？->Year2-Ignore]]
+
+::Year2-Help
+我们​把​名字写​在​同​一​张纸上。​之后​每​周​三​下午​的​时光​我们​有​了​新​的​节奏，​一起​分享​笑话，​分享​技能。​这​间​手工studio房间​开始​感觉​像​是​我们​的​了。​
+[[​滴答​滴答。。。​->BullyingEvent2]]
+
+::Year2-Ignore
+”​我​对​电影​不​是​很​感​兴趣。。。​那好​吧，​你​去​参加​电影社​吧，​我​自己​去​木工​社好​了​"
+"好​的，​希望​你​做​手​工玩​的​开心！"
+[[​那​之后​很​长​一​段​时间​我们​都​没​什么​交集​了->BullyingEvent2]]
+
+:: BullyingEvent2
+突然​有​一​天，​我​在​教室​里坐​着​听到​外面​一​阵​嘈杂，​往门口望​去​发现在​储物​柜旁，​那些​同学​在​推搡​(print:$friendName),​并​说​着：​“听说​你​总是​模仿​La？​你​也​不​照​照​镜子”​
+​“哈哈哈​就​是，​你​看​看​你，​不​搞​笑​吗？”​
+边​说​他们​边拉​一​拉(print:$friendName)​的​衣服，​捏捏​(print:$friendName)​的​头发，​然后​讥讽​嘲笑​他​/​她，​这​引得​周围​的​人​投来​目光，​人​逐渐​越围​越多。。。​
+<br>
+[[他们​怎么​可以​这样？！​我​该​怎么​制止​他们​呢。。。->Bullying-Help]]
+<br>
+[[人​好多。。。​虽然​我​很​同情，​但​和​我​也​没有​太​大​关系，​就​当​没​看到​吧->BullyChoice-Ignore2]]
+<br>
+[[​好​热闹，​大家​都​议​对​(print:$friendName)​指​指点点证明​肯定​她​/​他​就​是​那样​的​人，​不然​为什么​只​说​他​/​她，​让​我​也​加入​看看！->BullyChoice-Bully2]]
+
+::BullyChoice-Win2
+“嘿！​你们​在​干​什么！​马上​上​课​了，​赶紧​都​给​我​回各​自​的​教室​准备​上​课！”​ ​我​悄悄​地​找来​教导​主任，​她​严厉​呵斥​并​驱散​开聚集​的​同学们，​带头​的​那​几​个​也​悻悻​离开，​我​来到​(print:$friendName),身边​安​慰道：​“好​了​没事​了！”​
+(print:$friendName)​感激​地​看​着​我​说：​“谢谢​你”​
+<br>
+[[​“不用​谢！​你​要​勇敢​起来！”->Birth-Party]]
+
+::BullyChoice-Ignore2
+“顾不​上​管​那么​多​了，​他们​那么​多​人​我​也​没​什么​办法，​而且​也​没​造成​什么​伤害，​大家​应该​就​是​开玩笑，​同学​之间​打​打​闹闹​很​正常”​
+<br>
+[[​我​低头​翻出​今天​还​没​做​的​作业​开始​做​自己​的​事情->Ignore2]]
+
+::Ignore2
+哎，​虽然​背后​八卦​不​好，​但是​我​也​不​知道​是否​是​事实，​我们​也​不​熟，​还是​不​要​多​管​闲事​了。​
+<br>
+[[”​我​什么​都​不​知道​“我​心​里​想​着​赶紧​离开​了​图书馆->Birth-Party]]
+
+::BullyChoice-Bully2
+“欸之前​我​就​发现​你​没事​就​盯​着​La看，​原来​是​想​模仿​人家​啊，​但​有​个​词叫​东施​效颦​不​知道​你​知​不​知道”​我​插​了​一​嘴​让​气氛​更​高涨​了​一点，​大家​都​大笑​起来​
+“哈哈​哈哈​就​是​就​是”​
+“笑死​我​了，​他​/​她​估计​不​知道”​
+<br>
+[[​我​感觉​此​刻​我​好​像​讲​了​一​个​很​有效​的​笑话​得到​了​大家​的​认可->Bully2]]
+
+::Bully2
+因为​我​的​话​被​得到​了​支持，​我​心里​很​得意，​这​种​感觉​就​像​是​小时候​得到​了​小​队长​的​称号，​每​个​人​都​赞同​我​说​的​话​并且​延伸​下去。
+<br>
+[[​(print:$friendName)​的​头​就​像​鸵鸟​一样，​脸​也​涨​着​通红，​感觉​想​要​找​个​地缝​钻进去​逃离​这个​地方->Birth-Party]]
+
+::Birth-Party
+一​段​时间​过去，​备​受​欢迎​的​同学​La​过生日​组织生日​par​ty，​我​注意​到​(print:$friendName)​还是​没有​在​我们​的​聊天​群里。。。
+<br>
+[[​我​找到​(print:$friendName)​的​联系​方式，​问：”​要​一起​去​聚会​吗？​“->Birth-Party-Help]]
+<br>
+[[他们​没有​拉(print:$friendName)​入​群聊，​我​还是​不​要​多​管​闲事​了​吧，​毕竟​不​是​我​组织​的​活动。->Year3]]
+
+::Birth-Party-Help
+“La​过生日​聚会​跟​我​一起​去​吗？”​
+”​啊？​生日​聚会​吗。。​可是​我​没有​收到​消息​邀请​我​欸。。​“
+”​咳，​他们​肯定​是​漏掉忘​了​发，​没事，​我们​一起​去​呗~​“
+”​啊。。。​好​吧​“
+​我​拉着​(print:$friendName)​一起​去​了​聚会，​时间​在​欢声​笑语​和​音乐​中​流逝。​我们​彼此​又​熟悉​了​一些。。。​
+<br>
+[[​又​过​完​了​年，​开启​下​一​阶段​的​高中​生活->Year3]]
+
+
+::Year3
+在​步入​第三​年​的​学习​我们​换​了​新​的​教室，​我​这个​路痴​被​新​教学​楼绕​的​晕头​转向，​正在​犯难​的​时候​突然​抬头​看到​了​正在​那皱​着​眉毛​同样​在​找教室​的​(print:$friendName)​,​看样子​他​/​她​也​犯​了​难。​
+<br>
+​[[我​去​问​一下​他​/​她​是​不​是​也​在​找教室​吧，​说​不定​两​个​人​一起​找​更​快​呢​->Year3-Help]]
+<br>
+[[哦估计​也​在​找​不​到​教室​了​吧，​但是​我​也​不​知道，​我​先​自己​去​问问人​吧->Year3-Ignore]]
+
+::Year3-Help
+“嗨！​你​也​在​找教室​吗？​我​迷路​了，​这​对​我​来​说​太​难​了”​我​过去​主动​搭话​
+​“啊​是​啊​我​也​不​知道​在​哪，​但是​我​看​那​里​有​个​地图，​或许​有​帮助”​
+​“好​的，​那​我们​一起​去​看看​吧”​
+​我们​找到​了​规划​地图​并​拍​了​下来。​(print:$friendName)​​方向​感强​一点，​于是​我​拿着​地图​和​教室​号​码​给​她​/​他​参考，​很​快​我们​就​找到​教室​所​在​位置。​没有​迟到，​我们​都​松​了​一口​气
+<br>
+[[​又​开始​忙碌​的​学习​生活​啦->BullyingEvent3]]
+
+::Year3-Ignore
+欸，​那​不​是​La吗，​看​她​样子​估计​知道，​我​去​问问​她​吧！​​“嗨，​La，​你​是​要​去​那​个​教室​吗？”​
+​“是​呀，​我​来​熟悉​一下​新​教学楼”​
+​“我​也​是​！​那​我们​一起​吧”​
+​“好吧”​
+​我们​到​了​教室​过​了​很​久​看到​__​_气喘​吁吁​满头​大汗​地闯​了​进来​“对。。。​对​不起​我​迟到​了”​
+<br>
+[[​说​完，​全班​哄堂​大笑->BullyingEvent3]]
+
+:: BullyingEvent3
+终于​忙完​一​段​时间，​我​准备​好​好​放松​一下，​但是​在​一​出​校门​不​远处​的​小​巷子​里，​我​看到​(print:$friendName)​​被​抵​在​墙角，​地​上​书​包​被​打开，​里面​的​书散​落​一​地，​他们​还​在​动​手动​脚捡​起​地​上​的​小石子​或者​手边​的​东西​丢​在​他​/​她​身上，​(print:$friendName)​凌乱​的​头发，​被​撕扯破​的​衣服，​被​尘土覆盖​全身，​那​几​位​霸凌​同学​看到​如此​笑得​更​开心​了。。。​
+<br>
+[[​太​可恶​了！​但是​怎么​办，​怎么​办​我​才​能​帮助​她​/​他​->Bullying-Help]]
+<br>
+[[好​恐怖！​我​还是​赶紧​溜走吧。。。​->BullyChoice-Ignore3]]
+<br>
+(if redemption != 1) [
+	[[哇，​感觉​好爽，​我​也​早​就​受​不​了​他​/​她​了，​让​我​来​趁机添​把​火吧​哈哈​哈哈->Redemption-Bully]]
+]
+(else:)
+[]
+
+::Redemption-Bully
+心里转念一想，你​确定​要​这么​做​吗？？？​
+<br>
+[[重新选择​->BullyingEvent3]]
+<br>
+[[​“我​已​确定​承担​这么​做​的​后果”​->BullyChoice-Bully3]]
+(set: $redemption to 1)
+
+::BullyChoice-Win3
+他们​被​吓跑​了，​看来​我​的​办法​奏效​了！​我​跑​到​(print:$friendName)​​​身边，​帮忙​将​东西​收​拾好，​(print:$friendName)​​惊恐地​看​着​我​“谢谢。。。”​
+<br>
+[[”​没事。。。​“ ​我​怀​着​复杂​的​情绪​安慰​了​她​/​他​->Volunteer]]
+
+::BullyChoice-Ignore3
+”​他们​好多​人，​我​还是​不​要​引火​上身​了​“我​心​里​默念，​脚步​也​不​自觉加快​速度​赶紧​远离​这个​是​非之​地​
+<br>
+[[​“我​什么​都​没​看到”->Volunteer]]
+
+::BullyChoice-Bully3
+那​不​是​(print:$friendName)​​吗，​又​做​什么​讨厌​的​事​被​抓住​了？​我​就​感觉​到​她​/​他​不​正常！​
+“嘿！​我​最近​看到​一​个​好玩​的，​把​口​香糖​黏​在​头​发上，​你们​想​不​想​试​一下！”​我​走向​他们​
+“好​啊​好​啊，​我们​也​很​好​奇！”​
+<br>
+[[他们​应​和​着​我，​我​被​支持​后​更加​勇敢，​咀嚼​了​很​大​一​块口​香糖​死​死​地黏​在​(print:$friendName)​​的​头​发上。​->Bully3]]
+
+::Bully3
+过​了​好​几​天​没​见​到​(print:$friendName)​来​上学，​再​见​到​他​/​她​发现​粘口​香糖​的​部​位​头发​都​被​剪掉​了，​那样子​可​太​滑稽​了​
+<br>
+[[“真蠢，​明明​可以​有​办法​洗掉，​非​要​剪​了，​活​该​被​欺负”​我​心里​鄙夷​地​嘲笑->Volunteer]]
+
+
+:: Bullying-Help
+(if: $gameProgress is 2)[(goto: "MiniGame1")]
+(else-if: $gameProgress is 6)[(goto: "MiniGame2")]
+(else-if: $gameProgress is 9)[(goto: "MiniGame3")]
+
+::Volunteer
+第三​年​快​结束​了，​大家​都​开始​着​手​了解​不同​的​大学，​为​申请​大学​做​准备。​我​机缘​巧​合​得到​了​一​个​非常​棒​的​志愿者​活动，​负责人​允许​我​再​带​一​个​同学​一起​参加，​这​将​会​对​我们​申请​大学​有​很​大​的​帮助！​但是。。。​
+<br>
+[[(print:$friendName)​​最近​好像​在​寻求​老师​帮助，​没有​被​志愿​活动​机构​接受，​我​要​不​要​叫​他​/​她​一起？​->Volunteer-Help]]
+<br>
+[[另​一​个​同学​能力​好像​更​强，​如果​我们​一起​说​不定​有​可能​得到​更​大​的​认可，​后续​还​可以​一起​合作​利益​更​大化。​->Volunteer-Ignore]]
+
+::Volunteer-Help
+”​嗨，​我​得到​了​一​个​很​好​的​机会，​你​要​和​我​一起来​参加​这个​志愿​活动​吗？​“
+​“真的​吗？​这样​会​不​会​麻烦​你，​你​真的​愿意​带​我​一起​吗？！”​
+“当然，​只要​你​愿意”​
+<br>
+[[​我​转发链​接并​和​她​/​他​分享​屏幕​一起​填写​了​报名​表。​我​被​一​声声​的​感激​所​淹没。。。​->University]]
+
+::Volunteer-Ignore
+我​走向​那个​同学​邀请​和​我​一起​去​参加​志愿者​活动，​这​时，​在​旁边​的​(print:$friendName)​​小声​地​问​我：​“那个。。。​你​还​能​再​带​一​个​人​吗？”​
+“不​好​意思，​我​只​有​两​个​名额，​你​再​自己​找​吧”​
+“啊。。。​好​吧。。。​谢谢”​
+(print:$friendName)​唯唯诺诺​地​问​我，​但是​我​强硬​地​拒绝​了​
+<br>
+[[​后​来​得​知___​没有​找到​志愿​活动​->University]]
+
+::University
+转眼​最后​一​年​到​来​了，​大家​都​在​如火如荼地​申请​学校​准备​面试。​今天​是​我们​去​A​大学​参观​的​日子，​在​大巴​上：​
+<br>
+[[欸？​(print:$friendName)​​一​个​人​在​最后​坐着，​我​去​坐​旁边​吧->University-Help]]
+<br>
+[[​有​几​个​同学叫​我​加入​他们，​我们​一起​分享零食畅​谈理​想​->University-Ignore]]
+
+::University-Help
+“怎么样，​想好​去​哪里​了​吗？”​我​问
+​“还​没有，​每​个​学校​要求​都​好​高，​我​担心​我​达​不​到。。。​你​呢？”​
+“我​也​还​没​确定，​但​有​几​个​感兴趣​的”​
+“哦。。。​这样​啊。。。”​
+<br>
+[[​没​一会​我们​到​了​学校​开始​参观，​并​获​取到​了​很多​有效​信息​->Capstone]]
+
+::University-Ignore
+“你们​都​想​好​要​申请​哪些​学校​了​吗？”​
+“有​几​个​心仪​的，​但​还​没​确定”​
+“都​试​试​呗！”​
+“每​所​学校​要求​好像​都​挺难​的”​
+“是​啊，​不过​你们​听说​了​吗，​__​_好​像​志愿者​活动​到​现在​还​没​做够​时间”​
+“啊​那​那样​申请​差​一点​的​学校​也​不​容易​吧”​
+“是​吧”​
+"。。。​"
+<br>
+[[​我们​聊​着​聊​的​聊到​了​(print:$friendName)​，​啧，​看来​她​/​他​挺难​的​咯->Capstone]]
+
+::Capstone
+最后​一​学期​了，​每​一​所​大学​录取​要求​都​需要​提交​一​个​创意​项目，​可以​是​团队​协作​的​也​可以​是​个​人​
+<br>
+[[问(print:$friendName)​​成为​我​的​伙伴->Capstone-Help]]
+<br>
+[[一​个​人​时间​更​好​安排，​我​决定​一​个​人，​或者​之前​有​个​超级​厉害​的​同学​邀请​我，​我​可以​去​找​他​一起！->Capstone-Ignore]]
+
+::Capstone-Help
+“嘿！​我​有​一​个​很​好​的​想法，​我们​要​不​要​一起​完成”​
+“啊，​我​正在​发愁​呢，​你​愿意​和​我​一起​那​就​太​好​了，​谢谢​你”
+<br>
+[[​我们​分工​合作，​交换​草稿，​互相弥​补​不足。​咖啡凉​了，​信任​却​逐渐​增加。->Graduation]]
+
+::Capstone-Ignore
+最终，​我​自己​一​个​人​完成​了​一​个​我​很​满意​的​作品​
+<br>
+[[​开开心心​准备​规划​我​的​毕业​假期​啦！​->Graduation]]
+
+:: Graduation
+(if: $doomedToEnd1)[
+    [[Your journey ends here.->Ending1]]
+]
+(else:)[
+	终于，​要​毕业​了，​关于​毕业​典礼，​每​个​人​都​摩拳​擦​掌​想​要​展示​最​完美​的​自己，​之前​欺负(print:$friendName)​​的​同学们​都​等​着​看(print:$friendName)​​的​笑话。​
+	<br>
+	[[​“要​和​我​一起​去​挑​选礼服​吗？”​我​问(print:$friendName)​->Graduation-Help]]
+	<br>
+	[[​我​的​家人​早早​的​给​我​准备​好​了​一切，​我​无心​关注​他​人，​而​是​沉浸​在​自己​的​毕业​典礼​的​幻想​里。​->Graduation-Ignore]]
+]
+
+
+::Graduation-Help
+我们​一起​逛​了​很多​家​礼服店，​饰品店，​时间​很​快​就​过去​了​
+<br>
+[[​毕业​当天​->Ending-Scene]]
+
+::Graduation-Ignore
+妈妈​为了​奖励​我​这么​多​年​的​努力，​给​我​定​了​去​欧洲​旅行​的​机票，​我​查阅​好​多​资料​做好​了​十分​完美​的​攻略。​
+​“好期​待​我​的​旅行！”​
+​说​完​我​试穿​着​家人​给​我​准备​的​礼服，​“我​一定​是​毕业​舞会​上​最​靓​的​那个！”​
+<br>
+[[想​着​想​着​我​在​睡梦​中​噗​嗤笑​了​出来​->Ending-Scene]]
+
+
+::Ending-Scene
+(if: $friendship >= 40)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending5]] ]
+    (else-if: $bullyingLevel is 1 or $bullyingLevel is 2)[ [[Your journey ends here.->Ending2]] ]
+    (else:)[ [[Your journey ends here.->Ending6]] ]
+]
+(else:)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending2]] ]
+   (else-if: $bullyingLevel is 1)[ [[Your journey ends here.->Ending3]] ]
+   (else-if: $bullyingLevel is 2)[ [[Your journey ends here.->Ending4]] ]
+   (else:)[ [[Your journey ends here.->Ending7]] ]
+]
+
+
+:: Ending1
+<h2>Ending 1: The Cycle of Violence</h2>
+不​知道​是​谁​向​我​的​大学​举报​我​曾​参与​过霸凌​同学，​我​的​理想​大学​收回​了​给​我​的​of​fer，​我​只​能​选择​我​排名​最后​的​学校。​没​想到​在​我​迟​到​几​周​入学后​发现​(print:$friendName)​也​在​里面，​他​/​她​居然​像​换​了​个人​已经​和​很多​人​打成​一片，​在​看到​我​后，​露出​了​一​抹​诡异​的​笑容，​从此​我​在​同学​眼​里​变成​了​霸凌​同学​可恶，​幼稚​无知且​无聊​的​人。。。​没有​人​愿意​与​我​一起，​我​还​能​经常​听到​关于​我​的​闲言​闲语，​
+
+​那个​感觉。。。​
+<br>
+[[Play Again?->Start]]
+
+:: Ending2
+<h2>Ending 2: Minor Trauma</h2>
+毕业​典礼​开始，​我​望​向​(print:$friendName)，​她​/​他​看上​去​并不​激动​甚至​不​开心。​原来，​因为​心理​阴影​她​无法​集中​精力，​得​了​焦虑症​和​抑郁症，​没​能​申请​到​自己​理想​的​大学，​只​能​退​而​求其​次​去​了​很​远​的​地方​的​一​个​学校。​
+
+​从​那​之后​一别，​我​在​大学​有​了​新​的​朋友们，​和​(print:$friendName)​也​不​再​有​什么​联系​了。​
+<br>
+[[Play Again?->Start]]
+
+:: Ending3
+<h2>Ending 3: Disappearance</h2>
+毕业​典礼​开始，​我​还是​没有​看到​(print:$friendName)​的​身影，​过​了​几​天​后​得​知​原来​她​/​他​得​了​抑郁症​没​能​完成​要求​被​大学​录取。​
+
+​后来，​他​/​她​删除了​我们​所有​的​联系​方式，​我​再​也​没有​听到​过关于​(print:$friendName)​的​消息​
+<br>
+[[Play Again?->Start]]
+
+:: Ending4
+<h2>Ending 4: New Target</h2>
+毕业​典礼​开始​没​多久，​来​了​好多​警察​开始​盘问。​原来，​(print:$friendName)​在​一​个​小时​前​自杀​了，​送到​医院​时​已经​去​世​了。​他​/​她​的​日记​里​记录​了​很多​痛苦​的​时刻，​因为​被​孤立，​被​欺​辱​导致​抑郁​没有​精力​完成​学业，​觉得​被​这个​世界​抛弃​了​而​最​终​选择​自杀。​
+
+或许。。​我们​每​一​个​人​都​是​凶手​
+<br>
+[[Play Again?->Start]]
+
+:: Ending5
+<h2>Ending 5: Golden Ending</h2>
+我们​一​次​又​一​次​地​为​彼此​照亮，​互帮​互助，​直到​毕业，​并​成功​抵达​我们​的​目标，​获取​了​理想​的​大学​offer。​我​相信​我们​会​拥有​更​灿烂​的​未来！​
+<br>
+[[Play Again?->Start]]
+
+:: Ending6
+<h2>Ending 6: Shared Scars</h2>
+由于​我​每​一​次​在​(print:$friendName)​被​霸凌​的​时候​都​选择​了​自保，​但是​被​他们​发现​我们​是​很​好​的​朋友，​于是​我​也​变成​了​被​他们​背​后​议论​调侃​的​一员，​虽然​最后​我​被​学校​录取，​但​因为​我​的​心理​压力​导致​我​失去​了​步入​我​的​理想​学校​的​机会。​
+<br>
+[[Play Again?->Start]]
+
+:: Ending7
+<h2>Ending 7: Tragedy & Repercussion</h2>
+毕业​典礼​开始​没​多久，​来​了​好多​警察​开始​盘问。​原来，​(print:$friendName)​在​一​个​小时​前​自杀​了，​送到​医院​时​被​救​了。​他​/​她​向​警察​描述​了​很多​痛苦​的​时刻，​因为​被​孤立，​被​欺​辱​导致​抑郁​没有​精力​完成​学业，​觉得​被​这个​世界​抛弃​了​而​最​终​选择​自杀。​警察​挨​个​盘问，​我​为了​自保​说​出​了​那​几​个​霸凌​同学​的​名字，​然而​他们​一致​说​是​我​逼​他们​那么​做​的。​
+
+​最​终​我​接受到​了​法律​的​惩罚。​<br>
+[[Play Again?->Start]]
+
+:: MiniGame1
+<style>
+.crossed-out {
+    text-decoration: line-through;
+    color: grey;
+    pointer-events: none;
+}
+</style>
+(if: not ((history:) contains "MiniGame1"))[
+  (set: $allWrongChoices to (array:
+    "Start a loud conversation on your phone.",
+    "Go up to the group and ask for a pen.",
+    "Start coughing loudly.",
+    "Ask the librarian a question in a loud voice.",
+    "Pretend to trip and fall near another table.",
+    "Start humming a distracting tune."
+  ))
+  (set: $chosenWrongChoices to (a:))
+]
+I can’t make a scene—but I can tilt the room. If I break the silence, (print:$friendName) gets an exit. Think, think…
+<br>
+What do I do?
+
+
+(set: _displayChoices to (shuffled: ...$allWrongChoices))
+(for: each _choice, ..._displayChoices)[
+    (if: $chosenWrongChoices contains _choice)[
+        (print: '<span class="crossed-out">' + _choice + '</span><br>')
+    ]
+    (else:)[
+      (link: _choice)[
+        (set: $chosenWrongChoices to it + (a: _choice))
+        (goto: "MiniGame1")
+      ]<br>
+    ]
+]
+<br>
+[[‘Accidentally’ drop your heavy stack of books near their table.->MiniGame1-Win]]
+<br>
+
+:: MiniGame1-Win
+The crash splits the hush. Heads swivel. I’m already at (print:$friendName)’s side: “Come on—this way.” We slip out between the stares.
+<br>
+[[Success!->BullyChoice-Win1]]
+
+:: MiniGame2
+我​的​大脑好​混乱，​我​要​保持​理智​想​一​个​好​对​策来​帮助​(print:$friendName)摆脱​这个​处境。。。
+<br><br>
+<style>
+    #pattern-game { text-align: center; }
+    .pattern-btn { width: 80px; height: 80px; border-radius: 50%; margin: 10px; border: 3px solid #555; cursor: pointer; display: inline-block; transition: background-color 0.2s; }
+    .pattern-btn.red { background-color: #fca5a5; }
+    .pattern-btn.blue { background-color: #93c5fd; }
+    .pattern-btn.green { background-color: #86efac; }
+    .pattern-btn.yellow { background-color: #fde047; }
+    .pattern-btn.lit { filter: brightness(1.5); }
+    #pattern-message { font-weight: bold; height: 2em; }
+</style>
+<div id="pattern-game">
+    <div id="pattern-message">Watch the pattern...</div>
+    <div>
+        <div class="pattern-btn red" data-color="0"></div>
+        <div class="pattern-btn blue" data-color="1"></div>
+    </div>
+    <div>
+        <div class="pattern-btn green" data-color="2"></div>
+        <div class="pattern-btn yellow" data-color="3"></div>
+    </div>
+    <div id="start-pattern-btn-container" style="margin-top: 1em;">
+        (link: "Start")[ ]
+    </div>
+    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win2")]</div>
+</div>
+
+<script>
+setTimeout(() => {
+    const gameContainer = document.getElementById('pattern-game');
+    if (!gameContainer) return;
+
+    const messageEl = gameContainer.querySelector('#pattern-message');
+    const startBtnContainer = gameContainer.querySelector('#start-pattern-btn-container');
+    const winContainer = gameContainer.querySelector('#pattern-win-container');
+    const buttons = Array.from(gameContainer.querySelectorAll('.pattern-btn'));
+    let sequence = [];
+    let playerSequence = [];
+    let level = 3;
+    let playerTurn = false;
+    function generateSequence() {
+        sequence = [];
+        for (let i = 0; i < level; i++) {
+            sequence.push(Math.floor(Math.random() * 4));
+        }
+    }
+
+    function lightUp(index) {
+        return new Promise((resolve) => {
+            const btn = buttons[index];
+            btn.classList.add('lit');
+            setTimeout(() => {
+                btn.classList.remove('lit');
+                setTimeout(resolve, 250);
+            }, 500);
+        });
+    }
+
+    async function playSequence() {
+        playerTurn = false;
+        messageEl.textContent = "Watch carefully...";
+        startBtnContainer.style.display = 'none';
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        for (const index of sequence) {
+            await lightUp(index);
+        }
+        playerTurn = true;
+        messageEl.textContent = "Your turn...";
+    }
+
+    function handlePlayerClick(e) {
+        if (!playerTurn) return;
+        const colorIndex = parseInt(e.target.dataset.color, 10);
+        playerSequence.push(colorIndex);
+        lightUp(colorIndex);
+
+        const currentStep = playerSequence.length - 1;
+        if (playerSequence[currentStep] !== sequence[currentStep]) {
+            messageEl.textContent = "That's not right. Let's try again.";
+            playerSequence = [];
+            setTimeout(playSequence, 1500);
+            return;
+        }
+
+        if (playerSequence.length === sequence.length) {
+            playerTurn = false;
+            if (level >= 5) {
+                messageEl.textContent = "You focused your thoughts and found your voice!";
+                winContainer.style.display = 'block';
+                 startBtnContainer.style.display = 'none';
+            } else {
+                messageEl.textContent = "Good! Next level...";
+                level++;
+                playerSequence = [];
+                generateSequence();
+                setTimeout(playSequence, 1500);
+            }
+        }
+    }
+
+    const startLink = startBtnContainer.querySelector('tw-link');
+    if (startLink) {
+        startLink.addEventListener('click', () => {
+            generateSequence();
+            playSequence();
+        });
+    }
+
+    buttons.forEach(btn => btn.addEventListener('click', handlePlayerClick));
+
+}, 0);
+</script>
+
+:: MiniGame3
+我​只​有​一​个​人，​我​要​怎么​击​退​他们​那么​多​人​呢？​让​我​保持​冷静​快速思​考​一下。。。​
+<br><br>
+<b>Use the arrow keys to collect all three stars (their books) before anyone piles on.</b>
+<style>
+  #mazeCanvas {
+    background-color: #f0f0f0;
+    border: 2px solid #333;
+    display: block;
+    margin: 1em auto;
+  }
+</style>
+
+<canvas id="mazeCanvas" width="300" height="270"></canvas>
+<div id="maze-win-container" style="text-align: center; display: none;">
+    有​啦！​我​先报​了​警，​然后​绕道​跑​去​另外​一边​的​草丛，​在​手机​里​找到​警笛​的​声音​播放起来​然后​大喊：​“警察来​了！​快跑！！！”
+    <br>
+    (link:"Continue")[(goto:"BullyChoice-Win3")]
+</div>
+
+
+<script>
+  setTimeout(() => {
+    try {
+        const canvas = document.getElementById('mazeCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        const tileSize = 30;
+        const mazeWidth = 10;
+        const mazeHeight = 9;
+        let starsCollected = 0;
+        const totalStars = 3;
+
+        function generateMaze(width, height) {
+            let maze = Array.from({ length: height }, () => Array(width).fill(1));
+            let stack = [];
+            let startX = 1, startY = 1;
+
+            maze[startY][startX] = 0;
+            stack.push([startX, startY]);
+
+            while (stack.length > 0) {
+                let [cx, cy] = stack[stack.length - 1];
+                let neighbors = [];
+
+                if (cy - 2 > 0 && maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
+                if (cy + 2 < height -1 && maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
+                if (cx - 2 > 0 && maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
+                if (cx + 2 < width -1 && maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
+                if (neighbors.length > 0) {
+                    let [dx, dy] = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    let nx = cx + dx;
+                    let ny = cy + dy;
+                    maze[cy + dy / 2][cx + dx / 2] = 0;
+                    maze[ny][nx] = 0;
+                    stack.push([nx, ny]);
+                } else {
+                    stack.pop();
+                }
+            }
+            return maze;
+        }
+
+        placeStars(maze, totalStars);
+        let player = { x: 1, y: 1 };
+
+        function drawStar(x, y) {
+            ctx.fillStyle = 'gold';
+            ctx.strokeStyle = '#c9a200';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + tileSize / 2, y + 2);
+            ctx.lineTo(x + tileSize * 0.65, y + tileSize * 0.35);
+            ctx.lineTo(x + tileSize - 2, y + tileSize * 0.35);
+            ctx.lineTo(x + tileSize * 0.75, y + tileSize * 0.65);
+            ctx.lineTo(x + tileSize * 0.85, y + tileSize - 2);
+            ctx.lineTo(x + tileSize / 2, y + tileSize * 0.75);
+            ctx.lineTo(x + tileSize * 0.15, y + tileSize - 2);
+            ctx.lineTo(x + tileSize * 0.25, y + tileSize * 0.65);
+            ctx.lineTo(x + 2, y + tileSize * 0.35);
+            ctx.lineTo(x + tileSize * 0.35, y + tileSize * 0.35);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < maze.length; y++) {
+                for (let x = 0; x < maze[y].length; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#6d4c41';
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    } else if (maze[y][x] === 3) {
+                        drawStar(x * tileSize, y * tileSize);
+                    }
+                }
+            }
+            ctx.fillStyle = '#4a90e2';
+            ctx.beginPath();
+            ctx.arc(player.x * tileSize + tileSize / 2, player.y * tileSize + tileSize / 2, tileSize / 3, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function movePlayer(dx, dy) {
+            if (window.mazeGameWon) return;
+            const newX = player.x + dx;
+            const newY = player.y + dy;
+            if (newX >= 0 && newX < mazeWidth && newY >= 0 && newY < mazeHeight && maze[newY][newX] !== 1) {
+                player.x = newX;
+                player.y = newY;
+
+                if (maze[player.y][player.x] === 3) {
+                    maze[player.y][player.x] = 0;
+                    starsCollected++;
+                    if (starsCollected >= totalStars) {
+                        window.mazeGameWon = true;
+                        window.removeEventListener('keydown', handleKey);
+                        document.getElementById('maze-win-container').style.display = 'block';
+                    }
+                }
+                drawMaze();
+            }
+        }
+
+        function handleKey(e) {
+            const allowedKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+            if (allowedKeys.includes(e.key)) {
+                e.preventDefault();
+                switch (e.key) {
+                    case 'ArrowUp': movePlayer(0, -1); break;
+                    case 'ArrowDown': movePlayer(0, 1); break;
+                    case 'ArrowLeft': movePlayer(-1, 0); break;
+                    case 'ArrowRight': movePlayer(1, 0); break;
+                }
+            }
+        }
+
+        if(canvas) {
+          canvas.cleanup = () => {
+              window.removeEventListener('keydown', handleKey);
+          };
+        }
+
+        window.mazeGameWon = false;
+        drawMaze();
+        window.addEventListener('keydown', handleKey);
+    } catch (e) {
+        console.error("Maze game error:", e);
+        document.querySelector('#maze-fail-container tw-link').click();
+    }
+  }, 100);
+</script>
