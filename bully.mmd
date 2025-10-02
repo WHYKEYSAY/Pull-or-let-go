@@ -1,77 +1,99 @@
-flowchart TD
-    %% ========= Entry & Setup =========
-    A[Start Game] --> B{Choose Friend's Look & Name}
-    B --> Y1_Hub
+graph TD
+    A[Start] --> B{Choose Appearance};
+    B --> C{Choose Name};
+    C --> D[NewStudentHub];
+    D --> E{Party Invitation?};
+    E -- Yes --> F[NewParty-Help: +10 friendship];
+    E -- No --> G[NewParty-Ignore: -5 friendship];
 
-    %% ========= Year 1 (Events 0-3) =========
-    subgraph "Year 1 (Events 0-3)"
-        Y1_Hub[SEMESTER HUB] --> Y1_E1(Sept: New Student Orientation<br><i>Major Friendship +/-</i>)
-        Y1_E1 --> Y1_E2(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-        Y1_E2 --> Y1_Bully(Bullying Event 1: <b>Isolation</b>)
-        Y1_Bully --> Y1_Choice{What do you do?}
-        Y1_Choice -- Help --> Y1_MG1[Mini-Game 1<br>Distraction Puzzle]
-        Y1_MG1 -- Success --> Y1_B_Help(<b>Outcome: Help</b><br>+Friendship<br>Lock 'Bully' option)
-        Y1_Choice -- Ignore --> Y1_B_Ignore(<b>Outcome: Ignore</b><br>-Friendship<br>+Bullying Level)
-        Y1_Choice -- Bully --> Y1_B_Bully(<b>Outcome: Bully</b><br>+Bullying Level<br>Lock 'Help' option)
-        Y1_B_Help --> Y1_E3
-        Y1_B_Ignore --> Y1_E3
-        Y1_B_Bully --> Y1_E3
-        Y1_E3(May: Finals Party<br><i>Minor Friendship +/-</i>)
-    end
+    F --> H[Midterm];
+    G --> H;
+    H --> I{Offer to study together?};
+    I -- Yes --> J[Midterm-Help: +2 friendship];
+    I -- No --> K[Midterm-Ignore: -1 friendship];
 
-    Y1_E3 --> Y2_Hub
+    J --> L[BullyingEvent1];
+    K --> L;
+    L --> M{Confront, Ignore, or Join In?};
+    M -- Confront --> N[MiniGame1];
+    N --> O[BullyChoice-Win1: +15 friendship];
+    M -- Ignore --> P[BullyChoice-Ignore1: -10 friendship, +1 bullying];
+    M -- Join In --> Q[BullyChoice-Bully1: -30 friendship, +1 bullying];
 
-    %% ========= Year 2 (Events 4-7) =========
-    subgraph "Year 2 (Events 4-7)"
-        Y2_Hub[SEMESTER HUB] --> Y2_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-        Y2_E1 --> Y2_E2(Mar: Join Interest Club<br><i>Major Friendship +/-</i>)
-        Y2_E2 --> Y2_Bully(Bullying Event 2: <b>Verbal Abuse</b>)
-        Y2_Bully -- Help --> Y2_MG2[Mini-Game 2<br>Pattern Matching]
-        Y2_MG2 -- Success --> Y2_B_Outcome(Apply Outcome...)
-        Y2_Bully -- Ignore / Bully --> Y2_B_Outcome(Apply Outcome...)
-        Y2_B_Outcome --> Y2_E3(May: Finals Party<br><i>Minor Friendship +/-</i>)
-    end
+    O --> R[FinalParty];
+    P --> S[Ignore1];
+    Q --> T[Bully1];
+    S --> R;
+    T --> R;
+    R --> U{Invite to party?};
+    U -- Yes --> V[FinalParty-Help: +2 friendship];
+    U -- No --> W[FinalParty-Ignore: -1 friendship];
 
-    Y2_E3 --> Y3_Hub
+    V --> X[Year2 - Club Week];
+    W --> X;
+    X --> Y{Join their club or your own?};
+    Y -- Theirs --> Z[Year2-Help: +10 friendship];
+    Y -- Yours --> AA[Year2-Ignore: -5 friendship];
 
-    %% ========= Year 3 (Events 8-11) =========
-    subgraph "Year 3 (Events 8-11)"
-        Y3_Hub[SEMESTER HUB] --> Y3_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-        Y3_E1 --> Y3_Bully(Bullying Event 3: <b>Physical Aggression</b>)
-        Y3_Bully -- Help --> Y3_MG3[Mini-Game 3<br>Maze Puzzle]
-        Y3_MG3 -- Success --> Y3_B_Outcome(Apply Outcome...)
-        Y3_Bully -- Ignore / Bully --> Y3_B_Outcome(Apply Outcome...)
-        Y3_B_Outcome --> Y3_E2(May: Finals Party<br><i>Minor Friendship +/-</i>)
-        Y3_E2 --> Y3_E3(June: Find Internship<br><i>Major Friendship +/-</i>)
-    end
+    Z --> AB[BullyingEvent2];
+    AA --> AB;
+    AB --> AC{Help, Ignore, or Join In?};
+    AC -- Help --> AD[MiniGame2];
+    AD --> AE[BullyChoice-Win2: +15 friendship];
+    AC -- Ignore --> AF[BullyChoice-Ignore2: -10 friendship, +1 bullying];
+    AC -- Join In --> AG[BullyChoice-Bully2: -30 friendship, +1 bullying];
+    
+    AE --> AH[Birth-Party];
+    AF --> AI[Ignore2];
+    AG --> AJ[Bully2];
+    AI --> AH;
+    AJ --> AH;
+    AH --> AK{Invite to party?};
+    AK -- Yes --> AL[Birth-Party-Help: +2 friendship];
+    AK -- No --> AM[Year3];
 
-    Y3_E3 --> Y4_Hub
+    AL --> AM;
+    AM --> AN{Help find classroom?};
+    AN -- Yes --> AO[Year3-Help: +2 friendship];
+    AN -- No --> AP[Year3-Ignore: -1 friendship];
 
-    %% ========= Year 4 (Events 12-16) =========
-    subgraph "Year 4 (Events 12-16)"
-        Y4_Hub[SEMESTER HUB] --> Y4_E1(Oct: Midterm Review<br><i>Minor Friendship +/-</i>)
-        Y4_E1 --> Y4_E2(Dec: Christmas Greeting<br><i>Minor Friendship +/-</i>)
-        Y4_E2 --> Y4_E3(Feb: Find Classroom<br><i>Minor Friendship +/-</i>)
-        Y4_E3 --> Y4_E4(Mar: Graduation Project<br><i>Major Friendship +/-</i>)
-        Y4_E4 --> Y4_E5(May: Finals Party<br><i>Minor Friendship +/-</i>)
-    end
+    AO --> AQ[BullyingEvent3];
+    AP --> AQ;
+    AQ --> AR{Help, Ignore, or Join In?};
+    AR -- Help --> AS[MiniGame3];
+    AS --> AT[BullyChoice-Win3: +15 friendship];
+    AR -- Ignore --> AU[BullyChoice-Ignore3: -10 friendship, +1 bullying];
+    AR -- Join In --> AV[BullyChoice-Bully3: -30 friendship, +1 bullying];
 
-    Y4_E5 --> Grad{Graduation}
+    AT --> AW[Volunteer];
+    AU --> AW;
+    AV --> AW;
+    AW --> AX{Invite to volunteer event?};
+    AX -- Yes --> AY[Volunteer-Help: +12 friendship];
+    AX -- No --> AZ[Volunteer-Ignore: -8 friendship];
 
-    %% ========= Endings =========
-    subgraph Endings
-        Grad --> Cond1{Player Bullied?}
-        Cond1 -- Yes --> End1([<b>Ending 1</b><br>Cycle of Violence])
-        Cond1 -- No --> Cond2{Friendship >= 40?}
-        
-        Cond2 -- "Yes (Good Friend)" --> Cond3{Mental State?}
-        Cond3 -- "Safe" --> End5([<b>Ending 5</b><br>Golden Ending])
-        Cond3 -- "Isolated / Attacked" --> End2_A([<b>Ending 2</b><br>Minor Trauma])
-        Cond3 -- "Trauma" --> End6([<b>Ending 6</b><br>Shared Scars])
+    AY --> BA[University Bus Ride];
+    AZ --> BA;
+    BA --> BB{Sit with them?};
+    BB -- Yes --> BC[University-Help: +2 friendship];
+    BB -- No --> BD[University-Ignore: -1 friendship];
 
-        Cond2 -- "No (Classmate)" --> Cond4{Mental State?}
-        Cond4 -- "Safe" --> End2_B([<b>Ending 2</b><br>Minor Trauma])
-        Cond4 -- "Isolated" --> End3([<b>Ending 3</b><br>Disappearance])
-        Cond4 -- "Attacked" --> End4([<b>Ending 4</b><br>New Target])
-        Cond4 -- "Trauma" --> End7([<b>Ending 7</b><br>Tragedy & Repercussion])
-    end
+    BC --> BE[Capstone Project];
+    BD --> BE;
+    BE --> BF{Partner with them?};
+    BF -- Yes --> BG[Capstone-Help: +15 friendship];
+    BF -- No --> BH[Capstone-Ignore: -6 friendship];
+
+    BG --> BI[Graduation];
+    BH --> BI;
+    BI --> BJ{Doomed to End 1?};
+    BJ -- Yes --> BK[Ending 1: The Cycle of Violence];
+    BJ -- No --> BL{Friendship and Bullying Level?};
+
+    BL -- Friendship >= 40, Bullying = 0 --> BM[Ending 5: Golden Ending];
+    BL -- Friendship >= 40, Bullying = 1 or 2 --> BN[Ending 6: Shared Scars];
+    BL -- Friendship >= 40, Bullying > 2 --> BO[Ending 6: Shared Scars];
+    BL -- Friendship < 40, Bullying = 0 --> BP[Ending 2: Minor Trauma];
+    BL -- Friendship < 40, Bullying = 1 --> BQ[Ending 3: Disappearance];
+    BL -- Friendship < 40, Bullying = 2 --> BR[Ending 4: New Target];
+    BL -- Friendship < 40, Bullying > 2 --> BS[Ending 7: Tragedy & Repercussion];
