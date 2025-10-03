@@ -5,8 +5,7 @@ Pull or Let Go
 Harlowe 3
 
 :: StoryInit
-(set: $friendship to 20, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
-(set: $gameProgress to 0)
+(set: $friendship to 20, $Evilness to 0, $playerBullied to false, $playerHelped to false)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
 (set: $friendImgBase to "", $friendImgExt to "")
 (set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
@@ -103,10 +102,10 @@ a.link-internal, a.link-external {
     (if: $friendImgBase is not "")[
         (set: _state to
             (cond:
-                (passage:)'s name is "Ending5", "_golden",
-                $bullyingLevel >= 3, "_trauma",
-                $bullyingLevel is 2, "_suffer",
-                $bullyingLevel is 1, "_isolated",
+                (passage:)'s name is "Ending-1", "_golden",
+                $Evilness >= 3, "_trauma",
+                $Evilness is 2, "_suffer",
+                $Evilness is 1, "_isolated",
                 $friendship >= 40, "_golden",
                 $friendship >= 20, "_safe",
                 $friendship >= 0, "_isolated",
@@ -127,9 +126,9 @@ a.link-internal, a.link-external {
     )<br>
     <b>Headspace:</b>
     (cond:
-      $bullyingLevel is 0, "Safe ground",
-      $bullyingLevel is 1, "Alone in the crowd",
-      $bullyingLevel is 2, "Under verbal fire",
+      $Evilness is 0, "Safe ground",
+      $Evilness is 1, "Alone in the crowd",
+      $Evilness is 2, "Under verbal fire",
       true, "Trauma critical"
     )<br>
   </div>
@@ -147,8 +146,7 @@ I start my high school life with great excitement, and I made many new friends.
 In the third week, a new face suddenly appeared in our class, it turned out to be a transfer student who had arrived three weeks late because of family reasons.
 <br>
 [[I look at them...->NewStudent]]
-(set: $friendship to 20, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
-(set: $gameProgress to 0)
+(set: $friendship to 20, $Evilness to 0, $playerBullied to false, $playerHelped to false)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
 (set: $friendImgBase to "", $friendImgExt to "")
 (set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
@@ -268,8 +266,8 @@ After I finished filling out the sign-up form, I was happily humming a tune when
 :: NewParty-Help
 "Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!" I asked.
 "Ah… um… not yet… but sure, I’ll go sign up now," the new student stammered, then went to fill out the registration form.
-(set: $friendship to $friendship + 10)
-(set: $gameProgress to $gameProgress + 1)
+(set: $friendship to $friendship + 5)
+
 [[After attending that event, a period of calm and steady school life followed.->Midterm]]
 
 :: NewParty-Ignore
@@ -279,7 +277,7 @@ After I finished filling out the sign-up form, I was happily humming a tune when
 "Wow, that’s so cool!!!"
 ...
 (set: $friendship to $friendship - 5)
-(set: $gameProgress to $gameProgress + 1)
+
 [[We kept chatting back and forth, planning our trip. And I thought to myself: my high school life is definitely going to be exciting!->Midterm]]
 
 
@@ -295,7 +293,7 @@ Just then, I looked up and noticed (print:$friendName) sitting there with a frow
 :: Midterm-Help
 We spread our notes out on the desk like a map. I explained all the unclear points from the chapters, and we organized a more complete set of review materials together. Both of us smiled with relief, and I felt my heart is more confident.
 (set: $friendship to it + 2)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Onward we go.->BullyingEvent1]]
 
 :: Midterm-Ignore
@@ -303,7 +301,7 @@ I gathered my thoughts and focused fully on my revision.
 "Hah, these points aren’t so hard after all!"
 When I finished studying and was getting ready to head home, I glanced over and saw (print:$friendName) still buried in their books. It looked like they were stuck on something...
 (set: $friendship to it - 1)
-(set: $gameProgress to $gameProgress + 1)
+
 [[But my stomach was already protesting, I had to go treat myself to a big, well-deserved meal!->BullyingEvent1]]
 
 
@@ -331,14 +329,14 @@ I walked over to (print:$friendName) and said, "Don’t mind them. Some people j
 Don’t take it to heart. I don’t believe you’re that kind of person!"
 (set: $playerHelped to true)
 (set: $friendship to $friendship + 15)
-(set: $gameProgress to $gameProgress + 1)
+
 [[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]]
 
 :: BullyChoice-Ignore1
 Sigh… Even though gossiping behind someone’s back isn’t right, I don’t really know if what they said is true. After all, we’re not that close, so maybe it’s better not to meddle.
-(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $Evilness to $Evilness + 1)
 (set: $friendship to $friendship - 10)
-(set: $gameProgress to $gameProgress + 1)
+
 [["I don’t know anything," I told myself, and quickly leaving the library.->Ignore1]]
 
 :: Ignore1
@@ -353,12 +351,8 @@ I don’t know if anything else happened that day, but I kept noticing that (pri
 <br>
 [[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]]
 (set: $playerBullied to true)
-(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $Evilness to $Evilness + 1)
 (set: $friendship to it - 30)
-(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
-(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
-(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
-(set: $gameProgress to $gameProgress + 1)
 
 ::Bully1
 I secretly glanced at the spot where (print:$friendName) had been standing, but it looked like they had already left.
@@ -381,14 +375,14 @@ Then I noticed (print:$friendName) wasn’t in our group chat…
 "Uh… okay then."
 I pulled (print:$friendName) along with me to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
 (set: $friendship to $friendship + 2)
-(set: $gameProgress to $gameProgress + 1)
+
 [[And so, a new year of high school life began.->Year2]]
 
 ::FinalParty-Ignore
 "This top with these pants? Ah, no, I’ll wear a skirt instead~ Should I prepare something to bring along?"
 I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.
 (set: $friendship to $friendship - 1)
-(set: $gameProgress to $gameProgress + 1)
+
 [[We ended up having an incredibly fun party, and no one remembered or even mentioned the person who didn’t come.->Year2]]
 
 
@@ -406,14 +400,14 @@ It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) app
 We wrote our names down on the same sheet of paper. 
 From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
 (set: $friendship to $friendship + 10)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Tick-tock, tick-tock…->BullyingEvent2]]
 
 ::Year2-Ignore
 "I’m not really interested in movies… alright then, you go join the film club, and I’ll just go to the woodworking club on my own."
 "Okay, I hope you have fun making crafts!"
 (set: $friendship to $friendship - 5)
-(set: $gameProgress to $gameProgress + 1)
+
 [[After that, for quite a long time, we didn’t really have much interaction anymore.->BullyingEvent2]]
 
 
@@ -440,14 +434,14 @@ I walked over to (print:$friendName) and comforted them:
 **"Thank you."**
 (set: $playerHelped to true)
 (set: $friendship to $friendship + 15)
-(set: $gameProgress to $gameProgress + 1)
+
 [["You don’t need to thank me! You have to be brave!"->Birth-Party]]
 
 ::BullyChoice-Ignore2
 "I can’t really do much about this. There are so many people of them, and it doesn’t seem like any real harm has been done. They’re probably just joking around. Roughhousing between classmates is normal."
-(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $Evilness to $Evilness + 1)
 (set: $friendship to $friendship - 10)
-(set: $gameProgress to $gameProgress + 1)
+
 [[I lowered my head, pulled out the homework I hadn’t finished yet, and went back to my own business.->Birth-Party]]
 
 ::BullyChoice-Bully2
@@ -457,12 +451,8 @@ I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
 <br>
 [[At that moment, I felt like I had told a really effective joke and gained everyone’s approval.->Bully2]]
 (set: $playerBullied to true)
-(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $Evilness to $Evilness + 1)
 (set: $friendship to it - 30)
-(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
-(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
-(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
-(set: $gameProgress to $gameProgress + 1)
 
 ::Bully2
 Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader. 
@@ -486,7 +476,7 @@ I noticed once again that (print:$friendName) still wasn’t in our group chat�
 "Uh… alright then."
 I pulled (print:$friendName) along to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
 (set: $friendship to $friendship + 2)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Another year came to an end, and a new chapter of high school life began.->Year3]]
 
 ::Year3
@@ -508,7 +498,7 @@ We found the building map and took a photo of it.
 Since (print:$friendName) had a better sense of direction, I handed them the map along with the classroom number for reference. 
 Before long, we found the classroom without being late, and both of us let out a sigh of relief.
 (set: $friendship to $friendship + 2)
-(set: $gameProgress to $gameProgress + 1)
+
 [[And the busy rhythm of school life began again.->BullyingEvent3]]
 
 ::Year3-Ignore
@@ -520,7 +510,7 @@ Hey, isn’t that La? She probably knows the way, let me go ask her!
 We arrived at the classroom, and much later (print:$friendName) rushed in, panting and dripping with sweat.
 "S...so...sorry… I’m late."
 (set: $friendship to $friendship - 1)
-(set: $gameProgress to $gameProgress + 1)
+
 [[As soon as the words left their mouth, the whole class burst into laughter.->BullyingEvent3]]
 
 
@@ -556,15 +546,15 @@ I hurried over to (print:$friendName)’s side and helped pick up their things.
 "Th-thank you…"
 (set: $playerHelped to true)
 (set: $friendship to $friendship + 15)
-(set: $gameProgress to $gameProgress + 1)
+
 [["It’s okay…" I said, trying to comfort them, though my feelings were complicated.->Volunteer]]
 
 ::BullyChoice-Ignore3
 "There are so many of bullies… I’d better not get myself into trouble," 
 I muttered to myself, quickening my steps to get away from the scene as fast as possible.
-(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $Evilness to $Evilness + 1)
 (set: $friendship to $friendship - 10)
-(set: $gameProgress to $gameProgress + 1)
+
 [["I didn’t see anything."->Volunteer]]
 
 ::BullyChoice-Bully3
@@ -576,12 +566,8 @@ I said as I walked up to the group.
 <br>
 [[With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into (print:$friendName)’s hair.->Bully3]]
 (set: $playerBullied to true)
-(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $Evilness to $Evilness + 1)
 (set: $friendship to it - 30)
-(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
-(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
-(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
-(set: $gameProgress to $gameProgress + 1)
 
 ::Bully3
 Several days passed without seeing (print:$friendName) at school. 
@@ -590,7 +576,7 @@ It looked absolutely ridiculous.
 "How stupid. They could’ve just washed it out, but instead cut it off. Serves them right for being bullied,"
 <br>
 (set: $doomedToEnd1 to true)
-(set: $gameProgress to $gameProgress + 1)
+
 [[I sneered inwardly with contempt.->Volunteer]]
 
 ::Volunteer
@@ -610,7 +596,7 @@ But…
 "Of course, as long as you’re willing."
 I forwarded the link and shared my screen so we could fill out the application form together.
 (set: $friendship to $friendship + 12)
-(set: $gameProgress to $gameProgress + 1)
+
 [[I was overwhelmed by their repeated words of gratitude…->University]]
 
 
@@ -620,7 +606,7 @@ I went over to invite that classmate to join me in the volunteer activity. Just 
  "Oh… alright… thanks."
 (print:$friendName) asked me timidly, but I turned them down firmly.
 (set: $friendship to $friendship - 8)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Later, I found out that (print:$friendName) never managed to get into any volunteer activity.->University]]
 
 
@@ -640,7 +626,7 @@ I asked.
 "I haven’t decided either, but there are a few I’m interested in."
 "Oh… I see…"
 (set: $friendship to $friendship + 2)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Before long, we arrived at the university, began the tour, and gathered a lot of useful information.->Capstone]]
 
 ::University-Ignore
@@ -652,7 +638,7 @@ I asked.
 "Right."
 …
 (set: $friendship to $friendship - 1)
-(set: $gameProgress to $gameProgress + 1)
+
 [[As we kept chatting, the topic turned to (print:$friendName). Tsk, looks like things are pretty tough for them.->Capstone]]
 
 
@@ -669,20 +655,20 @@ The project could be done as a team or individually.
 "Ah, I was just worrying about it. If you’re willing to join me, that’s wonderful! Thank you."
 We divided the tasks, exchanged drafts, and filled in each other’s gaps.
 (set: $friendship to $friendship + 15)
-(set: $gameProgress to $gameProgress + 1)
+
 [[The coffee grew cold, but our trust steadily grew warmer.->Graduation]]
 
 
 ::Capstone-Ignore
 In the end, I completed a project all on my own, I was truly proud of~
 (set: $friendship to $friendship - 6)
-(set: $gameProgress to $gameProgress + 1)
+
 [[With a cheerful heart, I began planning my graduation holiday!->Graduation]]
 
 
 :: Graduation
 (if: $doomedToEnd1)[
-    [[Your journey ends here.->Ending1]]
+    [[Your journey ends here.->Ending-7]]
 ]
 (else:)[
 	Finally, graduation was approaching. 
@@ -697,7 +683,7 @@ In the end, I completed a project all on my own, I was truly proud of~
 ::Ceremony-Help
 We went to many dress shops and accessory stores together, and time passed quickly.
 (set: $friendship to it + 2)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Then, the day of graduation arrived.->Ending-Scene]]
 
 ::Ceremony-Ignore
@@ -707,24 +693,60 @@ I researched tons of information and prepared a perfectly detailed itinerary.
 After saying that, I tried on the dress my family had prepared for me.
 "I’ll definitely be the most dazzling one at the graduation ball!"
 (set: $friendship to it - 1)
-(set: $gameProgress to $gameProgress + 1)
+
 [[Thinking about it, I couldn’t help but chuckle in my sleep.->Ending-Scene]]
 
 
 ::Ending-Scene
-(if: $friendship >= 40)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending5]] ]
-    (else-if: $bullyingLevel is 1 or $bullyingLevel is 2)[ [[Your journey ends here.->Ending2]] ]
-    (else:)[ [[Your journey ends here.->Ending6]] ]
+(if: $friendship >= 40)[ (if: $Evilness is 0)[ [[Your journey ends here.->Ending-1]] ]
+    (else-if: $Evilness is 1 or $Evilness is 2)[ [[Your journey ends here.->Ending-2]] ]
+    (else:)[ [[Your journey ends here.->Ending-4]] ]
 ]
-(else:)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending2]] ]
-   (else-if: $bullyingLevel is 1)[ [[Your journey ends here.->Ending3]] ]
-   (else-if: $bullyingLevel is 2)[ [[Your journey ends here.->Ending4]] ]
-   (else:)[ [[Your journey ends here.->Ending7]] ]
-]
+(else:)[ (if: $Evilness is 0)[ [[Your journey ends here.->Ending-2]] ]
+   (else-if: $Evilness is 1)[ [[Your journey ends here.->Ending-3]] ]
+   (else-if: $Evilness is 2)[ [[Your journey ends here.->Ending-6]] ]
+   (else:)[ [[Your journey ends here.->Ending-7]] ]
 
+:: Ending-1
+<h2>Ending-1: Dreams Achieved</h2>
+Time and again, we lit the way for each other, helping and supporting one another all the way until graduation.
+In the end, we reached our goals and received offers from our dream universities.
+I truly believe we’ll have an even brighter future ahead!
+<br>
+[[Play Again?->Start]]
 
-:: Ending1
-<h2>Ending 1: The Cycle of Violence</h2>
+:: Ending-2
+<h2>Ending-2: Paths Diverged</h2>
+The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
+It turned out that because of the psychological scars they carried, 
+they couldn’t concentrate on their studies, 
+they developed anxiety and depression, 
+and failed to get into their dream university. 
+In the end, they had to settle for another school far away.
+
+From that day on, we went our separate ways. 
+I made new friends in college, and there was no longer any contact between me and (print:$friendName).
+<br>
+[[Play Again?->Start]]
+
+:: Ending-3
+<h2>Ending-3: Fading into Silence</h2>
+The graduation ceremony began, but I still didn’t see any sign of (print:$friendName). 
+A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
+Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
+<br>
+[[Play Again?->Start]]
+
+:: Ending-4
+<h2>Ending-4: The Turn of the Tide</h2>
+Because every time (print:$friendName) was bullied, I chose to protect myself, bullies eventually found out that we were close friends. 
+As a result, I also became the subject of their gossip and ridicule behind my back.
+Although I was eventually admitted to a university, the psychological pressure I carried caused me to lose the chance to enter the school of my dreams.
+<br>
+[[Play Again?->Start]]
+
+:: Ending-5
+<h2>Ending-5: Crushed by Pressure</h2>
 I don’t know who reported to my university that I had once taken part in bullying a classmate, but my dream school withdrew the offer they had given me. 
 I was left with no choice but to attend the lowest-ranked school on my list.
 To my surprise, when I enrolled a few weeks late, I discovered that (print:$friendName) was there too. 
@@ -738,30 +760,8 @@ That feeling…
 <br>
 [[Play Again?->Start]]
 
-:: Ending2
-<h2>Ending 2: Minor Trauma</h2>
-The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
-It turned out that because of the psychological scars they carried, 
-they couldn’t concentrate on their studies, 
-they developed anxiety and depression, 
-and failed to get into their dream university. 
-In the end, they had to settle for another school far away.
-
-From that day on, we went our separate ways. 
-I made new friends in college, and there was no longer any contact between me and (print:$friendName).
-<br>
-[[Play Again?->Start]]
-
-:: Ending3
-<h2>Ending 3: Disappearance</h2>
-The graduation ceremony began, but I still didn’t see any sign of (print:$friendName). 
-A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
-Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
-<br>
-[[Play Again?->Start]]
-
-:: Ending4
-<h2>Ending 4: New Target</h2>
+:: Ending-6
+<h2>Ending-6: A Tragic Loss</h2>
 Not long after the graduation ceremony began, many police officers arrived and started questioning people. 
 It turned out that (print:$friendName) had taken their own life an hour earlier and had already passed away by the time they reached the hospital.
 In their diary were entries filled with painful moments: 
@@ -774,24 +774,8 @@ Perhaps… each one of us is a murderer.
 <br>
 [[Play Again?->Start]]
 
-:: Ending5
-<h2>Ending 5: Golden Ending</h2>
-Time and again, we lit the way for each other, helping and supporting one another all the way until graduation.
-In the end, we reached our goals and received offers from our dream universities.
-I truly believe we’ll have an even brighter future ahead!
-<br>
-[[Play Again?->Start]]
-
-:: Ending6
-<h2>Ending 6: Shared Scars</h2>
-Because every time (print:$friendName) was bullied, I chose to protect myself, bullies eventually found out that we were close friends. 
-As a result, I also became the subject of their gossip and ridicule behind my back.
-Although I was eventually admitted to a university, the psychological pressure I carried caused me to lose the chance to enter the school of my dreams.
-<br>
-[[Play Again?->Start]]
-
-:: Ending7
-<h2>Ending 7: Tragedy & Repercussion</h2>
+:: Ending-7
+<h2>Ending-7: Rescue and Retribution</h2>
 Not long after the graduation ceremony began, a large number of police officers arrived and started questioning people. 
 It turned out that (print:$friendName) had attempted suicide an hour earlier, but was rescued when taken to the hospital.
 They told the police about many painful moments: 
