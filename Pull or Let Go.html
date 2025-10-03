@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="5" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="F6AA50F0-AFA6-4A54-90EA-A6DD53DE6F69" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
+<tw-storydata name="Pull or Let Go" startnode="5" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="BDADBA7D-49C1-4171-B3A1-66B5694D58D0" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -882,9 +882,7 @@ After saying that, I tried on the dress my family had prepared for me.
 &lt;!-- Add to logs and save --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs&#39;s _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
 &lt;script&gt;
@@ -932,9 +930,7 @@ I truly believe we&#39;ll have an even brighter future ahead!
 &lt;!-- Add to logs and save --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs&#39;s _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
 &lt;script&gt;
@@ -984,9 +980,7 @@ I made new friends in college, and there was no longer any contact between me an
 &lt;!-- Add to logs and save --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs&#39;s _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
 &lt;script&gt;
@@ -1034,9 +1028,7 @@ Later on, they deleted all of our contact information, and I never heard anythin
 &lt;!-- Add to logs and save --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs&#39;s _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
 &lt;script&gt;
@@ -1084,9 +1076,7 @@ Although I was eventually admitted to a university, the psychological pressure I
 &lt;!-- Add to logs and save --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs&#39;s _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
 &lt;script&gt;
@@ -1140,16 +1130,18 @@ That feeling…
 &lt;!-- Add to beginning of logs array and limit to 7 --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: $playthroughLogs to $playthroughLogs&#39;s (a: 1, 2, 3, 4, 5, 6, 7))
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
-&lt;!-- Save to memory using live macro --&gt;
-{(live: 0.1s)[
-  (if: window.saveAchievements)[
-    (set: _saved to (js: &quot;window.saveAchievements(Harlowe.State.variables.endingsReached, Harlowe.State.variables.achievementsUnlocked, Harlowe.State.variables.playthroughLogs); return true;&quot;))
-    (stop:)
-  ]
-]}
+&lt;script&gt;
+if (window.saveAchievements &amp;&amp; typeof Harlowe !== &#39;undefined&#39;) {
+  window.saveAchievements(
+    Harlowe.State.variables.endingsReached,
+    Harlowe.State.variables.achievementsUnlocked,
+    Harlowe.State.variables.playthroughLogs
+  );
+}
+&lt;/script&gt;
 
 &lt;h2&gt;Ending6: A Tragic Loss&lt;/h2&gt;
 &lt;img src=&quot;end6.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -1187,9 +1179,7 @@ Perhaps… each one of us is a murderer.
 &lt;!-- Add to logs and save --&gt;
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs&#39;s length &gt; 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs&#39;s _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs&#39;s 1..7)
 ]
 
 &lt;script&gt;

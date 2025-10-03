@@ -954,9 +954,7 @@ After saying that, I tried on the dress my family had prepared for me.
 <!-- Add to logs and save -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs's _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
 <script>
@@ -1007,9 +1005,7 @@ I truly believe we'll have an even brighter future ahead!
 <!-- Add to logs and save -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs's _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
 <script>
@@ -1062,9 +1058,7 @@ I made new friends in college, and there was no longer any contact between me an
 <!-- Add to logs and save -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs's _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
 <script>
@@ -1115,9 +1109,7 @@ Later on, they deleted all of our contact information, and I never heard anythin
 <!-- Add to logs and save -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs's _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
 <script>
@@ -1168,9 +1160,7 @@ Although I was eventually admitted to a university, the psychological pressure I
 <!-- Add to logs and save -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs's _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
 <script>
@@ -1227,16 +1217,18 @@ That feeling…
 <!-- Add to beginning of logs array and limit to 7 -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's (a: 1, 2, 3, 4, 5, 6, 7))
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
-<!-- Save to memory using live macro -->
-{(live: 0.1s)[
-  (if: window.saveAchievements)[
-    (set: _saved to (js: "window.saveAchievements(Harlowe.State.variables.endingsReached, Harlowe.State.variables.achievementsUnlocked, Harlowe.State.variables.playthroughLogs); return true;"))
-    (stop:)
-  ]
-]}
+<script>
+if (window.saveAchievements && typeof Harlowe !== 'undefined') {
+  window.saveAchievements(
+    Harlowe.State.variables.endingsReached,
+    Harlowe.State.variables.achievementsUnlocked,
+    Harlowe.State.variables.playthroughLogs
+  );
+}
+</script>
 
 <h2>Ending6: A Tragic Loss</h2>
 <img src="end6.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1277,9 +1269,7 @@ Perhaps… each one of us is a murderer.
 <!-- Add to logs and save -->
 (set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
 (if: $playthroughLogs's length > 7)[
-  (set: _firstSeven to (a:))
-  (for: each _item, 1,2,3,4,5,6,7)[(set: _firstSeven to it + (a: $playthroughLogs's _item))]
-  (set: $playthroughLogs to _firstSeven)
+  (set: $playthroughLogs to $playthroughLogs's 1..7)
 ]
 
 <script>
