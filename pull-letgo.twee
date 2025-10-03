@@ -93,13 +93,13 @@ a.link-internal, a.link-external {
 }
 .star-container { display: flex; font-size: 2em; gap: 0.5em; }
 .star-grey { color: #ccc; }
-.star-c1 { color: #E57373; } /* Red */
-.star-c2 { color: #64B5F6; } /* Blue */
-.star-c3 { color: #FFF176; } /* Yellow */
-.star-c4 { color: #81C784; } /* Green */
-.star-c5 { color: #FFB74D; } /* Orange */
-.star-c6 { color: #BA68C8; } /* Purple */
-.star-c7 { color: #4DB6AC; } /* Teal */
+.star-c1 { color: #F09EA7; }
+.star-c2 { color: #F6CA94; }
+.star-c3 { color: #FAFABE; }
+.star-c4 { color: #C1EBC0; }
+.star-c5 { color: #C7CAFF; }
+.star-c6 { color: #CDABEB; }
+.star-c7 { color: #F6C2F3; }
 .summary-table { width: 100%; border-collapse: collapse; margin-top: 1em; }
 .summary-table th, .summary-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
 .summary-table th { background-color: #f2f2f2; }
@@ -107,6 +107,8 @@ a.link-internal, a.link-external {
 .achievements { margin-top: 2em; }
 .achievements h3 { border-bottom: 1px solid #eee; padding-bottom: 0.5em; }
 .achievement-unlocked { font-size: 1.2em; }
+.achievement-locked { font-size: 1.2em; color: #888; }
+
 
 :: UI-Status [header]
 (if: $statusOpen is true)[
@@ -120,13 +122,6 @@ a.link-internal, a.link-external {
 
     <style>
         .field-notes-bg {
-            /* Dynamic background based on severity */
-            (if: $displaySeverity >= 2)[
-              (print: 'background-image: url("start2.png");')
-            ]
-            (else:)[
-              (print: 'background-image: url("start.png");')
-            ]
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -135,6 +130,14 @@ a.link-internal, a.link-external {
             text-shadow: 1px 1px 2px #000;
         }
     </style>
+
+    (if: $displaySeverity >= 2)[
+      (print: '<style>.field-notes-bg { background-image: url("start2.png"); }</style>')
+    ]
+    (else:)[
+      (print: '<style>.field-notes-bg { background-image: url("start.png"); }</style>')
+    ]
+
   <div class="field-notes-bg" style="position:fixed; top:5px; right:12px; width:220px; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
     <span style="position:absolute; top: -14px; right: 2px; width:20px; height:20px; color:#fff; border-radius:4px; font-size:12px; text-align:center; line-height:20px; cursor:pointer; font-weight:bold;">
       (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
@@ -153,7 +156,7 @@ a.link-internal, a.link-external {
             )
         )
         (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
-      
+
     (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 1px; margin-bottom: 1px;">')
     ]
     <b>Codename:</b> (print:$friendName)<br>
@@ -182,10 +185,6 @@ a.link-internal, a.link-external {
 ]
 
 :: StoryAudio [footer]
-<div id="story-audio" style="display:none;">
-<audio src="BGM.mp3" autoplay loop></audio>
-</div>
-
 :: Start
 <h1>Pull or Let Go</h1>
 I start my high school life with great excitement, and I made many new friends.
@@ -195,46 +194,46 @@ In the third week, a new face suddenly appeared in our class, it turned out to b
 
 :: NewStudent
 <style>
-.char-choice-container { 
+.char-choice-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     place-items: center;
     margin-top: 5px;
 }
-.char-choice { 
+.char-choice {
     width: 250px;
     text-align: center;
     font-size: 1.2em;
 }
-.char-choice .image-wrapper { 
-    position: relative; 
+.char-choice .image-wrapper {
+    position: relative;
     width: 250px;
     height: 250px;
     cursor: pointer;
 }
-.char-choice img { 
-    width: 100%; 
-    height: 250px; 
-    border-radius: 5px; 
-    display: block; 
-    position: absolute; 
+.char-choice img {
+    width: 100%;
+    height: 250px;
+    border-radius: 5px;
+    display: block;
+    position: absolute;
     top: 0;
-    left: 0; 
-    border: 3px solid transparent; 
-    transition: border-color 0.3s; 
+    left: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.3s;
 }
-.char-choice .image-wrapper:hover img { 
+.char-choice .image-wrapper:hover img {
     border-color: #4a90e2;
 }
-.char-choice .img-hover { 
-    opacity: 0; 
+.char-choice .img-hover {
+    opacity: 0;
     transition: opacity 0.3s;
 }
-.char-choice .image-wrapper:hover .img-hover { 
-    opacity: 1; 
+.char-choice .image-wrapper:hover .img-hover {
+    opacity: 1;
 }
-.char-choice .hidden-link { 
+.char-choice .hidden-link {
     display: none;
 }
 </style>
@@ -456,7 +455,7 @@ It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) app
 
 ::Year2-Help
 (set: $allIgnoreChoices to false)
-We wrote our names down on the same sheet of paper. 
+We wrote our names down on the same sheet of paper.
 From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
 (set: $friendship to $friendship + 10)
 
@@ -472,11 +471,11 @@ From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, e
 
 
 :: BullyingEvent2
-One day, as I was sitting in the classroom, I suddenly heard a commotion outside. 
+One day, as I was sitting in the classroom, I suddenly heard a commotion outside.
 When I looked toward the door, I saw some classmates by the lockers shoving (print:$friendName) while saying:
 "I heard you’re always copying La? Maybe you should take a look in the mirror first."
 "Hahaha, exactly! Just look at yourself! Isn’t it ridiculous?"
-As they spoke, they tugged at (print:$friendName)’s clothes and pulled at their hair, mocking and jeering. 
+As they spoke, they tugged at (print:$friendName)’s clothes and pulled at their hair, mocking and jeering.
 This drew more and more stares from people nearby, and the crowd began to grow…
 <br>
 [[How could they do this?! What should I do to stop them…?->MiniGame2]]
@@ -488,10 +487,10 @@ This drew more and more stares from people nearby, and the crowd began to grow�
 ::BullyChoice-Win2
 (set: $allIgnoreChoices to false)
 "Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!"
-I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering. 
+I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering.
 The few who had been leading the trouble left reluctantly.
-I walked over to (print:$friendName) and comforted them: 
-"It’s okay now, it’s over!"(print:$friendName) looked at me gratefully and said, 
+I walked over to (print:$friendName) and comforted them:
+"It’s okay now, it’s over!"(print:$friendName) looked at me gratefully and said,
 **"Thank you."**
 (set: $playerHelped to true)
 (set: $friendship to $friendship + 20)
@@ -509,7 +508,7 @@ I walked over to (print:$friendName) and comforted them:
 
 ::BullyChoice-Bully2
 (set: $allHelpChoices to false)
-"Hey, I noticed before that you’re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying ‘an inferior imitation’?" 
+"Hey, I noticed before that you’re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying ‘an inferior imitation’?"
 I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
 "Hahaha, exactly!""Oh my gosh, that’s hilarious, probably doesn’t even know what it means."
 <br>
@@ -519,14 +518,14 @@ I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
 (set: $event2Choice to "bully")
 
 ::Bully2
-Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader. 
+Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader.
 Everyone agreed with what I said and even built on it.
 Meanwhile, (print:$friendName)’s head was lowered like an ostrich, their face flushed bright red, as if they wanted to find a hole to crawl into and escape from this place.
 <br>
 [[I don't care...->Birth-Party]]
 
 ::Birth-Party
-Some time later, the popular classmate La organized a birthday party. 
+Some time later, the popular classmate La organized a birthday party.
 I noticed once again that (print:$friendName) still wasn’t in our group chat…
 <br>
 [[I try to contact (print:$friendName) and asked: "Do you want to go to the party together?"->Birth-Party-Help]]
@@ -556,7 +555,7 @@ It seemed they were having trouble finding the classroom too.
 
 ::Year3-Help
 (set: $allIgnoreChoices to false)
-"Hi! Are you looking for the classroom too? I’m lost, this is way too hard for me," 
+"Hi! Are you looking for the classroom too? I’m lost, this is way too hard for me,"
 I said as I walked over to start a conversation.
 "Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help."
 "Alright, let’s take a look together."
@@ -621,7 +620,7 @@ I hurried over to (print:$friendName)’s side and helped pick up their things.
 
 ::BullyChoice-Ignore3
 (set: $allHelpChoices to false)
-"There are so many of bullies… I’d better not get myself into trouble," 
+"There are so many of bullies… I’d better not get myself into trouble,"
 I muttered to myself, quickening my steps to get away from the scene as fast as possible.
 (set: $friendship to $friendship - 20)
 (set: $event3Choice to "ignore")
@@ -631,7 +630,7 @@ I muttered to myself, quickening my steps to get away from the scene as fast as 
 ::BullyChoice-Bully3
 (set: $allHelpChoices to false)
 Isn’t that (print:$friendName)?
-Caught doing something annoying again? 
+Caught doing something annoying again?
 I knew there was something off about them!
 "Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?"
 I said as I walked up to the group.
@@ -652,7 +651,7 @@ It looked absolutely ridiculous.
 
 ::Volunteer
 As the third year was coming to an end, everyone began looking into different universities and preparing their applications.
-By chance, I was offered an amazing volunteer opportunity. 
+By chance, I was offered an amazing volunteer opportunity.
 The organizer even allowed me to bring along one more classmate.
 This would be a huge advantage for our university applications!
 But…
@@ -908,7 +907,7 @@ I truly believe we’ll have an even brighter future ahead!
 The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
 It turned out that because of the psychological scars they carried, they couldn’t concentrate on their studies, they developed anxiety and depression, and failed to get into their dream university.
 In the end, they had to settle for another school far away.
-From that day on, we went our separate ways. 
+From that day on, we went our separate ways.
 I made new friends in college, and there was no longer any contact between me and (print:$friendName).
 <br>
 [[See Your Summary->Achievements]]
@@ -985,7 +984,7 @@ Although I was eventually admitted to a university, the psychological pressure I
 I don’t know who reported to my university that I had once taken part in bullying a classmate, but my dream school withdrew the offer they had given me.
 I was left with no choice but to attend the lowest-ranked school on my list.
 To my surprise, when I enrolled a few weeks late, I discovered that (print:$friendName) was there too.
-It was as if they had become a completely different person. 
+It was as if they had become a completely different person.
 They already fitting in with many others.
 When they saw me, they gave me a strange, unsettling smile.
 From then on, in the eyes of my classmates, I became the one labeled as a bully, despicable, childish, ignorant, and pathetic.
@@ -1042,7 +1041,7 @@ Perhaps… each one of us is a murderer.
 Not long after the graduation ceremony began, a large number of police officers arrived and started questioning people.
 It turned out that (print:$friendName) had attempted suicide an hour earlier, but was rescued when taken to the hospital.
 They told the police about many painful moments: being isolated, bullied, and driven into depression, losing the energy to complete their studies, feeling abandoned by the world, and ultimately choosing to end their life.
-The police questioned everyone one by one. 
+The police questioned everyone one by one.
 In order to protect myself, I gave them the names of the classmates who had bullied (print:$friendName), but they all said it was me who had forced them to act that way.
 In the end, I was punished by the law.
 <br>
@@ -1084,22 +1083,22 @@ In the end, I was punished by the law.
   <div class="star-container">
     (if: $endingsReached contains "Ending1")[(print: '<span class="star-c1">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-    
+
     (if: $endingsReached contains "Ending2")[(print: '<span class="star-c2">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-    
+
     (if: $endingsReached contains "Ending3")[(print: '<span class="star-c3">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-    
+
     (if: $endingsReached contains "Ending4")[(print: '<span class="star-c4">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-    
+
     (if: $endingsReached contains "Ending5")[(print: '<span class="star-c5">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-    
+
     (if: $endingsReached contains "Ending6")[(print: '<span class="star-c6">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-    
+
     (if: $endingsReached contains "Ending7")[(print: '<span class="star-c7">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
   </div>
@@ -1108,16 +1107,24 @@ In the end, I was punished by the law.
   (if: $achievementsUnlocked contains "best")[
     <div class="achievement-unlocked">🌹 <b>Best of the Best</b>
     <br><small>You supported your friend at every single opportunity.</small></div>
+  ](else:)[
+    <div class="achievement-locked">❓ <b>???</b>
+    <br><small>????????????????????????????????????????????</small></div>
   ]
+
+  <br>
+
   (if: $achievementsUnlocked contains "worst")[
     <div class="achievement-unlocked">💀 <b>Worst of the Worst</b>
     <br><small>You abandoned your friend at every single opportunity.</small></div>
+  ](else:)[
+    <div class="achievement-locked">❓ <b>???</b>
+    <br><small>????????????????????????????????????????????</small></div>
   ]
 </div>
 
 <br><br>
 [[Play Again?->Start]]
-
 
 :: MiniGame1
 <style>

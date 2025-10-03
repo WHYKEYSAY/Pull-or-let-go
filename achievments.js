@@ -1,4 +1,4 @@
-// Function to save the achievement datamaps to the browser's local storage
+// Function to save achievement data
 window.saveAchievements = function(endings, achievements, logs) {
   try {
     const data = {
@@ -12,13 +12,12 @@ window.saveAchievements = function(endings, achievements, logs) {
   }
 };
 
-// Function to load the achievements from local storage into Harlowe variables
+// Function to load achievement data
 window.loadAchievements = function() {
   try {
     const savedData = localStorage.getItem('pullOrLetGoSave');
     if (savedData) {
       const data = JSON.parse(savedData);
-      // We need to set these variables in the Harlowe engine's state
       if (data.endingsReached) {
         Harlowe.State.variables.endingsReached = new Map(Object.entries(data.endingsReached));
       }
@@ -26,7 +25,6 @@ window.loadAchievements = function() {
         Harlowe.State.variables.achievementsUnlocked = new Map(Object.entries(data.achievementsUnlocked));
       }
       if (data.playthroughLogs) {
-        // Convert the simple objects from JSON back into Harlowe Datamaps
         let logs = [];
         for (const log of data.playthroughLogs) {
           logs.push(new Map(Object.entries(log)));
@@ -38,3 +36,26 @@ window.loadAchievements = function() {
     console.error("Could not load achievements:", e);
   }
 };
+
+// --- New Self-Starting Music Player ---
+(function() {
+    if (!document.getElementById('story-bgm')) {
+        const bgm = document.createElement('audio');
+        bgm.id = 'story-bgm';
+        bgm.src = 'BGM.mp3';
+        bgm.loop = true;
+        document.body.appendChild(bgm);
+
+        const promise = bgm.play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                console.log("Autoplay prevented. Waiting for user interaction.");
+                const playOnFirstClick = () => {
+                    bgm.play();
+                    window.removeEventListener('click', playOnFirstClick);
+                };
+                window.addEventListener('click', playOnFirstClick);
+            });
+        }
+    }
+})();

@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="5" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="0286EA58-526B-4AB0-898F-3166195AA382" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
+<tw-storydata name="Pull or Let Go" startnode="5" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="6E5FEAE2-1DFE-4EC0-8143-68DBC85F89A0" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -78,20 +78,21 @@ a.link-internal, a.link-external {
 }
 .star-container { display: flex; font-size: 2em; gap: 0.5em; }
 .star-grey { color: #ccc; }
-.star-c1 { color: #E57373; } /* Red */
-.star-c2 { color: #64B5F6; } /* Blue */
-.star-c3 { color: #FFF176; } /* Yellow */
-.star-c4 { color: #81C784; } /* Green */
-.star-c5 { color: #FFB74D; } /* Orange */
-.star-c6 { color: #BA68C8; } /* Purple */
-.star-c7 { color: #4DB6AC; } /* Teal */
+.star-c1 { color: #F09EA7; }
+.star-c2 { color: #F6CA94; }
+.star-c3 { color: #FAFABE; }
+.star-c4 { color: #C1EBC0; }
+.star-c5 { color: #C7CAFF; }
+.star-c6 { color: #CDABEB; }
+.star-c7 { color: #F6C2F3; }
 .summary-table { width: 100%; border-collapse: collapse; margin-top: 1em; }
 .summary-table th, .summary-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
 .summary-table th { background-color: #f2f2f2; }
 .summary-table img { width: 50px; height: 50px; border-radius: 5px; }
 .achievements { margin-top: 2em; }
 .achievements h3 { border-bottom: 1px solid #eee; padding-bottom: 0.5em; }
-.achievement-unlocked { font-size: 1.2em; }</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to save the achievement datamaps to the browser's local storage
+.achievement-unlocked { font-size: 1.2em; }
+.achievement-locked { font-size: 1.2em; color: #888; }</style><script role="script" id="twine-user-script" type="text/twine-javascript">// Function to save achievement data
 window.saveAchievements = function(endings, achievements, logs) {
   try {
     const data = {
@@ -105,13 +106,12 @@ window.saveAchievements = function(endings, achievements, logs) {
   }
 };
 
-// Function to load the achievements from local storage into Harlowe variables
+// Function to load achievement data
 window.loadAchievements = function() {
   try {
     const savedData = localStorage.getItem('pullOrLetGoSave');
     if (savedData) {
       const data = JSON.parse(savedData);
-      // We need to set these variables in the Harlowe engine's state
       if (data.endingsReached) {
         Harlowe.State.variables.endingsReached = new Map(Object.entries(data.endingsReached));
       }
@@ -119,7 +119,6 @@ window.loadAchievements = function() {
         Harlowe.State.variables.achievementsUnlocked = new Map(Object.entries(data.achievementsUnlocked));
       }
       if (data.playthroughLogs) {
-        // Convert the simple objects from JSON back into Harlowe Datamaps
         let logs = [];
         for (const log of data.playthroughLogs) {
           logs.push(new Map(Object.entries(log)));
@@ -130,7 +129,30 @@ window.loadAchievements = function() {
   } catch (e) {
     console.error("Could not load achievements:", e);
   }
-};</script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="" position="150,25" size="100,100">(set: $friendship to 20, $playerBullied to false, $playerHelped to false)
+};
+
+// --- New Self-Starting Music Player ---
+(function() {
+    if (!document.getElementById('story-bgm')) {
+        const bgm = document.createElement('audio');
+        bgm.id = 'story-bgm';
+        bgm.src = 'BGM.mp3';
+        bgm.loop = true;
+        document.body.appendChild(bgm);
+
+        const promise = bgm.play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                console.log("Autoplay prevented. Waiting for user interaction.");
+                const playOnFirstClick = () => {
+                    bgm.play();
+                    window.removeEventListener('click', playOnFirstClick);
+                };
+                window.addEventListener('click', playOnFirstClick);
+            });
+        }
+    }
+})();</script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="" position="150,25" size="100,100">(set: $friendship to 20, $playerBullied to false, $playerHelped to false)
 (set: $friendLook to &quot;&quot;, $friendName to &quot;???&quot;, $statusOpen to false)
 (set: $friendImgBase to &quot;&quot;, $friendImgExt to &quot;&quot;)
 (set: $event1Choice to &quot;&quot;)
@@ -157,13 +179,6 @@ window.loadAchievements = function() {
 
     &lt;style&gt;
         .field-notes-bg {
-            /* Dynamic background based on severity */
-            (if: $displaySeverity &gt;= 2)[
-              (print: &#39;background-image: url(&quot;start2.png&quot;);&#39;)
-            ]
-            (else:)[
-              (print: &#39;background-image: url(&quot;start.png&quot;);&#39;)
-            ]
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -172,6 +187,14 @@ window.loadAchievements = function() {
             text-shadow: 1px 1px 2px #000;
         }
     &lt;/style&gt;
+
+    (if: $displaySeverity &gt;= 2)[
+      (print: &#39;&lt;style&gt;.field-notes-bg { background-image: url(&quot;start2.png&quot;); }&lt;/style&gt;&#39;)
+    ]
+    (else:)[
+      (print: &#39;&lt;style&gt;.field-notes-bg { background-image: url(&quot;start.png&quot;); }&lt;/style&gt;&#39;)
+    ]
+
   &lt;div class=&quot;field-notes-bg&quot; style=&quot;position:fixed; top:5px; right:12px; width:220px; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;&quot;&gt;
     &lt;span style=&quot;position:absolute; top: -14px; right: 2px; width:20px; height:20px; color:#fff; border-radius:4px; font-size:12px; text-align:center; line-height:20px; cursor:pointer; font-weight:bold;&quot;&gt;
       (link: &quot;✕&quot;)[ (set: $statusOpen to false)(goto: (passage:)&#39;s name) ]
@@ -190,7 +213,7 @@ window.loadAchievements = function() {
             )
         )
         (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
-      
+
     (print: &#39;&lt;img src=&quot;&#39; + _imgSrc + &#39;&quot; alt=&quot;&#39; + $friendName + &#39;&quot; style=&quot;width:100%; border-radius: 1px; margin-bottom: 1px;&quot;&gt;&#39;)
     ]
     &lt;b&gt;Codename:&lt;/b&gt; (print:$friendName)&lt;br&gt;
@@ -216,53 +239,51 @@ window.loadAchievements = function() {
       (link: &quot;☰ Field Notes&quot;)[ (set: $statusOpen to true)(goto: (passage:)&#39;s name) ]
     &lt;/span&gt;
   &lt;/div&gt;
-]</tw-passagedata><tw-passagedata pid="4" name="StoryAudio" tags="footer" position="400,25" size="100,100">&lt;div id=&quot;story-audio&quot; style=&quot;display:none;&quot;&gt;
-&lt;audio src=&quot;BGM.mp3&quot; autoplay loop&gt;&lt;/audio&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="5" name="Start" tags="" position="525,25" size="100,100">&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
+]</tw-passagedata><tw-passagedata pid="4" name="StoryAudio" tags="footer" position="400,25" size="100,100"></tw-passagedata><tw-passagedata pid="5" name="Start" tags="" position="525,25" size="100,100">&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
 I start my high school life with great excitement, and I made many new friends.
 In the third week, a new face suddenly appeared in our class, it turned out to be a transfer student who had arrived three weeks late because of family reasons.
 &lt;br&gt;
 [[I look at them...-&gt;NewStudent]]</tw-passagedata><tw-passagedata pid="6" name="NewStudent" tags="" position="650,25" size="100,100">&lt;style&gt;
-.char-choice-container { 
+.char-choice-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     place-items: center;
     margin-top: 5px;
 }
-.char-choice { 
+.char-choice {
     width: 250px;
     text-align: center;
     font-size: 1.2em;
 }
-.char-choice .image-wrapper { 
-    position: relative; 
+.char-choice .image-wrapper {
+    position: relative;
     width: 250px;
     height: 250px;
     cursor: pointer;
 }
-.char-choice img { 
-    width: 100%; 
-    height: 250px; 
-    border-radius: 5px; 
-    display: block; 
-    position: absolute; 
+.char-choice img {
+    width: 100%;
+    height: 250px;
+    border-radius: 5px;
+    display: block;
+    position: absolute;
     top: 0;
-    left: 0; 
-    border: 3px solid transparent; 
-    transition: border-color 0.3s; 
+    left: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.3s;
 }
-.char-choice .image-wrapper:hover img { 
+.char-choice .image-wrapper:hover img {
     border-color: #4a90e2;
 }
-.char-choice .img-hover { 
-    opacity: 0; 
+.char-choice .img-hover {
+    opacity: 0;
     transition: opacity 0.3s;
 }
-.char-choice .image-wrapper:hover .img-hover { 
-    opacity: 1; 
+.char-choice .image-wrapper:hover .img-hover {
+    opacity: 1;
 }
-.char-choice .hidden-link { 
+.char-choice .hidden-link {
     display: none;
 }
 &lt;/style&gt;
@@ -423,7 +444,7 @@ It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) app
 [[&quot;Sure, sure! I think it’ll be really fun too!&quot;-&gt;Year2-Help]]
 &lt;br&gt;
 [[&quot;Um… actually, woodworking is just okay for me. I’d rather join the film club. Do you want to join that one with me?&quot;-&gt;Year2-Ignore]]</tw-passagedata><tw-passagedata pid="25" name="Year2-Help" tags="" position="525,275" size="100,100">(set: $allIgnoreChoices to false)
-We wrote our names down on the same sheet of paper. 
+We wrote our names down on the same sheet of paper.
 From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
 (set: $friendship to $friendship + 10)
 
@@ -432,11 +453,11 @@ From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, e
 &quot;Okay, I hope you have fun making crafts!&quot;
 (set: $friendship to $friendship - 5)
 
-[[After that, for quite a long time, we didn’t really have much interaction anymore.-&gt;BullyingEvent2]]</tw-passagedata><tw-passagedata pid="27" name="BullyingEvent2" tags="" position="775,275" size="100,100">One day, as I was sitting in the classroom, I suddenly heard a commotion outside. 
+[[After that, for quite a long time, we didn’t really have much interaction anymore.-&gt;BullyingEvent2]]</tw-passagedata><tw-passagedata pid="27" name="BullyingEvent2" tags="" position="775,275" size="100,100">One day, as I was sitting in the classroom, I suddenly heard a commotion outside.
 When I looked toward the door, I saw some classmates by the lockers shoving (print:$friendName) while saying:
 &quot;I heard you’re always copying La? Maybe you should take a look in the mirror first.&quot;
 &quot;Hahaha, exactly! Just look at yourself! Isn’t it ridiculous?&quot;
-As they spoke, they tugged at (print:$friendName)’s clothes and pulled at their hair, mocking and jeering. 
+As they spoke, they tugged at (print:$friendName)’s clothes and pulled at their hair, mocking and jeering.
 This drew more and more stares from people nearby, and the crowd began to grow…
 &lt;br&gt;
 [[How could they do this?! What should I do to stop them…?-&gt;MiniGame2]]
@@ -445,10 +466,10 @@ This drew more and more stares from people nearby, and the crowd began to grow�
 &lt;br&gt;
 [[It’s so lively, everyone’s pointing fingers at (print:$friendName), which must mean they’re really like that, right? Why not join in and see for it!-&gt;BullyChoice-Bully2]]</tw-passagedata><tw-passagedata pid="28" name="BullyChoice-Win2" tags="" position="900,275" size="100,100">(set: $allIgnoreChoices to false)
 &quot;Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!&quot;
-I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering. 
+I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering.
 The few who had been leading the trouble left reluctantly.
-I walked over to (print:$friendName) and comforted them: 
-&quot;It’s okay now, it’s over!&quot;(print:$friendName) looked at me gratefully and said, 
+I walked over to (print:$friendName) and comforted them:
+&quot;It’s okay now, it’s over!&quot;(print:$friendName) looked at me gratefully and said,
 **&quot;Thank you.&quot;**
 (set: $playerHelped to true)
 (set: $friendship to $friendship + 20)
@@ -460,18 +481,18 @@ I walked over to (print:$friendName) and comforted them:
 (set: $event2Choice to &quot;ignore&quot;)
 
 [[I lowered my head, pulled out the homework I hadn’t finished yet, and went back to my own business.-&gt;Birth-Party]]</tw-passagedata><tw-passagedata pid="30" name="BullyChoice-Bully2" tags="" position="1150,275" size="100,100">(set: $allHelpChoices to false)
-&quot;Hey, I noticed before that you’re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying ‘an inferior imitation’?&quot; 
+&quot;Hey, I noticed before that you’re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying ‘an inferior imitation’?&quot;
 I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
 &quot;Hahaha, exactly!&quot;&quot;Oh my gosh, that’s hilarious, probably doesn’t even know what it means.&quot;
 &lt;br&gt;
 [[At that moment, I felt like I had told a really effective joke and gained everyone’s approval.-&gt;Bully2]]
 (set: $playerBullied to true)
 (set: $friendship to it - 30)
-(set: $event2Choice to &quot;bully&quot;)</tw-passagedata><tw-passagedata pid="31" name="Bully2" tags="" position="25,400" size="100,100">Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader. 
+(set: $event2Choice to &quot;bully&quot;)</tw-passagedata><tw-passagedata pid="31" name="Bully2" tags="" position="25,400" size="100,100">Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader.
 Everyone agreed with what I said and even built on it.
 Meanwhile, (print:$friendName)’s head was lowered like an ostrich, their face flushed bright red, as if they wanted to find a hole to crawl into and escape from this place.
 &lt;br&gt;
-[[I don&#39;t care...-&gt;Birth-Party]]</tw-passagedata><tw-passagedata pid="32" name="Birth-Party" tags="" position="150,400" size="100,100">Some time later, the popular classmate La organized a birthday party. 
+[[I don&#39;t care...-&gt;Birth-Party]]</tw-passagedata><tw-passagedata pid="32" name="Birth-Party" tags="" position="150,400" size="100,100">Some time later, the popular classmate La organized a birthday party.
 I noticed once again that (print:$friendName) still wasn’t in our group chat…
 &lt;br&gt;
 [[I try to contact (print:$friendName) and asked: &quot;Do you want to go to the party together?&quot;-&gt;Birth-Party-Help]]
@@ -492,7 +513,7 @@ It seemed they were having trouble finding the classroom too.
 [[Should I go over and ask if they’re also looking for the classroom? Maybe we could find it faster together.-&gt;Year3-Help]]
 &lt;br&gt;
 [[…Or maybe not. They’re probably lost as well, and since I don’t know either, I’d better just ask someone on my own.-&gt;Year3-Ignore]]</tw-passagedata><tw-passagedata pid="35" name="Year3-Help" tags="" position="525,400" size="100,100">(set: $allIgnoreChoices to false)
-&quot;Hi! Are you looking for the classroom too? I’m lost, this is way too hard for me,&quot; 
+&quot;Hi! Are you looking for the classroom too? I’m lost, this is way too hard for me,&quot;
 I said as I walked over to start a conversation.
 &quot;Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help.&quot;
 &quot;Alright, let’s take a look together.&quot;
@@ -541,14 +562,14 @@ I hurried over to (print:$friendName)’s side and helped pick up their things.
 (set: $event3Choice to &quot;help&quot;)
 
 [[&quot;It’s okay…&quot; I said, trying to comfort them, though my feelings were complicated.-&gt;Volunteer]]</tw-passagedata><tw-passagedata pid="40" name="BullyChoice-Ignore3" tags="" position="1150,400" size="100,100">(set: $allHelpChoices to false)
-&quot;There are so many of bullies… I’d better not get myself into trouble,&quot; 
+&quot;There are so many of bullies… I’d better not get myself into trouble,&quot;
 I muttered to myself, quickening my steps to get away from the scene as fast as possible.
 (set: $friendship to $friendship - 20)
 (set: $event3Choice to &quot;ignore&quot;)
 
 [[&quot;I didn’t see anything.&quot;-&gt;Volunteer]]</tw-passagedata><tw-passagedata pid="41" name="BullyChoice-Bully3" tags="" position="25,525" size="100,100">(set: $allHelpChoices to false)
 Isn’t that (print:$friendName)?
-Caught doing something annoying again? 
+Caught doing something annoying again?
 I knew there was something off about them!
 &quot;Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?&quot;
 I said as I walked up to the group.
@@ -563,7 +584,7 @@ It looked absolutely ridiculous.
 &quot;How stupid. They could’ve just washed it out, but instead cut it off. Serves them right for being bullied,&quot;
 &lt;br&gt;
 [[I sneered inwardly with contempt.-&gt;Volunteer]]</tw-passagedata><tw-passagedata pid="43" name="Volunteer" tags="" position="275,525" size="100,100">As the third year was coming to an end, everyone began looking into different universities and preparing their applications.
-By chance, I was offered an amazing volunteer opportunity. 
+By chance, I was offered an amazing volunteer opportunity.
 The organizer even allowed me to bring along one more classmate.
 This would be a huge advantage for our university applications!
 But…
@@ -770,7 +791,7 @@ I truly believe we’ll have an even brighter future ahead!
 The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
 It turned out that because of the psychological scars they carried, they couldn’t concentrate on their studies, they developed anxiety and depression, and failed to get into their dream university.
 In the end, they had to settle for another school far away.
-From that day on, we went our separate ways. 
+From that day on, we went our separate ways.
 I made new friends in college, and there was no longer any contact between me and (print:$friendName).
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="58" name="Ending3" tags="" position="900,650" size="100,100">(set: $currentEnding to &quot;Ending3: Fading into Silence&quot;)
@@ -838,7 +859,7 @@ Although I was eventually admitted to a university, the psychological pressure I
 I don’t know who reported to my university that I had once taken part in bullying a classmate, but my dream school withdrew the offer they had given me.
 I was left with no choice but to attend the lowest-ranked school on my list.
 To my surprise, when I enrolled a few weeks late, I discovered that (print:$friendName) was there too.
-It was as if they had become a completely different person. 
+It was as if they had become a completely different person.
 They already fitting in with many others.
 When they saw me, they gave me a strange, unsettling smile.
 From then on, in the eyes of my classmates, I became the one labeled as a bully, despicable, childish, ignorant, and pathetic.
@@ -889,7 +910,7 @@ Perhaps… each one of us is a murderer.
 Not long after the graduation ceremony began, a large number of police officers arrived and started questioning people.
 It turned out that (print:$friendName) had attempted suicide an hour earlier, but was rescued when taken to the hospital.
 They told the police about many painful moments: being isolated, bullied, and driven into depression, losing the energy to complete their studies, feeling abandoned by the world, and ultimately choosing to end their life.
-The police questioned everyone one by one. 
+The police questioned everyone one by one.
 In order to protect myself, I gave them the names of the classmates who had bullied (print:$friendName), but they all said it was me who had forced them to act that way.
 In the end, I was punished by the law.
 &lt;br&gt;
@@ -928,22 +949,22 @@ In the end, I was punished by the law.
   &lt;div class=&quot;star-container&quot;&gt;
     (if: $endingsReached contains &quot;Ending1&quot;)[(print: &#39;&lt;span class=&quot;star-c1&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
-    
+
     (if: $endingsReached contains &quot;Ending2&quot;)[(print: &#39;&lt;span class=&quot;star-c2&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
-    
+
     (if: $endingsReached contains &quot;Ending3&quot;)[(print: &#39;&lt;span class=&quot;star-c3&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
-    
+
     (if: $endingsReached contains &quot;Ending4&quot;)[(print: &#39;&lt;span class=&quot;star-c4&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
-    
+
     (if: $endingsReached contains &quot;Ending5&quot;)[(print: &#39;&lt;span class=&quot;star-c5&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
-    
+
     (if: $endingsReached contains &quot;Ending6&quot;)[(print: &#39;&lt;span class=&quot;star-c6&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
-    
+
     (if: $endingsReached contains &quot;Ending7&quot;)[(print: &#39;&lt;span class=&quot;star-c7&quot;&gt;★&lt;/span&gt;&#39;)]
     (else:)[(print: &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;)]
   &lt;/div&gt;
@@ -952,10 +973,19 @@ In the end, I was punished by the law.
   (if: $achievementsUnlocked contains &quot;best&quot;)[
     &lt;div class=&quot;achievement-unlocked&quot;&gt;🌹 &lt;b&gt;Best of the Best&lt;/b&gt;
     &lt;br&gt;&lt;small&gt;You supported your friend at every single opportunity.&lt;/small&gt;&lt;/div&gt;
+  ](else:)[
+    &lt;div class=&quot;achievement-locked&quot;&gt;❓ &lt;b&gt;???&lt;/b&gt;
+    &lt;br&gt;&lt;small&gt;????????????????????????????????????????????&lt;/small&gt;&lt;/div&gt;
   ]
+
+  &lt;br&gt;
+
   (if: $achievementsUnlocked contains &quot;worst&quot;)[
     &lt;div class=&quot;achievement-unlocked&quot;&gt;💀 &lt;b&gt;Worst of the Worst&lt;/b&gt;
     &lt;br&gt;&lt;small&gt;You abandoned your friend at every single opportunity.&lt;/small&gt;&lt;/div&gt;
+  ](else:)[
+    &lt;div class=&quot;achievement-locked&quot;&gt;❓ &lt;b&gt;???&lt;/b&gt;
+    &lt;br&gt;&lt;small&gt;????????????????????????????????????????????&lt;/small&gt;&lt;/div&gt;
   ]
 &lt;/div&gt;
 
