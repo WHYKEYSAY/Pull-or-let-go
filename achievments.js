@@ -1,43 +1,84 @@
-// Function to save achievement data
+// In-memory storage for achievements (no localStorage)
+if (!window.gameData) {
+  window.gameData = {
+    endingsReached: {},
+    achievementsUnlocked: {},
+    playthroughLogs: []
+  };
+}
+
+// Function to save achievement data (in-memory only)
 window.saveAchievements = function(endings, achievements, logs) {
   try {
-    const data = {
-      endingsReached: endings,
-      achievementsUnlocked: achievements,
-      playthroughLogs: logs
-    };
-    localStorage.setItem('pullOrLetGoSave', JSON.stringify(data));
+    console.log("Saving - Input:", {endings, achievements, logs});
+
+    // Convert Harlowe datamaps to plain objects
+    const endingsObj = {};
+    if (endings instanceof Map) {
+      endings.forEach((v, k) => { endingsObj[k] = v; });
+    } else if (endings && typeof endings === 'object') {
+      Object.assign(endingsObj, endings);
+    }
+    window.gameData.endingsReached = endingsObj;
+
+    const achievementsObj = {};
+    if (achievements instanceof Map) {
+      achievements.forEach((v, k) => { achievementsObj[k] = v; });
+    } else if (achievements && typeof achievements === 'object') {
+      Object.assign(achievementsObj, achievements);
+    }
+    window.gameData.achievementsUnlocked = achievementsObj;
+
+    const logsArray = [];
+    if (Array.isArray(logs)) {
+      logs.forEach(log => {
+        if (log instanceof Map) {
+          const obj = {};
+          log.forEach((v, k) => { obj[k] = v; });
+          logsArray.push(obj);
+        } else if (log && typeof log === 'object') {
+          logsArray.push(log);
+        }
+      });
+    }
+    window.gameData.playthroughLogs = logsArray;
+
+    console.log("Saved achievements:", window.gameData);
   } catch (e) {
     console.error("Could not save achievements:", e);
   }
 };
 
-// Function to load achievement data
+// Function to load achievement data (from memory) - returns the data directly
 window.loadAchievements = function() {
   try {
-    const savedData = localStorage.getItem('pullOrLetGoSave');
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      if (data.endingsReached) {
-        Harlowe.State.variables.endingsReached = new Map(Object.entries(data.endingsReached));
-      }
-      if (data.achievementsUnlocked) {
-        Harlowe.State.variables.achievementsUnlocked = new Map(Object.entries(data.achievementsUnlocked));
-      }
-      if (data.playthroughLogs) {
-        let logs = [];
-        for (const log of data.playthroughLogs) {
-          logs.push(new Map(Object.entries(log)));
-        }
-        Harlowe.State.variables.playthroughLogs = logs;
-      }
+    if (!window.gameData) {
+      window.gameData = {
+        endingsReached: {},
+        achievementsUnlocked: {},
+        playthroughLogs: []
+      };
     }
+
+    console.log("Loading achievements:", window.gameData);
+
+    // Return the data so Harlowe can use it
+    return {
+      endingsReached: window.gameData.endingsReached || {},
+      achievementsUnlocked: window.gameData.achievementsUnlocked || {},
+      playthroughLogs: window.gameData.playthroughLogs || []
+    };
   } catch (e) {
     console.error("Could not load achievements:", e);
+    return {
+      endingsReached: {},
+      achievementsUnlocked: {},
+      playthroughLogs: []
+    };
   }
 };
 
-// --- New Self-Starting Music Player ---
+// --- Self-Starting Music Player ---
 (function() {
     if (!document.getElementById('story-bgm')) {
         const bgm = document.createElement('audio');
