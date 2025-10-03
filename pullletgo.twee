@@ -5,72 +5,120 @@ Pull or Let Go
 Harlowe 3
 
 :: StoryInit
-(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
+(set: $friendship to 20, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
 (set: $friendImgBase to "", $friendImgExt to "")
 (set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
 (set: $doomedToEnd1 to false)
+(set: $redemption to 0)
+(set: $endingsFound to (array:))
+(set: $bestOfTheBest to false)
+(set: $worstOfTheWorst to false)
 
 :: StoryStylesheet [stylesheet]
 tw-story {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 0px;
 }
 
 tw-passage {
-    width: 100%;
-    max-width: 800px;
-    /* Increased width to accommodate four choices */
-    text-align: left;
+    width: 100%;
+    max-width: 800px;
+    text-align: left;
+    background-color: transparent;
+    padding: 2em;
 }
 
 tw-passage:not(:last-of-type) {
+    display: none;
+}
+
+a.link-internal, a.link-external {
+    color: #fca5a5;
+    border-bottom: 1px solid #fca5a5;
+}
+
+.char-choice-container { 
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    place-items: center;
+    margin-top: 20px;
+}
+.char-choice { 
+    width: 250px;
+    text-align: center;
+    font-size: 1.2em;
+}
+.char-choice .image-wrapper { 
+    position: relative; 
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+}
+.char-choice img { 
+    width: 100%; 
+    height: 200px; 
+    border-radius: 10px; 
+    display: block; 
+    position: absolute; 
+    top: 0;
+    left: 0; 
+    border: 3px solid transparent; 
+    transition: border-color 0.3s; 
+}
+.char-choice .image-wrapper:hover img { 
+    border-color: #4a90e2;
+}
+.char-choice .img-hover { 
+    opacity: 0; 
+    transition: opacity 0.3s;
+}
+.char-choice .image-wrapper:hover .img-hover { 
+    opacity: 1; 
+}
+.char-choice .hidden-link { 
     display: none;
 }
 
-
 :: UI-Status [header]
-<div style="position:fixed; top:12px; right:12px; z-index:9999;">
-  <span style="display:inline-block; background:#4a90e2; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-family:sans-serif; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;">
-    (if: $statusOpen is true)[
-      (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
-    ]
-    (else:)[
-      (link: "☰ Field Notes")[ (set: $statusOpen to true)(goto: (passage:)'s name) ]
-    ]
-  </span>
-</div>
 (if: $statusOpen is true)[
-  <div style="position:fixed; top:50px; right:12px; width:220px; z-index:9998; background:#ffffff; color:#111; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
-    <h3 style="margin:0 0 8px 0; font-size:15px; color:#333;">Field Notes</h3>
+    <style>
+        .field-notes-bg {
+            background-image: url("start.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff !important;
+            text-shadow: 1px 1px 2px #000;
+        }
+    </style>
+  <div class="field-notes-bg" style="position:fixed; top:5px; right:12px; width:220px; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
+    <span style="position:absolute; top: -14px; right: 2px; width:20px; height:20px; color:#fff; border-radius:4px; font-size:12px; text-align:center; line-height:20px; cursor:pointer; font-weight:bold;">
+      (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
+    </span>
+    <h3 style="margin:0 0 8px 0; font-size:15px; color:#fff;">Field Notes</h3>
     (if: $friendImgBase is not "")[
-        (set: _state to "_safe")
-        (if: (passage:)'s name is "Ending5")[
-            (set: _state to "_golden")
-        ]
-        (else-if: $bullyingLevel >= 3)[
-            (set: _state to "_trauma")
-        ]
-        (else-if: $bullyingLevel is 2)[
-            (set: _state to "_suffer")
-        ]
-        (else-if: $bullyingLevel is 1)[
-            (set: _state to "_isolated")
-        ]
-        (else:) [(if: $friendship < 0)[
-                (set: _state to "_suffer")
-            ]
-            (else-if: $friendship < 20)[
-                (set: _state to "_isolated")
-            ]
-        ]
-
+        (set: _state to
+            (cond:
+                (passage:)'s name is "Ending5", "_golden",
+                $bullyingLevel >= 3, "_trauma",
+                $bullyingLevel is 2, "_suffer",
+                $bullyingLevel is 1, "_isolated",
+                $friendship >= 40, "_golden",
+                $friendship >= 20, "_safe",
+                $friendship >= 0, "_isolated",
+                true, "_suffer"
+            )
+        )
         (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
-        (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 6px; margin-bottom: 8px;">')
+      
+    (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 1px; margin-bottom: 1px;">')
     ]
     <b>Codename:</b> (print:$friendName)<br>
     <b>Bond:</b>
@@ -89,457 +137,753 @@ tw-passage:not(:last-of-type) {
     )<br>
   </div>
 ]
-
+(else:)[
+  <div style="position:fixed; top:12px; right:12px; z-index:9999;">
+    <span style="display:inline-block; background:#4a90e2; color:#fff; padding:4px 10px; border-radius:6px; cursor:pointer; font-size:12px; font-family:sans-serif; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;">
+      (link: "☰ Field Notes")[ (set: $statusOpen to true)(goto: (passage:)'s name) ]
+    </span>
+  </div>
+]
 :: Start
-(set: $friendship to 0, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
+<h1>Pull or Let Go</h1>
+I start my high school life with great excitement, and I made many new friends.
+In the third week, a new face suddenly appeared in our class, it turned out to be a transfer student who had arrived three weeks late because of family reasons.
+<br>
+[[I look at them...->NewStudent]]
+(set: $friendship to 20, $bullyingLevel to 0, $playerBullied to false, $playerHelped to false)
 (set: $gameProgress to 0)
 (set: $friendLook to "", $friendName to "???", $statusOpen to false)
 (set: $friendImgBase to "", $friendImgExt to "")
 (set: $bulliedInEvent1 to false, $bulliedInEvent2 to false)
 (set: $doomedToEnd1 to false)
-
-<h2>Pull or Let Go</h2>
-First day back, two quiet weeks in. Then the classroom door slides open—and a **new student** steps in. My stomach does that nervous flip.
-<h3>What do they look like?</h3>
-[[I lean in for a better look->NewStudent]]
+(set: $redemption to 0)
 
 :: NewStudent
 <style>
-.char-choice-container { display: flex; justify-content: space-around; text-align: center; }
-.char-choice { width: 150px; }
-.char-choice .image-wrapper { position: relative; width: 150px; height: 150px; cursor: pointer; }
-.char-choice img { width: 100%; height: 150px; border-radius: 10px; display: block; position: absolute; top: 0; left: 0; border: 3px solid transparent; transition: border-color 0.3s; }
-.char-choice .image-wrapper:hover img { border-color: #4a90e2; }
-.char-choice .img-hover { opacity: 0; transition: opacity 0.3s; }
-.char-choice .image-wrapper:hover .img-hover { opacity: 1; }
-.char-choice .hidden-link { display: none; }
+.char-choice-container { 
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    place-items: center;
+    margin-top: 5px;
+}
+.char-choice { 
+    width: 250px;
+    text-align: center;
+    font-size: 1.2em;
+}
+.char-choice .image-wrapper { 
+    position: relative; 
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+}
+.char-choice img { 
+    width: 100%; 
+    height: 250px; 
+    border-radius: 5px; 
+    display: block; 
+    position: absolute; 
+    top: 0;
+    left: 0; 
+    border: 3px solid transparent; 
+    transition: border-color 0.3s; 
+}
+.char-choice .image-wrapper:hover img { 
+    border-color: #4a90e2;
+}
+.char-choice .img-hover { 
+    opacity: 0; 
+    transition: opacity 0.3s;
+}
+.char-choice .image-wrapper:hover .img-hover { 
+    opacity: 1; 
+}
+.char-choice .hidden-link { 
+    display: none;
+}
 </style>
 
-<h2>The new student looks like...</h2>
+<h4>The new student looks like...</h4>
 <div class="char-choice-container">
-    <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person1_safe.png" class="img-normal"><img src="person1_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a student with spiky blond hair and a sporty headband")
-            (set: $friendImgBase to "person1")
-            (set: $friendImgExt to ".png")
-            (goto: "NameChoice")
-        ]
-        Brown hair, a warm, easy wink
-    </div>
-    <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person2_safe.png" class="img-normal"><img src="person2_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a student with brown hair and a friendly wink")
-            (set: $friendImgBase to "person2")
-            (set: $friendImgExt to ".png")
-            (goto: "NameChoice")
-        ]
-        Braided pigtails, bright red glasses
-    </div>
-    <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person3_safe.png" class="img-normal"><img src="person3_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a student with cute double buns and earrings")
-            (set: $friendImgBase to "person3")
-            (set: $friendImgExt to ".png")
-            (goto: "NameChoice")
-        ]
-        Double buns, tiny silver earrings
-    </div>
-    <div class="char-choice">
-        (link-reveal: '<div class="image-wrapper"><img src="person4_safe.png" class="img-normal"><img src="person4_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
-            (set: $friendLook to "a student with braided pigtails and red glasses")
-            (set: $friendImgBase to "person4")
-            (set: $friendImgExt to ".png")
-            (goto: "NameChoice")
-        ]
-        Spiky blond hair, sporty headband
-    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person1_safe.png" class="img-normal"><img src="person1_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with brown hair and a friendly wink")
+            (set: $friendImgBase to "person1")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person2_safe.png" class="img-normal"><img src="person2_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with braided pigtails and red glasses")
+      
+            (set: $friendImgBase to "person2")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person3_safe.png" class="img-normal"><img src="person3_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with cute double buns and earrings")
+            (set: $friendImgBase to "person3")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person4_safe.png" 
+class="img-normal"><img src="person4_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "a student with spiky blond hair and a sporty headband")
+            (set: $friendImgBase to "person4")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
 </div>
 
 
 :: NameChoice
-The (print:$friendLook) steps forward and clears their throat.
-“Hey… my name is…”
-(set: _n to (prompt: "Enter their name:", "Alex"))
+A **(print:$friendLook)** student cleared their throat and said,
+"Hey everyone, nice to meet you all~”
+(set: _n to (prompt: "Enter their name:", ""))
 (set: $friendName to (cond: _n is "", "???", true, _n))
-I smile before I can stop myself. So it’s **(print:$friendName)**.
+"My name is **(print:$friendName)**"
+After finishing the self-introduction, the new student sat down at their seat. By this time, the rest of the class had already grown close over the past three weeks.
+"Quiet down, let’s begin class," the teacher said, speaking as if coaxing little children.
+"(print:$friendName)..." I repeated myself.
 <br>
-[[Okay. Deep breath. Let’s start this semester->SemesterHub]]
-:: SemesterHub
-(if: $gameProgress >= 17)[
-  [[Time for graduation->Graduation]]
-]
-(else:)[
-  <h2>
-    (cond:
-      $gameProgress <= 3, "Year 1",
-      $gameProgress <= 7, "Year 2",
-      $gameProgress <= 11, "Year 3",
-      true, "Year 4"
-    ),
-    (cond:
-      $gameProgress is 0 or $gameProgress is 1 or $gameProgress is 4 or $gameProgress is 8 or $gameProgress is 12 or $gameProgress is 13, "Fall Semester",
-      true, "Winter Semester"
-    )
-  </h2>
-  <br>
-  <br>
-  (cond:
-      $gameProgress is 0, [[September: Go to the new student orientation->Year1-Event]],
-      $gameProgress is 1, [[October: Review for midterm exams->RecurringEvent-Midterm]],
-      $gameProgress is 2, [[You notice something strange in the library...->BullyingEvent1]],
-      $gameProgress is 3, [[May: Attend the end-of-finals party->RecurringEvent-Party]],
-      $gameProgress is 4, [[October: Review for midterm exams->RecurringEvent-Midterm]],
-      $gameProgress is 5, [[March: Time to choose an interest club->Year2-Event]],
-      $gameProgress is 6, [[You overhear some harsh words near the lockers...->BullyingEvent2]],
-      $gameProgress is 7, [[May: Attend the end-of-finals party->RecurringEvent-Party]],
-      $gameProgress is 8, [[October: Review for midterm exams->RecurringEvent-Midterm]],
-      $gameProgress is 9, [[You see a group cornering (print:$friendName) after school...->BullyingEvent3]],
-      $gameProgress is 10, [[May: Attend the end-of-finals party->RecurringEvent-Party]],
-      $gameProgress is 11, [[June: It's time to find an internship->Year3-Event]],
-      $gameProgress is 12, [[October: Review for midterm exams->RecurringEvent-Midterm]],
-      $gameProgress is 13, [[December: It's almost Christmas->RecurringEvent-Christmas]],
-      $gameProgress is 14, [[February: Find a classroom for a new course->RecurringEvent-FindClass]],
-      $gameProgress is 15, [[March: Focus on the graduation project->Year4-Event]],
-      $gameProgress is 16, [[May: Attend the end-of-finals party->RecurringEvent-Party]]
-  )
-]
+[[Alright then, I took a deep breath—let’s begin our new journey together!->NewStudentHub]]
 
-:: RecurringEvent-Midterm
-It’s October. The library hums with pencil-scratch and whispers. Across the table, (print:$friendName) rubs their temples—the exact chapter I finally cracked.
+:: NewStudentHub
+It's only the beginning of my first year, and I carried a lighthearted attitude toward studying, filled with excitement and joy.
+Some of my classmates spontaneously organized a party and invited everyone to join.
 <br>
-[[Invite them to study with me->Midterm-Help]]
-<br>
-[[Keep my head down and study alone->Midterm-Ignore]]
+[["Wow, how exciting! I definitely had to go!"->MeetNewstudent]]
 
-:: RecurringEvent-Christmas
-Last bell before the holidays. The halls glitter with paper snowflakes. (print:$friendName) lingers by the door like they’re waiting for a sign.
+:: MeetNewstudent
+After I finished filling out the sign-up form, I was happily humming a tune when I suddenly noticed the new classmate sitting alone over there."Huh? Why are they sitting there all by themselves? They look kind of lonely… maybe it’s because they don’t know anyone yet. I wonder if they’ll go to the party?" I thought to myself with some uncertainty.
 <br>
-[[Catch their eye and say, “Merry Christmas.”->Christmas-Help]]
+[[Should I go over and ask, maybe invite them to come along with me?->NewParty-Help]]
 <br>
-[[Zip my bag and slip out without a word->Christmas-Ignore]]
+[[…Or maybe not. They probably have their own plans. I guess I’ll just go hang out with the new friends I’ve made for now~->NewParty-Ignore]]
 
-:: RecurringEvent-FindClass
-February, first day of winter term. The ‘C-Wing’ map looks like a maze someone doodled in the margins. (print:$friendName) studies it, lost.
-<br>
-[[“Come on—let’s navigate this together.”->FindClass-Help]]
-<br>
-[[Point vaguely and let them figure it out->FindClass-Ignore]]
+:: NewParty-Help
+"Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!" I asked.
+"Ah… um… not yet… but sure, I’ll go sign up now," the new student stammered, then went to fill out the registration form.
+(set: $friendship to $friendship + 10)
+(set: $gameProgress to $gameProgress + 1)
+[[After attending that event, a period of calm and steady school life followed.->Midterm]]
 
-:: RecurringEvent-Party
-May. Finals are finally over. Someone texts an address; bass already vibrating the night. I spot (print:$friendName) typing, then deleting, then typing again.
+:: NewParty-Ignore
+"Hey! What time are you guys planning to head out? I’m so excited! I wonder what kind of fun things will be there!"
+"Yeah, my address is kind of far, so I might arrive a bit late."
+"Where do you live? Maybe I can give you a ride, and we can take a little detour along the way!"
+"Wow, that’s so cool!!!"
+...
+(set: $friendship to $friendship - 5)
+(set: $gameProgress to $gameProgress + 1)
+[[We kept chatting back and forth, planning our trip. And I thought to myself: my high school life is definitely going to be exciting!->Midterm]]
+
+
+:: Midterm
+Before I knew it, October had arrived, and I started to worry about the upcoming midterm exams.
+"Ah, luckily we haven’t learned too much yet. If I review properly, it should be fine!" I told myself, trying to stay motivated.
+Just then, I looked up and noticed (print:$friendName) sitting there with a frown, resting their chin on their hand. It looked like they were having a hard time.
 <br>
-[[Ask, “Wanna go together?”->Party-Help]]
+[[Should I go over and ask if they need help? Maybe studying together would work out even better for both of us.->Midterm-Help]]
 <br>
-[[Go solo and see what happens->Party-Ignore]]
+[[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else—I’d better focus on preparing myself. After all, I study more efficiently on my own.->Midterm-Ignore]]
 
 :: Midterm-Help
-We spread notes across the table like a map. I explain the knot in the chapter—the part that finally clicked. (print:$friendName)’s face brightens mid-sentence. My chest loosens.
+We spread our notes out on the desk like a map. I explained all the unclear points from the chapters, and we organized a more complete set of review materials together. Both of us smiled with relief, and I felt my heart is more confident.
 (set: $friendship to it + 2)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
+(set: $gameProgress to $gameProgress + 1)
+[[Onward we go.->BullyingEvent1]]
 
 :: Midterm-Ignore
-“I should stay on my plan,” I mumble, eyes on my page. “Totally,” they say, too quickly. The silence after feels heavier than the textbooks.
+I gathered my thoughts and focused fully on my revision.
+"Hah, these points aren’t so hard after all!"
+When I finished studying and was getting ready to head home, I glanced over and saw (print:$friendName) still buried in their books. It looked like they were stuck on something...
 (set: $friendship to it - 1)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-:: Christmas-Help
-“Hey—Merry Christmas.” My voice comes out softer than I expect. Their shoulders drop; their smile is small and real. A warm ember to pocket for later.
-(set: $friendship to it + 2)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Onward", "SemesterHub")
-
-:: Christmas-Ignore
-I tug the zipper and head for the cold air. Behind me, a hopeful glance dissolves into the crowd.
-(set: $friendship to it - 1)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Onward", "SemesterHub")
-
-:: FindClass-Help
-“Team up?” I say, already walking. We trace signs, guess wrong once, laugh, and still land early. Getting lost together feels weirdly right.
-(set: $friendship to it + 2)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Onward", "SemesterHub")
-
-:: FindClass-Ignore
-I just point in a general direction and wish them luck.
-Later, you see them arrive to class late, looking flustered.
-(set: $friendship to it - 1)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Onward", "SemesterHub")
-
-:: Party-Help
-“Come with me?” I text before I can overthink it. The reply pings: “Yes!” Hours blur into jokes, music, and relief. We leave lighter.
-(set: $friendship to it + 2)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Onward", "SemesterHub")
-
-:: Party-Ignore
-I go alone, pretending it’s easier. Across the room, (print:$friendName) stands with a cup and a forced smile. I look away—and wish I hadn’t.
-(set: $friendship to it - 1)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Onward", "SemesterHub")
-
-:: Year1-Event
-Orientation day buzzes like a beehive. I spot (print:$friendName) orbiting the punch bowl—no one anchors them yet.
-<br>
-[[Walk over and say, “Hi—I’m glad you’re here.”->Y1-Help]]
-<br>
-[[Stick with my usual group and let the moment pass->Y1-Ignore]]
-
-:: Y1-Help
-We stumble through small talk, then real talk. The knot in their shoulders eases. Mine too. Maybe this year can be different.
-(set: $friendship to $friendship + 10)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-:: Y1-Ignore
-I drift toward familiar laughter. When I glance back, the punch bowl is still, and (print:$friendName) is gone. So is the window.
-(set: $friendship to $friendship - 5)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-
-:: Year2-Event
-Club week. Posters everywhere; possibility in marker ink. (print:$friendName) lingers at the same table I’m eyeing.
-<br>
-[[“Let’s sign up together.”->Y2-Help]]
-<br>
-[[Pick something else and drift apart->Y2-Ignore]]
-
-:: Y2-Help
-We write our names on the same sheet. Afternoons get a new rhythm—shared jokes, shared skills. The room starts to feel like ours.
-(set: $friendship to $friendship + 10)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-:: Y2-Ignore
-I take a different path on purpose. The spaces between hellos stretch longer until they’re just nods at the doorframe.
-(set: $friendship to $friendship - 5)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-
-:: Year3-Event
-Internship season. One lead, one recommendation slot, two names in my head. (print:$friendName) is one of them.
-<br>
-[[Send it to (print:$friendName) and help them prep->Y3-Help]]
-<br>
-[[Choose someone else and hope it was “practical”->Y3-Ignore]]
-
-:: Y3-Help
-I forward the link with notes and run mock questions till we’re both hoarse. They say thanks like it matters. It does.
-(set: $friendship to $friendship + 12)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-:: Y3-Ignore
-I send it to the other classmate. Word gets around. “It’s okay,” (print:$friendName) says, but the air cools between us.
-(set: $friendship to $friendship - 8)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-
-:: Year4-Event
-Capstone time. The partner choice that shapes the endgame. My cursor hovers over (print:$friendName)’s chat.
-<br>
-[[Ask (print:$friendName) to be my partner->Y4-Help]]
-<br>
-[[Team up elsewhere—or go solo->Y4-Ignore]]
-
-:: Y4-Help
-We split tasks, trade drafts, catch each other’s blind spots. Coffee goes cold; trust stays warm.
-(set: $friendship to $friendship + 15)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-:: Y4-Ignore
-I send a different message—or none. “Got it,” they say, and look away. The semester gets louder without them.
-(set: $friendship to $friendship - 6)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
+(set: $gameProgress to $gameProgress + 1)
+[[But my stomach was already protesting, I had to go treat myself to a big, well-deserved meal!->BullyingEvent1]]
 
 
 :: BullyingEvent1
-Library. (print:$friendName) sits; a whole table stands and drifts off like a tide pulling back. The silence screams: **isolation**.
+Finally, all the exams were over, I could finally relax!
+While I'm at the library returning books, I suddenly overheard someone talking about (print:$friendName).
+"Hey, did you hear? (print:$friendName) once stole something, and that’s why they were expelled and transferred to our school."
+"Really? No wonder I always thought they were kind of strange, like they’re always on guard, shifty-eyed."
+"And don’t you think their behavior is weird? They’re always alone and never say hi to us."
+"Better stay away from them! It’s scary."
+My heart skipped a beat. Were they talking about (print:$friendName)?! Could all this really be true? …
+When I turned my head, I saw (print:$friendName) not far away, head down, clutching their books tightly. It looked like they had heard every word of that conversation. What should I do…?
 <br>
-[[What do I do?->BullyingChoice]]
-
-:: BullyingEvent2
-Lockers. Laughter with knives in it. They slice at (print:$friendName)’s clothes, voice, face. **Verbal attacks**—meant to land.
+[[Step in and confront.->MiniGame1]]
 <br>
-[[What do I do?->BullyingChoice]]
-
-:: BullyingEvent3
-Hallway. A “joke” foot, a real fall. Books explode across the floor. The chorus laughs. **Physical aggression**, dressed up as clumsiness.
+[[Pretend I saw nothing and walk away->BullyChoice-Ignore1]]
 <br>
-[[What do I do?->BullyingChoice]]
+[[Curiosity gets the better of me, I want to join their gossip, if I do, I’ll have more to talk about, and it’ll be easier to fit in!->BullyChoice-Bully1]]
 
-:: BullyingChoice
-(if: $gameProgress is 9 and ($bulliedInEvent1 or $bulliedInEvent2)) [
-  The pattern is familiar—and worse. Shame spikes hot behind my ribs. I can still change the shape of this.
-  <br>
-  [[Step between them and take the hit with my voice->RedemptionChoice]]
-  <br>
-  [[Freeze and pretend it isn’t happening->Redemption-Ignore]]
-  <br>
-  [[Blend in with the bullies so they don’t see me->BullyChoice-Bully]]
-]
-(else:) [
-  [[Step in and confront them->Bullying-Help]]
-  <br>
-  [[Pretend I saw nothing and walk away->BullyChoice-Ignore]]
-  <br>
-  [[Join in so I won’t be next->BullyChoice-Bully]]
-]
-
-:: Bullying-Help
-(if: $gameProgress is 2)[(goto: "MiniGame1")]
-(else-if: $gameProgress is 6)[(goto: "MiniGame2")]
-(else-if: $gameProgress is 9)[(goto: "MiniGame3")]
-
-:: RedemptionChoice
-My throat is dry but my voice lands. “Enough. Leave them alone.” The surprise buys space; the crowd thins. (print:$friendName) breathes again. So do I.
-<br><br>
-[[Hold that line...->Ending2]]
-
-:: Redemption-Ignore
-I stare at my shoes until the laughter fades. Guilt hangs on me like a soaked coat.
-(set: $doomedToEnd1 to true)
-(set: $bullyingLevel to $bullyingLevel + 1)
-(set: $friendship to it - 10)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
-
-:: BullyChoice-Win
-I step in clean and steady. “Back off.” It works. (print:$friendName) meets my eyes—gratitude, shock, relief, all at once.
+:: BullyChoice-Win1
+"Ah, sorry, I didn’t mean to eavesdrop on your conversation. But if (print:$friendName) isn’t really that kind of person, wouldn’t saying things like this be a bit unfair?"
+"Why do you care? we were just chatting, that’s all."
+They sounded annoyed but didn’t say much more before turning away and leaving.
+I walked over to (print:$friendName) and said, "Don’t mind them. Some people just like to gossip for no reason. 
+Don’t take it to heart. I don’t believe you’re that kind of person!"
 (set: $playerHelped to true)
 (set: $friendship to $friendship + 15)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
+(set: $gameProgress to $gameProgress + 1)
+[[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]]
 
-:: BullyChoice-Ignore
-I let the moment pass. It passes through (print:$friendName) like a storm.
+:: BullyChoice-Ignore1
+Sigh… Even though gossiping behind someone’s back isn’t right, I don’t really know if what they said is true. After all, we’re not that close, so maybe it’s better not to meddle.
 (set: $bullyingLevel to $bullyingLevel + 1)
 (set: $friendship to $friendship - 10)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
+(set: $gameProgress to $gameProgress + 1)
+[["I don’t know anything," I told myself, and quickly leaving the library.->Ignore1]]
 
-:: BullyChoice-Fail
-I try—and stumble. The result feels the same as silence. It guts me anyway.
-(set: $bullyingLevel to $bullyingLevel + 1)
-(set: $friendship to $friendship - 10)
-(set: $gameProgress to $gameProgress + 1)(link-goto: "Keep going", "SemesterHub")
+:: Ignore1
+I don’t know if anything else happened that day, but I kept noticing that (print:$friendName) was always alone.
+<br>
+[[Well, I guess everyone has their own way of living.->FinalParty]]
 
-:: BullyChoice-Bully
-I laugh with them—too loud, too late. The line I cross is one I can’t un-cross.
+:: BullyChoice-Bully1
+"Hey, are you guys talking about (print:$friendName)?! I also think they’re a bit strange."
+"Yeah, don’t you think they act really weird?"
+"Exactly! I even tried talking to them before, but they’re always by themselves. It just felt impossible to get along."
+<br>
+[[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]]
 (set: $playerBullied to true)
 (set: $bullyingLevel to $bullyingLevel + 1)
 (set: $friendship to it - 30)
 (if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
 (else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
 (if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
+(set: $gameProgress to $gameProgress + 1)
 
-(set: $gameProgress to $gameProgress + 1)(link-goto: "There’s no going back.", "SemesterHub")
+::Bully1
+I secretly glanced at the spot where (print:$friendName) had been standing, but it looked like they had already left.
+<br>
+[[After that, every time they saw me, their eyes would deliberately avoid mine.->FinalParty]]
+
+:: FinalParty
+Another semester passed, and some classmates organized an end-of-term party. Someone sent me the address, and saying 
+"the bass was already thumping in the night sky."
+Then I noticed (print:$friendName) wasn’t in our group chat…
+<br>
+[[I found a way to contact (print:$friendName) and asked: "Do you want to go to the party together?->FinalParty-Help]]
+<br>
+[[…Or maybe not. Since they didn’t add (print:$friendName) to the group chat, I’d better not meddle. I’m not the one organizing the event.->FinalParty-Ignore]]
+
+::FinalParty-Help
+"Do you want to come with me to the end-of-term party?"
+"Huh? The end-of-term party…? But I never got an invitation."
+"Ah, they must have forgotten to send it to you. Don’t worry, let’s just go together~"
+"Uh… okay then."
+I pulled (print:$friendName) along with me to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
+(set: $friendship to $friendship + 2)
+(set: $gameProgress to $gameProgress + 1)
+[[And so, a new year of high school life began.->Year2]]
+
+::FinalParty-Ignore
+"This top with these pants? Ah, no, I’ll wear a skirt instead~ Should I prepare something to bring along?"
+I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.
+(set: $friendship to $friendship - 1)
+(set: $gameProgress to $gameProgress + 1)
+[[We ended up having an incredibly fun party, and no one remembered or even mentioned the person who didn’t come.->Year2]]
+
+
+::Year2
+By the time October of my second year rolled around.
+yay! We could finally choose our club activities. I had been looking forward to this for so long!
+It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) appeared behind me, patted my shoulder, and said:
+"Have you decided which one to join? How about we go to the woodworking club together?! It’s gotta be so much fun!"
+<br>
+[["Sure, sure! I think it’ll be really fun too!"->Year2-Help]]
+<br>
+[["Um… actually, woodworking is just okay for me. I’d rather join the film club. Do you want to join that one with me?"->Year2-Ignore]]
+
+::Year2-Help
+We wrote our names down on the same sheet of paper. 
+From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
+(set: $friendship to $friendship + 10)
+(set: $gameProgress to $gameProgress + 1)
+[[Tick-tock, tick-tock…->BullyingEvent2]]
+
+::Year2-Ignore
+"I’m not really interested in movies… alright then, you go join the film club, and I’ll just go to the woodworking club on my own."
+"Okay, I hope you have fun making crafts!"
+(set: $friendship to $friendship - 5)
+(set: $gameProgress to $gameProgress + 1)
+[[After that, for quite a long time, we didn’t really have much interaction anymore.->BullyingEvent2]]
+
+
+:: BullyingEvent2
+One day, as I was sitting in the classroom, I suddenly heard a commotion outside. 
+When I looked toward the door, I saw some classmates by the lockers shoving (print:$friendName) while saying:
+"I heard you’re always copying La? Maybe you should take a look in the mirror first."
+"Hahaha, exactly! Just look at yourself! Isn’t it ridiculous?"
+As they spoke, they tugged at (print:$friendName)’s clothes and pulled at their hair, mocking and jeering. 
+This drew more and more stares from people nearby, and the crowd began to grow…
+<br>
+[[How could they do this?! What should I do to stop them…?->MiniGame2]]
+<br>
+[[There are so many people… I feel sympathy, but it doesn’t really concern me. I’ll just pretend I didn’t see.->BullyChoice-Ignore2]]
+<br>
+[[It’s so lively, everyone’s pointing fingers at (print:$friendName), which must mean they’re really like that, right? Why not join in and see for it!->BullyChoice-Bully2]]
+
+::BullyChoice-Win2
+"Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!"
+I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering. 
+The few who had been leading the trouble left reluctantly.
+I walked over to (print:$friendName) and comforted them: 
+"It’s okay now, it’s over!"(print:$friendName) looked at me gratefully and said, 
+**"Thank you."**
+(set: $playerHelped to true)
+(set: $friendship to $friendship + 15)
+(set: $gameProgress to $gameProgress + 1)
+[["You don’t need to thank me! You have to be brave!"->Birth-Party]]
+
+::BullyChoice-Ignore2
+"I can’t really do much about this. There are so many people of them, and it doesn’t seem like any real harm has been done. They’re probably just joking around. Roughhousing between classmates is normal."
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to $friendship - 10)
+(set: $gameProgress to $gameProgress + 1)
+[[I lowered my head, pulled out the homework I hadn’t finished yet, and went back to my own business.->Birth-Party]]
+
+::BullyChoice-Bully2
+"Hey, I noticed before that you’re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying ‘an inferior imitation’?" 
+I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
+"Hahaha, exactly!""Oh my gosh, that’s hilarious, probably doesn’t even know what it means."
+<br>
+[[At that moment, I felt like I had told a really effective joke and gained everyone’s approval.->Bully2]]
+(set: $playerBullied to true)
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to it - 30)
+(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
+(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
+(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
+(set: $gameProgress to $gameProgress + 1)
+
+::Bully2
+Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader. 
+Everyone agreed with what I said and even built on it.
+Meanwhile, (print:$friendName)’s head was lowered like an ostrich, their face flushed bright red, as if they wanted to find a hole to crawl into and escape from this place.
+<br>
+[[I don't care...->Birth-Party]]
+
+::Birth-Party
+Some time later, the popular classmate La organized a birthday party. 
+I noticed once again that (print:$friendName) still wasn’t in our group chat…
+<br>
+[[I try to contact (print:$friendName) and asked: "Do you want to go to the party together?"->Birth-Party-Help]]
+<br>
+[[…Or maybe not. Since they hadn’t been added to the group chat, I’d better not meddle.->Year3]]
+
+::Birth-Party-Help
+"La’s having a birthday party, do you want to come?"
+"Huh? A birthday party…? But I never got an invitation."
+"Ah, they must have forgotten to send it. Don’t worry, you can come with me!"
+"Uh… alright then."
+I pulled (print:$friendName) along to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
+(set: $friendship to $friendship + 2)
+(set: $gameProgress to $gameProgress + 1)
+[[Another year came to an end, and a new chapter of high school life began.->Year3]]
+
+::Year3
+As we stepped into our third year, we were assigned new classrooms. 
+Being terrible with directions, I quickly got lost in the new building. 
+Just as I was struggling, I looked up and saw (print:$friendName) frowning, also wandering around. 
+It seemed they were having trouble finding the classroom too.
+<br>
+[[Should I go over and ask if they’re also looking for the classroom? Maybe we could find it faster together.->Year3-Help]]
+<br>
+[[…Or maybe not. They’re probably lost as well, and since I don’t know either, I’d better just ask someone on my own.->Year3-Ignore]]
+
+::Year3-Help
+"Hi! Are you looking for the classroom too? I’m lost, this is way too hard for me," 
+I said as I walked over to start a conversation.
+"Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help."
+"Alright, let’s take a look together."
+We found the building map and took a photo of it. 
+Since (print:$friendName) had a better sense of direction, I handed them the map along with the classroom number for reference. 
+Before long, we found the classroom without being late, and both of us let out a sigh of relief.
+(set: $friendship to $friendship + 2)
+(set: $gameProgress to $gameProgress + 1)
+[[And the busy rhythm of school life began again.->BullyingEvent3]]
+
+::Year3-Ignore
+Hey, isn’t that La? She probably knows the way, let me go ask her!
+"Hi, La, are you heading to that classroom?"
+"Yeah, we’ve only got five minutes left before class starts!."
+"Me too! Let’s go together."
+"Alright."
+We arrived at the classroom, and much later (print:$friendName) rushed in, panting and dripping with sweat.
+"S...so...sorry… I’m late."
+(set: $friendship to $friendship - 1)
+(set: $gameProgress to $gameProgress + 1)
+[[As soon as the words left their mouth, the whole class burst into laughter.->BullyingEvent3]]
+
+
+:: BullyingEvent3
+After finally finishing a busy stretch, I was ready to relax. 
+But just a short distance from the school gate, in a small alley, I saw (print:$friendName) cornered against a wall. 
+Their backpack lay on the ground, torn open, with books scattered everywhere. 
+The bullies were picking up pebbles and whatever they could find nearby to throw at them. 
+(print:$friendName)’s hair was a mess, their clothes torn, their whole body covered in dust. 
+Seeing this only made the bullies laugh even harder…
+<br>
+[[How despicable! But what should I do... how can I help them?->MiniGame3]]
+<br>
+[[It’s terrifying! I’d better just slip away quickly…->BullyChoice-Ignore3]]
+<br>
+(if: $redemption is 0) [
+	[[Wow, this actually feels exciting. I’ve had enough of them too, let me take this chance to add fuel to the fire, hahaha!->Redemption-Bully]]
+]
+
+::Redemption-Bully
+"Are you sure you really want to do this???" 
+A sound echos.
+<br>
+[[Choose again->BullyingEvent3]]
+<br>
+[["I have decided to bear the consequences of this action."->BullyChoice-Bully3]]
+(set: $redemption to 1)
+
+::BullyChoice-Win3
+They ran away. Looks like my plan worked!
+I hurried over to (print:$friendName)’s side and helped pick up their things. 
+(print:$friendName) looked at me with fear in their eyes and whispered,
+"Th-thank you…"
+(set: $playerHelped to true)
+(set: $friendship to $friendship + 15)
+(set: $gameProgress to $gameProgress + 1)
+[["It’s okay…" I said, trying to comfort them, though my feelings were complicated.->Volunteer]]
+
+::BullyChoice-Ignore3
+"There are so many of bullies… I’d better not get myself into trouble," 
+I muttered to myself, quickening my steps to get away from the scene as fast as possible.
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to $friendship - 10)
+(set: $gameProgress to $gameProgress + 1)
+[["I didn’t see anything."->Volunteer]]
+
+::BullyChoice-Bully3
+Isn’t that (print:$friendName)? Caught doing something annoying again? 
+I knew there was something off about them!
+"Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?" 
+I said as I walked up to the group.
+"Yeah, yeah, we’re curious too!"
+<br>
+[[With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into (print:$friendName)’s hair.->Bully3]]
+(set: $playerBullied to true)
+(set: $bullyingLevel to $bullyingLevel + 1)
+(set: $friendship to it - 30)
+(if: $gameProgress is 2)[(set: $bulliedInEvent1 to true)]
+(else-if: $gameProgress is 6)[(set: $bulliedInEvent2 to true)]
+(if: $gameProgress is 9)[(set: $doomedToEnd1 to true)]
+(set: $gameProgress to $gameProgress + 1)
+
+::Bully3
+Several days passed without seeing (print:$friendName) at school. 
+When I finally saw them again, I noticed that the part of their hair where the gum had been was completely cut off. 
+It looked absolutely ridiculous.
+"How stupid. They could’ve just washed it out, but instead cut it off. Serves them right for being bullied,"
+<br>
+(set: $doomedToEnd1 to true)
+(set: $gameProgress to $gameProgress + 1)
+[[I sneered inwardly with contempt.->Volunteer]]
+
+::Volunteer
+As the third year was coming to an end, everyone began looking into different universities and preparing their applications. 
+By chance, I was offered an amazing volunteer opportunity. 
+The organizer even allowed me to bring along one more classmate. 
+This would be a huge advantage for our university applications! 
+But…
+<br>
+[[(print:$friendName) seemed to have been seeking help from teachers recently, after being turned down by volunteer organizations. Should I invite them to join me?->Volunteer-Help]]
+<br>
+[[...Or maybe I should choose another classmate who seems more capable, if we work together, we might gain greater recognition and even cooperate in the future for bigger benefits.->Volunteer-Ignore]]
+
+::Volunteer-Help
+"Hey, I got a really great opportunity, do you want to join me for this volunteer activity?"
+"Really? Wouldn’t that trouble you? Are you sure you actually want to take me along?!"
+"Of course, as long as you’re willing."
+I forwarded the link and shared my screen so we could fill out the application form together.
+(set: $friendship to $friendship + 12)
+(set: $gameProgress to $gameProgress + 1)
+[[I was overwhelmed by their repeated words of gratitude…->University]]
+
+
+::Volunteer-Ignore
+I went over to invite that classmate to join me in the volunteer activity. Just then, (print:$friendName) quietly asked me from the side,
+ "Um… is there any chance you could bring one more person?""Sorry, I only have two spots. You’ll have to find something on your own."
+ "Oh… alright… thanks."
+(print:$friendName) asked me timidly, but I turned them down firmly.
+(set: $friendship to $friendship - 8)
+(set: $gameProgress to $gameProgress + 1)
+[[Later, I found out that (print:$friendName) never managed to get into any volunteer activity.->University]]
+
+
+::University
+In the blink of an eye, our final year had arrived. 
+Everyone was busy applying to universities and preparing for interviews. 
+Today was the day we visited University A, and on the bus…
+<br>
+[[Huh? (print:$friendName) was sitting alone in the back, maybe I should go sit beside them.->University-Help]]
+<br>
+[[A few classmates called me over to join them instead, so we could share snacks and chat about our dreams.->University-Ignore]]
+
+::University-Help
+"So, have you decided where you want to go?" 
+I asked.
+"Not yet… every school’s requirements are so high, I’m worried I won’t make it. What about you?"
+"I haven’t decided either, but there are a few I’m interested in."
+"Oh… I see…"
+(set: $friendship to $friendship + 2)
+(set: $gameProgress to $gameProgress + 1)
+[[Before long, we arrived at the university, began the tour, and gathered a lot of useful information.->Capstone]]
+
+::University-Ignore
+"Have you all decided which schools you’re going to apply to?" I ask.
+"I have a few in mind, but nothing’s certain yet.""Just try them all!"
+"Yeah, but the requirements for every school seem pretty tough."
+"True, but did you hear? (print:$friendName) still hasn’t completed enough volunteer hours."
+"Ah, if that’s the case, even getting into a less competitive school might not be easy."
+"Right."
+…
+(set: $friendship to $friendship - 1)
+(set: $gameProgress to $gameProgress + 1)
+[[As we kept chatting, the topic turned to (print:$friendName). Tsk, looks like things are pretty tough for them.->Capstone]]
+
+
+::Capstone
+It was the final semester, and every university required a creative project for admission. 
+The project could be done as a team or individually.
+<br>
+[[Should I ask (print:$friendName) to be my partner?->Capstone-Help]]
+<br>
+[[...Or maybe it’s better to work alone, since managing my time would be easier. Or… there was that super talented classmate who invited me before, maybe I should go find them and team up!->Capstone-Ignore]]
+
+::Capstone-Help
+"Hey! I’ve got a really good idea! Want to work on it together?"
+"Ah, I was just worrying about it. If you’re willing to join me, that’s wonderful! Thank you."
+We divided the tasks, exchanged drafts, and filled in each other’s gaps.
+(set: $friendship to $friendship + 15)
+(set: $gameProgress to $gameProgress + 1)
+[[The coffee grew cold, but our trust steadily grew warmer.->Graduation]]
+
+
+::Capstone-Ignore
+In the end, I completed a project all on my own, I was truly proud of~
+(set: $friendship to $friendship - 6)
+(set: $gameProgress to $gameProgress + 1)
+[[With a cheerful heart, I began planning my graduation holiday!->Graduation]]
 
 
 :: Graduation
 (if: $doomedToEnd1)[
-    [[Your journey ends here.->Ending1]]
+    [[Your journey ends here.->Ending1]]
 ]
 (else:)[
-    (if: $friendship >= 40)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending5]] ]
-        (else-if: $bullyingLevel is 1 or $bullyingLevel is 2)[ [[Your journey ends here.->Ending2]] ]
-        (else:)[ [[Your journey ends here.->Ending6]] ]
-    ]
-    (else:)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending2]] ]
-        (else-if: $bullyingLevel is 1)[ [[Your journey ends here.->Ending3]] ]
-        (else-if: $bullyingLevel is 2)[ [[Your journey ends here.->Ending4]] ]
-        (else:)[ [[Your journey ends here.->Ending7]] ]
-    ]
+	Finally, graduation was approaching. 
+	Everyone was eager to show the best version of themselves at the ceremony, while the classmates who had bullied (print:$friendName) were just waiting to see them make a fool of themselves.
+<br>
+	[["Do you want to go pick out outfits together?" I asked (print:$friendName).->Ceremony-Help]]
+	<br>
+	[[Meanwhile, my own family had already prepared everything for me well in advance. I had no intention of paying attention to others and instead immersed myself in fantasies of my own graduation ceremony.->Ceremony-Ignore]]
 ]
+
+
+::Ceremony-Help
+We went to many dress shops and accessory stores together, and time passed quickly.
+(set: $friendship to it + 2)
+(set: $gameProgress to $gameProgress + 1)
+[[Then, the day of graduation arrived.->Ending-Scene]]
+
+::Ceremony-Ignore
+To reward me for all my years of hard work, my mom booked me a trip to Europe. 
+I researched tons of information and prepared a perfectly detailed itinerary.
+"I can’t wait for my trip!"
+After saying that, I tried on the dress my family had prepared for me.
+"I’ll definitely be the most dazzling one at the graduation ball!"
+(set: $friendship to it - 1)
+(set: $gameProgress to $gameProgress + 1)
+[[Thinking about it, I couldn’t help but chuckle in my sleep.->Ending-Scene]]
+
+
+::Ending-Scene
+(if: $friendship >= 40)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending5]] ]
+    (else-if: $bullyingLevel is 1 or $bullyingLevel is 2)[ [[Your journey ends here.->Ending2]] ]
+    (else:)[ [[Your journey ends here.->Ending6]] ]
+]
+(else:)[ (if: $bullyingLevel is 0)[ [[Your journey ends here.->Ending2]] ]
+   (else-if: $bullyingLevel is 1)[ [[Your journey ends here.->Ending3]] ]
+   (else-if: $bullyingLevel is 2)[ [[Your journey ends here.->Ending4]] ]
+   (else:)[ [[Your journey ends here.->Ending7]] ]
+]
+
 
 :: Ending1
 <h2>Ending 1: The Cycle of Violence</h2>
-After graduation, the wheel turns—and I find myself under it. The names change; the pattern doesn’t.
+I don’t know who reported to my university that I had once taken part in bullying a classmate, but my dream school withdrew the offer they had given me. 
+I was left with no choice but to attend the lowest-ranked school on my list.
+To my surprise, when I enrolled a few weeks late, I discovered that (print:$friendName) was there too. 
+It was as if they had become a completely different person. 
+They already fitting in with many others. 
+When they saw me, they gave me a strange, unsettling smile. 
+From then on, in the eyes of my classmates, I became the one labeled as a bully, despicable, childish, ignorant, and pathetic. 
+No one wanted to be around me, and I constantly overheard whispers and gossip about myself.
+
+That feeling…
 <br>
 [[Play Again?->Start]]
 
 :: Ending2
 <h2>Ending 2: Minor Trauma</h2>
-They graduate, but the echoes don’t fade. They leave for a small town to start over. I don’t hear from them again—only the hollow where a friendship could have been.
+The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
+It turned out that because of the psychological scars they carried, 
+they couldn’t concentrate on their studies, 
+they developed anxiety and depression, 
+and failed to get into their dream university. 
+In the end, they had to settle for another school far away.
+
+From that day on, we went our separate ways. 
+I made new friends in college, and there was no longer any contact between me and (print:$friendName).
 <br>
 [[Play Again?->Start]]
 
 :: Ending3
 <h2>Ending 3: Disappearance</h2>
-Diplomas in hand. Then silence. It’s like the earth closed over their tracks.
+The graduation ceremony began, but I still didn’t see any sign of (print:$friendName). 
+A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
+Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
 <br>
 [[Play Again?->Start]]
 
 :: Ending4
 <h2>Ending 4: New Target</h2>
-They transfer—smart, fast, gone. But the culture stays. The spinning bottle points at me next.
+Not long after the graduation ceremony began, many police officers arrived and started questioning people. 
+It turned out that (print:$friendName) had taken their own life an hour earlier and had already passed away by the time they reached the hospital.
+In their diary were entries filled with painful moments: 
+being isolated, bullied, falling into depression, 
+losing the strength to complete their studies, 
+feeling abandoned by the world, 
+and ultimately choosing suicide.
+
+Perhaps… each one of us is a murderer.
 <br>
 [[Play Again?->Start]]
 
 :: Ending5
 <h2>Ending 5: Golden Ending</h2>
-We hold the line for each other, again and again, until the line becomes a bridge. We graduate, step into that first job side by side, and keep choosing the same side.
+Time and again, we lit the way for each other, helping and supporting one another all the way until graduation.
+In the end, we reached our goals and received offers from our dream universities.
+I truly believe we’ll have an even brighter future ahead!
 <br>
 [[Play Again?->Start]]
 
 :: Ending6
 <h2>Ending 6: Shared Scars</h2>
-Choosing each other painted targets on both our backs. We still graduated—together. The scars match; so does the strength.
+Because every time (print:$friendName) was bullied, I chose to protect myself, bullies eventually found out that we were close friends. 
+As a result, I also became the subject of their gossip and ridicule behind my back.
+Although I was eventually admitted to a university, the psychological pressure I carried caused me to lose the chance to enter the school of my dreams.
 <br>
 [[Play Again?->Start]]
 
 :: Ending7
 <h2>Ending 7: Tragedy & Repercussion</h2>
-The final incident is a cliff—and they fall. The world keeps spinning, but mine doesn’t feel like it should.
+Not long after the graduation ceremony began, a large number of police officers arrived and started questioning people. 
+It turned out that (print:$friendName) had attempted suicide an hour earlier, but was rescued when taken to the hospital.
+They told the police about many painful moments: 
+being isolated, bullied, and driven into depression, 
+losing the energy to complete their studies, 
+feeling abandoned by the world, 
+and ultimately choosing to end their life.
+
+The police questioned everyone one by one. 
+In order to protect myself, I gave them the names of the classmates who had bullied (print:$friendName), 
+but they all said it was me who had forced them to act that way.
+In the end, I was punished by the law.
 <br>
 [[Play Again?->Start]]
 
 :: MiniGame1
 <style>
 .crossed-out {
-    text-decoration: line-through;
-    color: grey;
-    pointer-events: none;
+    text-decoration: line-through;
+    color: grey;
+    pointer-events: none;
 }
 </style>
 (if: not ((history:) contains "MiniGame1"))[
-  (set: $allWrongChoices to (array:
-    "Start a loud conversation on your phone.",
-    "Go up to the group and ask for a pen.",
-    "Start coughing loudly.",
-    "Ask the librarian a question in a loud voice.",
-    "Pretend to trip and fall near another table.",
-    "Start humming a distracting tune."
-  ))
-  (set: $chosenWrongChoices to (a:))
+  (set: $allWrongChoices to (array:
+    "Start a loud conversation on your phone.",
+    "Go up to the group and ask for a pen.",
+    "Start coughing loudly.",
+    "Ask the librarian a question in a loud voice.",
+    "Pretend to trip and fall near another table.",
+    "Start humming a distracting tune."
+  ))
+  (set: $chosenWrongChoices to (a:))
 ]
-I can’t make a scene—but I can tilt the room. If I break the silence, (print:$friendName) gets an exit. Think, think…
+I couldn’t just make a big scene, but maybe I could think of a way to stop their gossip and help (print:$friendName) get away from this mess. 
 <br>
-What do I do?
-
-
+What should I do?
 (set: _displayChoices to (shuffled: ...$allWrongChoices))
 (for: each _choice, ..._displayChoices)[
-    (if: $chosenWrongChoices contains _choice)[
-        (print: '<span class="crossed-out">' + _choice + '</span><br>')
-    ]
-    (else:)[
-      (link: _choice)[
-        (set: $chosenWrongChoices to it + (a: _choice))
-        (goto: "MiniGame1")
-      ]<br>
-    ]
+    (if: $chosenWrongChoices contains _choice)[
+        (print: '<span class="crossed-out">' + _choice + '</span><br>')
+    ]
+    (else:)[
+      (link: _choice)[
+        (set: $chosenWrongChoices to it + (a: _choice))
+        (goto: "MiniGame1")
+      ]<br>
+    ]
 ]
 <br>
 [[‘Accidentally’ drop your heavy stack of books near their table.->MiniGame1-Win]]
 <br>
 
 :: MiniGame1-Win
-The crash splits the hush. Heads swivel. I’m already at (print:$friendName)’s side: “Come on—this way.” We slip out between the stares.
+The crash splits the hush. Heads swivel. 
+I’m already at (print:$friendName)’s side: "Come on—this way." 
+We slip out between the stares.
 <br>
-[[Success!->BullyChoice-Win]]
+[[Success!->BullyChoice-Win1]]
 
 :: MiniGame2
-My mind needs a steady beat before my mouth can. I lock onto the color pattern—breathe in, breathe out—until the words line up.
+My mind was in chaos, but I had to stay calm and think of a good strategy to help (print:$friendName) out of this situation…
 <br><br>
 <style>
-    #pattern-game { text-align: center; }
-    .pattern-btn { width: 80px; height: 80px; border-radius: 50%; margin: 10px; border: 3px solid #555; cursor: pointer; display: inline-block; transition: background-color 0.2s; }
-    .pattern-btn.red { background-color: #fca5a5; }
-    .pattern-btn.blue { background-color: #93c5fd; }
-    .pattern-btn.green { background-color: #86efac; }
-    .pattern-btn.yellow { background-color: #fde047; }
-    .pattern-btn.lit { filter: brightness(1.5); }
-    #pattern-message { font-weight: bold; height: 2em; }
+#pattern-game { 
+    text-align: center;
+    padding: 20px;
+}
+.pattern-btn { 
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%; 
+    margin: 10px; 
+    border: 3px solid #555; 
+    cursor: pointer; 
+    display: inline-block;
+    transition: background-color 0.2s; 
+}
+.pattern-btn.red { background-color: #fca5a5; }
+.pattern-btn.blue { background-color: #93c5fd; }
+.pattern-btn.green { background-color: #86efac; }
+.pattern-btn.yellow { background-color: #fde047; }
+.pattern-btn.lit { filter: brightness(1.5); }
+#pattern-message { 
+    font-weight: bold; 
+    height: 2em;
+    color: white; 
+    text-shadow: 1px 1px 2px black;
+}
 </style>
 <div id="pattern-game">
     <div id="pattern-message">Watch the pattern...</div>
@@ -552,24 +896,63 @@ My mind needs a steady beat before my mouth can. I lock onto the color pattern�
         <div class="pattern-btn yellow" data-color="3"></div>
     </div>
     <div id="start-pattern-btn-container" style="margin-top: 1em;">
-        (link: "Start")[ ]
+        (link: "Start")[ (goto: "MiniGame2-StartGame") ]
     </div>
-    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win")]</div>
+    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win2")]</div>
 </div>
 
+:: MiniGame2-StartGame
+<style>
+#pattern-game {
+    text-align: center;
+    padding: 20px;
+}
+.pattern-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 10px;
+    border: 3px solid #555;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+.pattern-btn.red { background-color: #fca5a5; }
+.pattern-btn.blue { background-color: #93c5fd; }
+.pattern-btn.green { background-color: #86efac; }
+.pattern-btn.yellow { background-color: #fde047; }
+.pattern-btn.lit { filter: brightness(1.5); }
+#pattern-message {
+    font-weight: bold;
+    height: 2em;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+</style>
+<div id="pattern-game">
+    <div id="pattern-message">Watch the pattern...</div>
+    <div>
+        <div class="pattern-btn red" data-color="0"></div>
+        <div class="pattern-btn blue" data-color="1"></div>
+    </div>
+    <div>
+        <div class="pattern-btn green" data-color="2"></div>
+        <div class="pattern-btn yellow" data-color="3"></div>
+    </div>
+    <div id="start-pattern-btn-container" style="display:none; margin-top: 1em;">
+        (link: "Start")[ (goto: "MiniGame2-StartGame") ]
+    </div>
+    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win2")]</div>
+</div>
 <script>
-setTimeout(() => {
-    const gameContainer = document.getElementById('pattern-game');
-    if (!gameContainer) return;
-
-    const messageEl = gameContainer.querySelector('#pattern-message');
-    const startBtnContainer = gameContainer.querySelector('#start-pattern-btn-container');
-    const winContainer = gameContainer.querySelector('#pattern-win-container');
-    const buttons = Array.from(gameContainer.querySelectorAll('.pattern-btn'));
+    const messageEl = document.getElementById('pattern-message');
+    const winContainer = document.getElementById('pattern-win-container');
+    const buttons = Array.from(document.querySelectorAll('.pattern-btn'));
     let sequence = [];
     let playerSequence = [];
     let level = 3;
     let playerTurn = false;
+
     function generateSequence() {
         sequence = [];
         for (let i = 0; i < level; i++) {
@@ -580,35 +963,37 @@ setTimeout(() => {
     function lightUp(index) {
         return new Promise((resolve) => {
             const btn = buttons[index];
-            btn.classList.add('lit');
-            setTimeout(() => {
-                btn.classList.remove('lit');
-                setTimeout(resolve, 250);
-            }, 500);
+            if (btn) {
+                btn.classList.add('lit');
+                setTimeout(() => {
+                    btn.classList.remove('lit');
+                    setTimeout(resolve, 250);
+                }, 500);
+            } else {
+                resolve();
+            }
         });
     }
 
     async function playSequence() {
         playerTurn = false;
-        messageEl.textContent = "Watch carefully...";
-        startBtnContainer.style.display = 'none';
+        if (messageEl) messageEl.textContent = "Watch carefully...";
         await new Promise(resolve => setTimeout(resolve, 1000));
         for (const index of sequence) {
             await lightUp(index);
         }
         playerTurn = true;
-        messageEl.textContent = "Your turn...";
+        if (messageEl) messageEl.textContent = "Your turn...";
     }
 
     function handlePlayerClick(e) {
-        if (!playerTurn) return;
+        if (!playerTurn || !e.target.dataset.color) return;
         const colorIndex = parseInt(e.target.dataset.color, 10);
         playerSequence.push(colorIndex);
         lightUp(colorIndex);
-
         const currentStep = playerSequence.length - 1;
         if (playerSequence[currentStep] !== sequence[currentStep]) {
-            messageEl.textContent = "That's not right. Let's try again.";
+            if (messageEl) messageEl.textContent = "That's not right. Let's try again.";
             playerSequence = [];
             setTimeout(playSequence, 1500);
             return;
@@ -617,11 +1002,10 @@ setTimeout(() => {
         if (playerSequence.length === sequence.length) {
             playerTurn = false;
             if (level >= 5) {
-                messageEl.textContent = "You focused your thoughts and found your voice!";
-                winContainer.style.display = 'block';
-                 startBtnContainer.style.display = 'none';
+                if (messageEl) messageEl.textContent = "You focused your thoughts and found your voice!";
+                if (winContainer) winContainer.style.display = 'block';
             } else {
-                messageEl.textContent = "Good! Next level...";
+                if (messageEl) messageEl.textContent = "Good! Next level...";
                 level++;
                 playerSequence = [];
                 generateSequence();
@@ -630,73 +1014,76 @@ setTimeout(() => {
         }
     }
 
-    const startLink = startBtnContainer.querySelector('tw-link');
-    if (startLink) {
-        startLink.addEventListener('click', () => {
-            generateSequence();
-            playSequence();
-        });
-    }
-
     buttons.forEach(btn => btn.addEventListener('click', handlePlayerClick));
 
-}, 0);
+    generateSequence();
+    playSequence();
 </script>
 
 :: MiniGame3
-Books everywhere. (print:$friendName)’s hands shake. I move—no speeches, just action. Gather the scattered pieces before the laughter grows teeth.
+I was all alone... how could I possibly drive them off? 
+I forced myself to stay calm and think fast...
 <br><br>
 <b>Use the arrow keys to collect all three stars (their books) before anyone piles on.</b>
 <style>
-  #mazeCanvas {
+#mazeCanvas {
     background-color: #f0f0f0;
     border: 2px solid #333;
     display: block;
     margin: 1em auto;
-  }
+}
 </style>
 
 <canvas id="mazeCanvas" width="300" height="270"></canvas>
 <div id="maze-win-container" style="text-align: center; display: none;">
-    Success! We scoop the last “book.” I hand it over like it’s a shield.
-    <br>
-    (link:"Continue")[(goto:"BullyChoice-Win")]
+Got it! 
+First I called the police, then I ran around to the bushes on the other side, found a police-siren sound on my phone and played it, then shouted.
+<br>
+[["The police are coming! Run!!!"->BullyChoice-Win3]]
 </div>
-<div id="maze-fail-container" style="display:none;">(link:"Continue")[(goto:"BullyChoice-Fail")]</div>
 
 <script>
-  setTimeout(() => {
+setTimeout(function() {
     try {
-        const canvas = document.getElementById('mazeCanvas');
+        var canvas = document.getElementById('mazeCanvas');
         if (!canvas) return;
-        const ctx = canvas.getContext('2d');
+        var ctx = canvas.getContext('2d');
 
-        const tileSize = 30;
-        const mazeWidth = 10;
-        const mazeHeight = 9;
-        let starsCollected = 0;
-        const totalStars = 3;
+        var tileSize = 30;
+        var mazeWidth = 10;
+        var mazeHeight = 9;
+        var starsCollected = 0;
+        var totalStars = 3;
+        var playerStart = { x: 1, y: 1 };
 
         function generateMaze(width, height) {
-            let maze = Array.from({ length: height }, () => Array(width).fill(1));
-            let stack = [];
-            let startX = 1, startY = 1;
+            var maze = Array.from({ length: height }, function() { return Array(width).fill(1); });
+            var stack = [];
+
+            var startX = playerStart.x;
+            var startY = playerStart.y;
 
             maze[startY][startX] = 0;
             stack.push([startX, startY]);
 
             while (stack.length > 0) {
-                let [cx, cy] = stack[stack.length - 1];
-                let neighbors = [];
+                var current = stack[stack.length - 1];
+                var cx = current[0];
+                var cy = current[1];
+                var neighbors = [];
 
-                if (cy - 2 > 0 && maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
-                if (cy + 2 < height -1 && maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
-                if (cx - 2 > 0 && maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
-                if (cx + 2 < width -1 && maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
+                if (cy - 2 >= 0 && maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
+                if (cy + 2 < height && maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
+                if (cx - 2 >= 0 && maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
+                if (cx + 2 < width && maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
+                
                 if (neighbors.length > 0) {
-                    let [dx, dy] = neighbors[Math.floor(Math.random() * neighbors.length)];
-                    let nx = cx + dx;
-                    let ny = cy + dy;
+                    var direction = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    var dx = direction[0];
+                    var dy = direction[1];
+                    var nx = cx + dx;
+                    var ny = cy + dy;
+
                     maze[cy + dy / 2][cx + dx / 2] = 0;
                     maze[ny][nx] = 0;
                     stack.push([nx, ny]);
@@ -707,27 +1094,21 @@ Books everywhere. (print:$friendName)’s hands shake. I move—no speeches, jus
             return maze;
         }
 
-        let maze = generateMaze(mazeWidth, mazeHeight);
-        function placeStars(maze, count) {
-            let openSpots = [];
-            for (let y = 1; y < maze.length - 1; y++) {
-                for (let x = 1; x < maze[y].length - 1; x++) {
-                    if (maze[y][x] === 0 && !(x === 1 && y === 1)) {
-                        openSpots.push({x, y});
-                    }
+        function placeStars(maze, numStars) {
+            var placed = 0;
+            while(placed < numStars) {
+                var x = Math.floor(Math.random() * maze[0].length);
+                var y = Math.floor(Math.random() * maze.length);
+                if(maze[y][x] === 0 && (x !== playerStart.x || y !== playerStart.y)) {
+                    maze[y][x] = 3;
+                    placed++;
                 }
-            }
-            for (let i = openSpots.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [openSpots[i], openSpots[j]] = [openSpots[j], openSpots[i]];
-            }
-            for (let i = 0; i < count && i < openSpots.length; i++) {
-                maze[openSpots[i].y][openSpots[i].x] = 3;
             }
         }
 
+        var maze = generateMaze(mazeWidth, mazeHeight);
         placeStars(maze, totalStars);
-        let player = { x: 1, y: 1 };
+        var player = { x: playerStart.x, y: playerStart.y };
 
         function drawStar(x, y) {
             ctx.fillStyle = 'gold';
@@ -751,8 +1132,8 @@ Books everywhere. (print:$friendName)’s hands shake. I move—no speeches, jus
 
         function drawMaze() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let y = 0; y < maze.length; y++) {
-                for (let x = 0; x < maze[y].length; x++) {
+            for (var y = 0; y < maze.length; y++) {
+                for (var x = 0; x < maze[y].length; x++) {
                     if (maze[y][x] === 1) {
                         ctx.fillStyle = '#6d4c41';
                         ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
@@ -769,8 +1150,8 @@ Books everywhere. (print:$friendName)’s hands shake. I move—no speeches, jus
 
         function movePlayer(dx, dy) {
             if (window.mazeGameWon) return;
-            const newX = player.x + dx;
-            const newY = player.y + dy;
+            var newX = player.x + dx;
+            var newY = player.y + dy;
             if (newX >= 0 && newX < mazeWidth && newY >= 0 && newY < mazeHeight && maze[newY][newX] !== 1) {
                 player.x = newX;
                 player.y = newY;
@@ -789,22 +1170,30 @@ Books everywhere. (print:$friendName)’s hands shake. I move—no speeches, jus
         }
 
         function handleKey(e) {
-            const allowedKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-            if (allowedKeys.includes(e.key)) {
+            var allowedKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+            if (allowedKeys.indexOf(e.key) !== -1) {
                 e.preventDefault();
                 switch (e.key) {
-                    case 'ArrowUp': movePlayer(0, -1); break;
-                    case 'ArrowDown': movePlayer(0, 1); break;
-                    case 'ArrowLeft': movePlayer(-1, 0); break;
-                    case 'ArrowRight': movePlayer(1, 0); break;
+                    case 'ArrowUp':
+                        movePlayer(0, -1);
+                        break;
+                    case 'ArrowDown':
+                        movePlayer(0, 1);
+                        break;
+                    case 'ArrowLeft':
+                        movePlayer(-1, 0);
+                        break;
+                    case 'ArrowRight':
+                        movePlayer(1, 0);
+                        break;
                 }
             }
         }
 
-        if(canvas) {
-          canvas.cleanup = () => {
-              window.removeEventListener('keydown', handleKey);
-          };
+        if (canvas) {
+            canvas.cleanup = function() {
+                window.removeEventListener('keydown', handleKey);
+            };
         }
 
         window.mazeGameWon = false;
@@ -812,7 +1201,6 @@ Books everywhere. (print:$friendName)’s hands shake. I move—no speeches, jus
         window.addEventListener('keydown', handleKey);
     } catch (e) {
         console.error("Maze game error:", e);
-        document.querySelector('#maze-fail-container tw-link').click();
     }
-  }, 100);
+}, 100);
 </script>
