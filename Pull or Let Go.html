@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="4F81BFEF-82DE-4348-AA30-AB8D319FFCCE" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="D075E019-14FA-4921-AA49-6C2969765AE4" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -92,75 +92,29 @@ a.link-internal, a.link-external {
 .achievements { margin-top: 2em; }
 .achievements h3 { border-bottom: 1px solid #eee; padding-bottom: 0.5em; }
 .achievement-unlocked { font-size: 1.2em; }
-.achievement-locked { font-size: 1.2em; color: #888; }</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="StoryInit" tags="" position="150,25" size="100,100">&lt;!-- Load from localStorage using Harlowe macro --&gt;
-&lt;script&gt;
-(function() {
-  console.log(&quot;=== StoryInit: Loading from localStorage ===&quot;);
-  try {
-    const savedEndings = localStorage.getItem(&#39;pullOrLetGo_endings&#39;);
-    const savedAchievements = localStorage.getItem(&#39;pullOrLetGo_achievements&#39;);
-    const savedLogs = localStorage.getItem(&#39;pullOrLetGo_logs&#39;);
-    
-    if (savedEndings) {
-      window.savedEndingsData = JSON.parse(savedEndings);
-      console.log(&quot;Found saved endings:&quot;, window.savedEndingsData);
-    }
-    if (savedAchievements) {
-      window.savedAchievementsData = JSON.parse(savedAchievements);
-      console.log(&quot;Found saved achievements:&quot;, window.savedAchievementsData);
-    }
-    if (savedLogs) {
-      window.savedLogsData = JSON.parse(savedLogs);
-      console.log(&quot;Found saved logs:&quot;, window.savedLogsData);
-    }
-  } catch(e) {
-    console.error(&quot;Error loading from localStorage:&quot;, e);
-  }
-})();
-&lt;/script&gt;
+.achievement-locked { font-size: 1.2em; color: #888; }</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="GlobalInit" tags="header" position="150,25" size="100,100">(unless: $gameInitialized is true)[
+  (set: $friendship to 20)
+  (set: $playerBullied to false)
+  (set: $playerHelped to false)
+  (set: $friendLook to &quot;&quot;)
+  (set: $friendName to &quot;???&quot;)
+  (set: $statusOpen to false)
+  (set: $friendImgBase to &quot;&quot;)
+  (set: $friendImgExt to &quot;&quot;)
+  (set: $event1Choice to &quot;&quot;)
+  (set: $event2Choice to &quot;&quot;)
+  (set: $event3Choice to &quot;&quot;)
+  (set: $redemption to 0)
+  (set: $currentEnding to &quot;&quot;)
+  (set: $helpCount to 0)
+  (set: $ignoreCount to 0)
 
-&lt;!-- Initialize global variables (will be overwritten if saved data exists) --&gt;
-(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))
-(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))
-(set: $playthroughLogs to (a:))
+  (set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))
+  (set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))
+  (set: $playthroughLogs to (a:))
 
-&lt;!-- Load from localStorage if available --&gt;
-&lt;script&gt;
-if (window.savedEndingsData) {
-  const dm = new Map(Object.entries(window.savedEndingsData));
-  State.variables.endingsReached = dm;
-  console.log(&quot;Restored endings:&quot;, dm);
-}
-if (window.savedAchievementsData) {
-  const dm = new Map(Object.entries(window.savedAchievementsData));
-  State.variables.achievementsUnlocked = dm;
-  console.log(&quot;Restored achievements:&quot;, dm);
-}
-if (window.savedLogsData) {
-  const arr = window.savedLogsData.map(log =&gt; new Map(Object.entries(log)));
-  State.variables.playthroughLogs = arr;
-  console.log(&quot;Restored logs:&quot;, arr);
-}
-&lt;/script&gt;
-
-&lt;!-- PER-PLAYTHROUGH VARIABLES - Reset every playthrough --&gt;
-(set: $friendship to 20)
-(set: $playerBullied to false)
-(set: $playerHelped to false)
-(set: $friendLook to &quot;&quot;)
-(set: $friendName to &quot;???&quot;)
-(set: $statusOpen to false)
-(set: $friendImgBase to &quot;&quot;)
-(set: $friendImgExt to &quot;&quot;)
-(set: $event1Choice to &quot;&quot;)
-(set: $event2Choice to &quot;&quot;)
-(set: $event3Choice to &quot;&quot;)
-(set: $redemption to 0)
-(set: $currentEnding to &quot;&quot;)
-
-&lt;!-- Count help and ignore choices (total 10 non-bully choices) --&gt;
-(set: $helpCount to 0)
-(set: $ignoreCount to 0)</tw-passagedata><tw-passagedata pid="3" name="UI-Status" tags="header" position="275,25" size="100,100">(if: $statusOpen is true)[
+  (set: $gameInitialized to true)
+]</tw-passagedata><tw-passagedata pid="3" name="UI-Status" tags="header" position="275,25" size="100,100">(if: $statusOpen is true)[
   (set: $displaySeverity to 0)
   (if: $event1Choice is &quot;ignore&quot;)[(set: $displaySeverity to it + 1)]
   (if: $event1Choice is &quot;bully&quot;)[(set: $displaySeverity to it + 2)]
@@ -233,56 +187,7 @@ if (window.savedLogsData) {
       (link: &quot;☰ Field Notes&quot;)[ (set: $statusOpen to true)(goto: (passage:)&#39;s name) ]
     &lt;/span&gt;
   &lt;/div&gt;
-]</tw-passagedata><tw-passagedata pid="4" name="SaveToLocalStorage" tags="header" position="400,25" size="100,100">&lt;!-- This is loaded as a header so it&#39;s always available --&gt;
-&lt;script&gt;
-// Save achievement data to localStorage
-(function() {
-  window.saveAchievementData = function() {
-    try {
-      const State = window.State;
-      if (!State || !State.variables) {
-        console.error(&quot;State not available for saving&quot;);
-        return;
-      }
-      
-      const vars = State.variables;
-      console.log(&quot;=== Saving to localStorage ===&quot;);
-      console.log(&quot;endingsReached:&quot;, vars.endingsReached);
-      console.log(&quot;achievementsUnlocked:&quot;, vars.achievementsUnlocked);
-      console.log(&quot;playthroughLogs:&quot;, vars.playthroughLogs);
-      
-      const endings = {};
-      if (vars.endingsReached instanceof Map) {
-        vars.endingsReached.forEach((v, k) =&gt; { endings[k] = v; });
-      }
-      localStorage.setItem(&#39;pullOrLetGo_endings&#39;, JSON.stringify(endings));
-      console.log(&quot;Saved endings:&quot;, endings);
-      
-      const achievements = {};
-      if (vars.achievementsUnlocked instanceof Map) {
-        vars.achievementsUnlocked.forEach((v, k) =&gt; { achievements[k] = v; });
-      }
-      localStorage.setItem(&#39;pullOrLetGo_achievements&#39;, JSON.stringify(achievements));
-      console.log(&quot;Saved achievements:&quot;, achievements);
-      
-      const logs = [];
-      if (Array.isArray(vars.playthroughLogs)) {
-        vars.playthroughLogs.forEach(log =&gt; {
-          if (log instanceof Map) {
-            const obj = {};
-            log.forEach((v, k) =&gt; { obj[k] = v; });
-            logs.push(obj);
-          }
-        });
-      }
-      localStorage.setItem(&#39;pullOrLetGo_logs&#39;, JSON.stringify(logs));
-      console.log(&quot;Saved logs:&quot;, logs);
-    } catch(e) {
-      console.error(&quot;Error saving to localStorage:&quot;, e);
-    }
-  };
-})();
-&lt;/script&gt;</tw-passagedata><tw-passagedata pid="5" name="StoryAudio" tags="footer" position="525,25" size="100,100">&lt;script&gt;
+]</tw-passagedata><tw-passagedata pid="4" name="StoryAudio" tags="footer" position="400,25" size="100,100">&lt;script&gt;
 (function() {
     if (!document.getElementById(&#39;story-bgm&#39;)) {
         const bgm = document.createElement(&#39;audio&#39;);
@@ -305,27 +210,23 @@ if (window.savedLogsData) {
         }
     }
 })();
-&lt;/script&gt;</tw-passagedata><tw-passagedata pid="6" name="Start" tags="" position="650,25" size="100,100">&lt;!-- Reset per-playthrough variables only --&gt;
-(set: $friendship to 20)
-(set: $playerBullied to false)
-(set: $playerHelped to false)
-(set: $friendLook to &quot;&quot;)
-(set: $friendName to &quot;???&quot;)
-(set: $statusOpen to false)
-(set: $friendImgBase to &quot;&quot;)
-(set: $friendImgExt to &quot;&quot;)
-(set: $event1Choice to &quot;&quot;)
-(set: $event2Choice to &quot;&quot;)
-(set: $event3Choice to &quot;&quot;)
-(set: $redemption to 0)
-(set: $currentEnding to &quot;&quot;)
-(set: $helpCount to 0)
-(set: $ignoreCount to 0)
-
-&lt;!-- DO NOT reset global variables here --&gt;
-&lt;!-- $endingsReached, $achievementsUnlocked, $playthroughLogs persist across plays --&gt;
-
-&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
+&lt;/script&gt;</tw-passagedata><tw-passagedata pid="5" name="ResetPlaythrough" tags="header" position="525,25" size="100,100">(if: (passage:)&#39;s name is &quot;Start&quot; and $gameInitialized is true)[
+  (set: $friendship to 20)
+  (set: $playerBullied to false)
+  (set: $playerHelped to false)
+  (set: $friendLook to &quot;&quot;)
+  (set: $friendName to &quot;???&quot;)
+  (set: $statusOpen to false)
+  (set: $friendImgBase to &quot;&quot;)
+  (set: $friendImgExt to &quot;&quot;)
+  (set: $event1Choice to &quot;&quot;)
+  (set: $event2Choice to &quot;&quot;)
+  (set: $event3Choice to &quot;&quot;)
+  (set: $redemption to 0)
+  (set: $currentEnding to &quot;&quot;)
+  (set: $helpCount to 0)
+  (set: $ignoreCount to 0)
+]</tw-passagedata><tw-passagedata pid="6" name="Start" tags="" position="650,25" size="100,100">&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
 I start my high school life with great excitement, and I made many new friends.
 In the third week, a new face suddenly appeared in our class, it turned out to be a transfer student who had arrived three weeks late because of family reasons.
 &lt;br&gt;
@@ -836,10 +737,7 @@ After saying that, I tried on the dress my family had prepared for me.
   ]
 ]</tw-passagedata><tw-passagedata pid="57" name="Ending1" tags="" position="775,650" size="100,100">(set: $currentEnding to &quot;Ending1: Dreams Achieved&quot;)
 
-&lt;!-- Safety: Ensure variables are proper types --&gt;
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+
 
 &lt;!-- Mark this ending as reached --&gt;
 (set: $endingsReached&#39;s &quot;Ending1&quot; to 1)
@@ -870,7 +768,6 @@ After saying that, I tried on the dress my family had prepared for me.
 (if: $playthroughLogs&#39;s length &gt; 7)[
   (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
 ]
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
 
 &lt;h2&gt;Ending1: Dreams Achieved&lt;/h2&gt;
 &lt;img src=&quot;end1.GIF&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -879,9 +776,9 @@ In the end, we reached our goals and received offers from our dream universities
 I truly believe we&#39;ll have an even brighter future ahead!
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="58" name="Ending2" tags="" position="900,650" size="100,100">(set: $currentEnding to &quot;Ending2: Paths Diverged&quot;)
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+
+
+
 (set: $endingsReached&#39;s &quot;Ending2&quot; to 1)
 (if: $helpCount is 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount is 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -897,7 +794,6 @@ I truly believe we&#39;ll have an even brighter future ahead!
 (set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgBase&quot;, $friendImgBase, &quot;imgExt&quot;, $friendImgExt, &quot;friendship&quot;, $friendship, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs&#39;s length &gt; 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
 
 &lt;h2&gt;Ending2: Paths Diverged&lt;/h2&gt;
 &lt;img src=&quot;end2-3.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -908,9 +804,9 @@ From that day on, we went our separate ways.
 I made new friends in college, and there was no longer any contact between me and (print:$friendName).
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="59" name="Ending3" tags="" position="1025,650" size="100,100">(set: $currentEnding to &quot;Ending3: Fading into Silence&quot;)
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+
+
+
 (set: $endingsReached&#39;s &quot;Ending3&quot; to 1)
 (if: $helpCount is 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount is 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -929,17 +825,15 @@ I made new friends in college, and there was no longer any contact between me an
   (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
 ]
 
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
-
 &lt;h2&gt;Ending3: Fading into Silence&lt;/h2&gt;
 &lt;img src=&quot;end3.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
 Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="60" name="Ending4" tags="" position="1150,650" size="100,100">(set: $currentEnding to &quot;Ending4: The Turn of the Tide&quot;)
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+
+
+
 (set: $endingsReached&#39;s &quot;Ending4&quot; to 1)
 (if: $helpCount is 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount is 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -955,7 +849,6 @@ Later on, they deleted all of our contact information, and I never heard anythin
 (set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgBase&quot;, $friendImgBase, &quot;imgExt&quot;, $friendImgExt, &quot;friendship&quot;, $friendship, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs&#39;s length &gt; 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
 
 &lt;h2&gt;Ending4: The Turn of the Tide&lt;/h2&gt;
 &lt;img src=&quot;end45.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -964,9 +857,9 @@ As a result, I also became the subject of their gossip and ridicule behind my ba
 Although I was eventually admitted to a university, the psychological pressure I carried caused me to lose the chance to enter the school of my dreams.
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="61" name="Ending5" tags="" position="25,775" size="100,100">(set: $currentEnding to &quot;Ending5: Crushed by Pressure&quot;)
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+
+
+
 (set: $endingsReached&#39;s &quot;Ending5&quot; to 1)
 (if: $helpCount is 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount is 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -982,7 +875,6 @@ Although I was eventually admitted to a university, the psychological pressure I
 (set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgBase&quot;, $friendImgBase, &quot;imgExt&quot;, $friendImgExt, &quot;friendship&quot;, $friendship, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs&#39;s length &gt; 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
 
 &lt;h2&gt;Ending5: Crushed by Pressure&lt;/h2&gt;
 &lt;img src=&quot;end45.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -997,9 +889,6 @@ No one wanted to be around me, and I constantly overheard whispers and gossip ab
 That feeling…
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="62" name="Ending6" tags="" position="150,775" size="100,100">(set: $currentEnding to &quot;Ending6: A Tragic Loss&quot;)
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
 (set: $endingsReached&#39;s &quot;Ending6&quot; to 1)
 (if: $helpCount is 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount is 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -1015,7 +904,6 @@ That feeling…
 (set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgBase&quot;, $friendImgBase, &quot;imgExt&quot;, $friendImgExt, &quot;friendship&quot;, $friendship, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs&#39;s length &gt; 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
 
 &lt;h2&gt;Ending6: A Tragic Loss&lt;/h2&gt;
 &lt;img src=&quot;end6.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -1025,9 +913,9 @@ In their diary were entries filled with painful moments: being isolated, bullied
 Perhaps… each one of us is a murderer.
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="63" name="Ending7" tags="" position="275,775" size="100,100">(set: $currentEnding to &quot;Ending7: Rescue and Retribution&quot;)
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+
+
+
 (set: $endingsReached&#39;s &quot;Ending7&quot; to 1)
 (if: $helpCount is 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount is 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -1043,7 +931,6 @@ Perhaps… each one of us is a murderer.
 (set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgBase&quot;, $friendImgBase, &quot;imgExt&quot;, $friendImgExt, &quot;friendship&quot;, $friendship, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs&#39;s length &gt; 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
-&lt;script&gt;if(window.saveAchievementData) window.saveAchievementData();&lt;/script&gt;
 
 &lt;h2&gt;Ending7: Rescue and Retribution&lt;/h2&gt;
 &lt;img src=&quot;end7.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -1054,10 +941,17 @@ The police questioned everyone one by one.
 In order to protect myself, I gave them the names of the classmates who had bullied (print:$friendName), but they all said it was me who had forced them to act that way.
 In the end, I was punished by the law.
 &lt;br&gt;
-[[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="64" name="Achievements" tags="" position="400,775" size="100,100">&lt;!-- Safety: Reinitialize if variables are corrupted --&gt;
-(unless: (datatype: $endingsReached) is &quot;datamap&quot;)[(set: $endingsReached to (dm: &quot;Ending1&quot;, 0, &quot;Ending2&quot;, 0, &quot;Ending3&quot;, 0, &quot;Ending4&quot;, 0, &quot;Ending5&quot;, 0, &quot;Ending6&quot;, 0, &quot;Ending7&quot;, 0))]
-(unless: (datatype: $achievementsUnlocked) is &quot;datamap&quot;)[(set: $achievementsUnlocked to (dm: &quot;best&quot;, 0, &quot;worst&quot;, 0))]
-(unless: (datatype: $playthroughLogs) is &quot;array&quot;)[(set: $playthroughLogs to (a:))]
+[[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="64" name="Achievements" tags="" position="400,775" size="100,100">&lt;script&gt;
+console.log(&quot;=== Achievements Page Debug ===&quot;);
+if (window.State &amp;&amp; window.State.variables) {
+  console.log(&quot;endingsReached:&quot;, window.State.variables.endingsReached);
+  console.log(&quot;achievementsUnlocked:&quot;, window.State.variables.achievementsUnlocked);
+  console.log(&quot;playthroughLogs:&quot;, window.State.variables.playthroughLogs);
+  console.log(&quot;playthroughLogs length:&quot;, window.State.variables.playthroughLogs ? window.State.variables.playthroughLogs.length : &#39;undefined&#39;);
+} else {
+  console.error(&quot;State not available in Achievements&quot;);
+}
+&lt;/script&gt;
 
 &lt;h2&gt;Playthrough Log&lt;/h2&gt;
 &lt;div style=&quot;max-height: 280px; overflow-y: auto; border: 1px solid #444;&quot;&gt;
