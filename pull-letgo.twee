@@ -920,9 +920,9 @@ After saying that, I tried on the dress my family had prepared for me.
 <!-- Mark this ending as reached -->
 (set: $endingsReached's "Ending1" to 1)
 
-<!-- Check achievements: if helped in all 10 choices, unlock best -->
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+<!-- Check achievements: if helped in all 13 choices, unlock best -->
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 <!-- Calculate severity -->
 (set: _displaySeverity to 0)
@@ -947,6 +947,10 @@ After saying that, I tried on the dress my family had prepared for me.
   (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
 ]
 
+<div style="background: #ffe; padding: 10px; border: 2px solid #fa0; margin: 10px 0; font-size: 0.8em;">
+  <b>DEBUG (Ending1):</b> Log created! Length now: (print: $playthroughLogs's length) | Type: (print: (datatype: $playthroughLogs))
+</div>
+
 <h2>Ending1: Dreams Achieved</h2>
 <img src="end1.GIF" style="width:100%; max-width:600px; display:block; margin:1em auto;">
 Time and again, we lit the way for each other, helping and supporting one another all the way until graduation.
@@ -961,8 +965,8 @@ I truly believe we'll have an even brighter future ahead!
 
 
 (set: $endingsReached's "Ending2" to 1)
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -992,8 +996,8 @@ I made new friends in college, and there was no longer any contact between me an
 
 
 (set: $endingsReached's "Ending3" to 1)
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1022,8 +1026,8 @@ Later on, they deleted all of our contact information, and I never heard anythin
 
 
 (set: $endingsReached's "Ending4" to 1)
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1051,8 +1055,8 @@ Although I was eventually admitted to a university, the psychological pressure I
 
 
 (set: $endingsReached's "Ending5" to 1)
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1083,8 +1087,8 @@ That feeling…
 :: Ending6
 (set: $currentEnding to "Ending6: A Tragic Loss")
 (set: $endingsReached's "Ending6" to 1)
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1097,6 +1101,10 @@ That feeling…
 (set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
+
+<div style="background: #ffe; padding: 10px; border: 2px solid #fa0; margin: 10px 0; font-size: 0.8em;">
+  <b>DEBUG (Ending6):</b> Log created! Length now: (print: $playthroughLogs's length) | Type: (print: (datatype: $playthroughLogs))
+</div>
 
 <h2>Ending6: A Tragic Loss</h2>
 <img src="end6.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1113,8 +1121,8 @@ Perhaps… each one of us is a murderer.
 
 
 (set: $endingsReached's "Ending7" to 1)
-(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
+(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1149,12 +1157,18 @@ if (window.State && window.State.variables) {
   console.log("achievementsUnlocked:", window.State.variables.achievementsUnlocked);
   console.log("playthroughLogs:", window.State.variables.playthroughLogs);
   console.log("playthroughLogs length:", window.State.variables.playthroughLogs ? window.State.variables.playthroughLogs.length : 'undefined');
+  console.log("helpCount:", window.State.variables.helpCount);
+  console.log("ignoreCount:", window.State.variables.ignoreCount);
 } else {
   console.error("State not available in Achievements");
 }
 </script>
 
 <h2>Playthrough Log</h2>
+<p style="background: #f0f0f0; padding: 10px; border-radius: 5px; font-size: 0.9em;">
+  <b>Debug Info:</b> Help Count = (print: $helpCount) | Ignore Count = (print: $ignoreCount) | Total Choices = (print: $helpCount + $ignoreCount)<br>
+  <b>Logs Array Type:</b> (print: (datatype: $playthroughLogs)) | <b>Length:</b> (print: $playthroughLogs's length) | <b>Contents:</b> (print: $playthroughLogs)
+</p>
 <div style="max-height: 280px; overflow-y: auto; border: 1px solid #444;">
 <table class="summary-table">
   <thead>
