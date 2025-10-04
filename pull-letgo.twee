@@ -5,70 +5,75 @@ Pull or Let Go
 Harlowe 3
 
 :: StoryInit
-<!-- Initialize per-playthrough variables -->
-(set: $friendship to 20, $playerBullied to false, $playerHelped to false)
-(set: $friendLook to "", $friendName to "???", $statusOpen to false)
-(set: $friendImgBase to "", $friendImgExt to "")
+<!-- Load from localStorage using Harlowe macro -->
+<script>
+(function() {
+  console.log("=== StoryInit: Loading from localStorage ===");
+  try {
+    const savedEndings = localStorage.getItem('pullOrLetGo_endings');
+    const savedAchievements = localStorage.getItem('pullOrLetGo_achievements');
+    const savedLogs = localStorage.getItem('pullOrLetGo_logs');
+    
+    if (savedEndings) {
+      window.savedEndingsData = JSON.parse(savedEndings);
+      console.log("Found saved endings:", window.savedEndingsData);
+    }
+    if (savedAchievements) {
+      window.savedAchievementsData = JSON.parse(savedAchievements);
+      console.log("Found saved achievements:", window.savedAchievementsData);
+    }
+    if (savedLogs) {
+      window.savedLogsData = JSON.parse(savedLogs);
+      console.log("Found saved logs:", window.savedLogsData);
+    }
+  } catch(e) {
+    console.error("Error loading from localStorage:", e);
+  }
+})();
+</script>
+
+<!-- Initialize global variables (will be overwritten if saved data exists) -->
+(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))
+(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))
+(set: $playthroughLogs to (a:))
+
+<!-- Load from localStorage if available -->
+<script>
+if (window.savedEndingsData) {
+  const dm = new Map(Object.entries(window.savedEndingsData));
+  State.variables.endingsReached = dm;
+  console.log("Restored endings:", dm);
+}
+if (window.savedAchievementsData) {
+  const dm = new Map(Object.entries(window.savedAchievementsData));
+  State.variables.achievementsUnlocked = dm;
+  console.log("Restored achievements:", dm);
+}
+if (window.savedLogsData) {
+  const arr = window.savedLogsData.map(log => new Map(Object.entries(log)));
+  State.variables.playthroughLogs = arr;
+  console.log("Restored logs:", arr);
+}
+</script>
+
+<!-- PER-PLAYTHROUGH VARIABLES - Reset every playthrough -->
+(set: $friendship to 20)
+(set: $playerBullied to false)
+(set: $playerHelped to false)
+(set: $friendLook to "")
+(set: $friendName to "???")
+(set: $statusOpen to false)
+(set: $friendImgBase to "")
+(set: $friendImgExt to "")
 (set: $event1Choice to "")
 (set: $event2Choice to "")
 (set: $event3Choice to "")
 (set: $redemption to 0)
-(set: $allHelpChoices to true)
-(set: $allIgnoreChoices to true)
 (set: $currentEnding to "")
 
-<!-- Initialize global achievement tracking variables -->
-<!-- Load saved data from memory -->
-<script>
-  // Load achievements immediately
-  if (window.loadAchievements) {
-    var savedData = window.loadAchievements();
-
-    // Convert to Harlowe data structures
-    if (typeof Harlowe !== 'undefined' && Harlowe.State && Harlowe.State.variables) {
-      // Convert endings to datamap
-      var endingsMap = new Map();
-      Object.entries(savedData.endingsReached || {}).forEach(function(entry) {
-        endingsMap.set(entry[0], entry[1]);
-      });
-      Harlowe.State.variables.endingsReached = endingsMap;
-
-      // Convert achievements to datamap
-      var achievementsMap = new Map();
-      Object.entries(savedData.achievementsUnlocked || {}).forEach(function(entry) {
-        achievementsMap.set(entry[0], entry[1]);
-      });
-      Harlowe.State.variables.achievementsUnlocked = achievementsMap;
-
-      // Convert logs to array of datamaps
-      var logsArray = (savedData.playthroughLogs || []).map(function(log) {
-        var logMap = new Map();
-        Object.entries(log || {}).forEach(function(entry) {
-          logMap.set(entry[0], entry[1]);
-        });
-        return logMap;
-      });
-      Harlowe.State.variables.playthroughLogs = logsArray;
-
-      console.log("Loaded into Harlowe:", {
-        endings: Harlowe.State.variables.endingsReached,
-        achievements: Harlowe.State.variables.achievementsUnlocked,
-        logs: Harlowe.State.variables.playthroughLogs
-      });
-    }
-  }
-</script>
-
-<!-- Fallback: Initialize empty structures if script hasn't run yet -->
-(if: not (datatype: $endingsReached))[
-  (set: $endingsReached to (datamap:))
-]
-(if: not (datatype: $achievementsUnlocked))[
-  (set: $achievementsUnlocked to (datamap:))
-]
-(if: not (datatype: $playthroughLogs))[
-  (set: $playthroughLogs to (a:))
-]
+<!-- Count help and ignore choices (total 10 non-bully choices) -->
+(set: $helpCount to 0)
+(set: $ignoreCount to 0)
 
 :: StoryStylesheet [stylesheet]
 tw-story {
@@ -219,8 +224,8 @@ a.link-internal, a.link-external {
     <b>Headspace:</b>
     (cond:
       $displaySeverity is 0, "Safe ground",
-      $displaySeverity is 1, "Alone in the crowd",
-      $displaySeverity <= 3, "Under verbal fire",
+      $displaySeverity is 2, "Alone in the crowd",
+      $displaySeverity <= 5, "Under verbal fire",
       true, "Trauma critical"
     )<br>
   </div>
@@ -233,22 +238,103 @@ a.link-internal, a.link-external {
   </div>
 ]
 
+:: SaveToLocalStorage [header]
+<!-- This is loaded as a header so it's always available -->
+<script>
+// Save achievement data to localStorage
+(function() {
+  window.saveAchievementData = function() {
+    try {
+      const State = window.State;
+      if (!State || !State.variables) {
+        console.error("State not available for saving");
+        return;
+      }
+      
+      const vars = State.variables;
+      console.log("=== Saving to localStorage ===");
+      console.log("endingsReached:", vars.endingsReached);
+      console.log("achievementsUnlocked:", vars.achievementsUnlocked);
+      console.log("playthroughLogs:", vars.playthroughLogs);
+      
+      const endings = {};
+      if (vars.endingsReached instanceof Map) {
+        vars.endingsReached.forEach((v, k) => { endings[k] = v; });
+      }
+      localStorage.setItem('pullOrLetGo_endings', JSON.stringify(endings));
+      console.log("Saved endings:", endings);
+      
+      const achievements = {};
+      if (vars.achievementsUnlocked instanceof Map) {
+        vars.achievementsUnlocked.forEach((v, k) => { achievements[k] = v; });
+      }
+      localStorage.setItem('pullOrLetGo_achievements', JSON.stringify(achievements));
+      console.log("Saved achievements:", achievements);
+      
+      const logs = [];
+      if (Array.isArray(vars.playthroughLogs)) {
+        vars.playthroughLogs.forEach(log => {
+          if (log instanceof Map) {
+            const obj = {};
+            log.forEach((v, k) => { obj[k] = v; });
+            logs.push(obj);
+          }
+        });
+      }
+      localStorage.setItem('pullOrLetGo_logs', JSON.stringify(logs));
+      console.log("Saved logs:", logs);
+    } catch(e) {
+      console.error("Error saving to localStorage:", e);
+    }
+  };
+})();
+</script>
+
 :: StoryAudio [footer]
+<script>
+(function() {
+    if (!document.getElementById('story-bgm')) {
+        const bgm = document.createElement('audio');
+        bgm.id = 'story-bgm';
+        bgm.src = 'BGM.mp3';
+        bgm.loop = true;
+        bgm.volume = 0.5; // Set volume to 50% (adjust as needed)
+        document.body.appendChild(bgm);
+
+        const promise = bgm.play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                console.log("Autoplay prevented. Waiting for user interaction.");
+                const playOnFirstClick = () => {
+                    bgm.play();
+                    window.removeEventListener('click', playOnFirstClick);
+                };
+                window.addEventListener('click', playOnFirstClick);
+            });
+        }
+    }
+})();
+</script>
 :: Start
 <!-- Reset per-playthrough variables only -->
-(set: $friendship to 20, $playerBullied to false, $playerHelped to false)
-(set: $friendLook to "", $friendName to "???", $statusOpen to false)
-(set: $friendImgBase to "", $friendImgExt to "")
+(set: $friendship to 20)
+(set: $playerBullied to false)
+(set: $playerHelped to false)
+(set: $friendLook to "")
+(set: $friendName to "???")
+(set: $statusOpen to false)
+(set: $friendImgBase to "")
+(set: $friendImgExt to "")
 (set: $event1Choice to "")
 (set: $event2Choice to "")
 (set: $event3Choice to "")
 (set: $redemption to 0)
-(set: $allHelpChoices to true)
-(set: $allIgnoreChoices to true)
 (set: $currentEnding to "")
+(set: $helpCount to 0)
+(set: $ignoreCount to 0)
 
 <!-- DO NOT reset global variables here -->
-<!-- $endingsReached, $achievementsUnlocked, $playthroughLogs should persist -->
+<!-- $endingsReached, $achievementsUnlocked, $playthroughLogs persist across plays -->
 
 <h1>Pull or Let Go</h1>
 I start my high school life with great excitement, and I made many new friends.
@@ -367,17 +453,17 @@ I thought to myself with some uncertainty.
 [[…Or maybe not. They probably have their own plans. I guess I’ll just go hang out with the new friends I’ve made for now~->NewParty-Ignore]]
 
 :: NewParty-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 "Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!"
 I asked.
-"Ah… um… not yet… but sure, I’ll go sign up now," the new student stammered, then went to fill out the registration form.
+"Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.
 (set: $friendship to $friendship + 5)
 
 [[After attending that event, a period of calm and steady school life followed.->Midterm]]
 
 :: NewParty-Ignore
-(set: $allHelpChoices to false)
-"Hey! What time are you guys planning to head out? I’m so excited! I wonder what kind of fun things will be there!"
+(set: $ignoreCount to it + 1)
+"Hey! What time are you guys planning to head out? I'm so excited! I wonder what kind of fun things will be there!"
 "Yeah, my address is kind of far, so I might arrive a bit late."
 "Where do you live? Maybe I can give you a ride, and we can take a little detour along the way!"
 "Wow, that’s so cool!!!"
@@ -399,7 +485,7 @@ It looked like they were having a hard time.
 [[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else—I’d better focus on preparing myself. After all, I study more efficiently on my own.->Midterm-Ignore]]
 
 :: Midterm-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 We spread our notes out on the desk like a map.
 I explained all the unclear points from the chapters, and we organized a more complete set of review materials together.
 Both of us smiled with relief, and I felt my heart is more confident.
@@ -408,7 +494,7 @@ Both of us smiled with relief, and I felt my heart is more confident.
 [[Onward we go.->BullyingEvent1]]
 
 :: Midterm-Ignore
-(set: $allHelpChoices to false)
+(set: $ignoreCount to it + 1)
 I gathered my thoughts and focused fully on my revision.
 "Hah, these points aren’t so hard after all!"
 When I finished studying and was getting ready to head home, I glanced over and saw (print:$friendName) still buried in their books.
@@ -437,8 +523,8 @@ It looked like they had heard every word of that conversation. What should I do�
 [[Curiosity gets the better of me, I want to join their gossip, if I do, I’ll have more to talk about, and it’ll be easier to fit in!->BullyChoice-Bully1]]
 
 :: BullyChoice-Win1
-(set: $allIgnoreChoices to false)
-"Ah, sorry, I didn’t mean to eavesdrop on your conversation. But if (print:$friendName) isn’t really that kind of person, wouldn’t saying things like this be a bit unfair?"
+(set: $helpCount to it + 1)
+"Ah, sorry, I didn't mean to eavesdrop on your conversation. But if (print:$friendName) isn't really that kind of person, wouldn't saying things like this be a bit unfair?"
 "Why do you care? we were just chatting, that’s all."
 They sounded annoyed but didn’t say much more before turning away and leaving.
 I walked over to (print:$friendName) and said, "Don’t mind them. Some people just like to gossip for no reason. Don’t take it to heart. I don’t believe you’re that kind of person!"
@@ -449,8 +535,8 @@ I walked over to (print:$friendName) and said, "Don’t mind them. Some people j
 [[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]]
 
 :: BullyChoice-Ignore1
-(set: $allHelpChoices to false)
-Sigh… Even though gossiping behind someone’s back isn’t right, I don’t really know if what they said is true.
+(set: $ignoreCount to it + 1)
+Sigh… Even though gossiping behind someone's back isn't right, I don't really know if what they said is true.
 After all, we’re not that close, so maybe it’s better not to meddle.
 (set: $friendship to $friendship - 10)
 (set: $event1Choice to "ignore")
@@ -488,7 +574,7 @@ Then I noticed (print:$friendName) wasn’t in our group chat…
 [[…Or maybe not. Since they didn’t add (print:$friendName) to the group chat, I’d better not meddle. I’m not the one organizing the event.->FinalParty-Ignore]]
 
 ::FinalParty-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 "Do you want to come with me to the end-of-term party?"
 "Huh? The end-of-term party…? But I never got an invitation."
 "Ah, they must have forgotten to send it to you. Don’t worry, let’s just go together~"
@@ -499,8 +585,8 @@ I pulled (print:$friendName) along with me to the party. Time passed in laughter
 [[And so, a new year of high school life began.->Year2]]
 
 ::FinalParty-Ignore
-(set: $allHelpChoices to false)
-"This top with these pants? Ah, no, I’ll wear a skirt instead~ Should I prepare something to bring along?"
+(set: $ignoreCount to it + 1)
+"This top with these pants? Ah, no, I'll wear a skirt instead~ Should I prepare something to bring along?"
 I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.
 (set: $friendship to $friendship - 1)
 
@@ -518,7 +604,7 @@ It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) app
 [["Um… actually, woodworking is just okay for me. I’d rather join the film club. Do you want to join that one with me?"->Year2-Ignore]]
 
 ::Year2-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 We wrote our names down on the same sheet of paper.
 From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
 (set: $friendship to $friendship + 10)
@@ -526,8 +612,8 @@ From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, e
 [[Tick-tock, tick-tock…->BullyingEvent2]]
 
 ::Year2-Ignore
-(set: $allHelpChoices to false)
-"I’m not really interested in movies… alright then, you go join the film club, and I’ll just go to the woodworking club on my own."
+(set: $ignoreCount to it + 1)
+"I'm not really interested in movies… alright then, you go join the film club, and I'll just go to the woodworking club on my own."
 "Okay, I hope you have fun making crafts!"
 (set: $friendship to $friendship - 5)
 
@@ -549,7 +635,7 @@ This drew more and more stares from people nearby, and the crowd began to grow�
 [[It’s so lively, everyone’s pointing fingers at (print:$friendName), which must mean they’re really like that, right? Why not join in and see for it!->BullyChoice-Bully2]]
 
 ::BullyChoice-Win2
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 "Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!"
 I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering.
 The few who had been leading the trouble left reluctantly.
@@ -563,8 +649,8 @@ I walked over to (print:$friendName) and comforted them:
 [["You don’t need to thank me! You have to be brave!"->Birth-Party]]
 
 ::BullyChoice-Ignore2
-(set: $allHelpChoices to false)
-"I can’t really do much about this. There are so many people of them, and it doesn’t seem like any real harm has been done. They’re probably just joking around. Roughhousing between classmates is normal."
+(set: $ignoreCount to it + 1)
+"I can't really do much about this. There are so many people of them, and it doesn't seem like any real harm has been done. They're probably just joking around. Roughhousing between classmates is normal."
 (set: $friendship to $friendship - 15)
 (set: $event2Choice to "ignore")
 
@@ -597,8 +683,8 @@ I noticed once again that (print:$friendName) still wasn’t in our group chat�
 [[…Or maybe not. Since they hadn’t been added to the group chat, I’d better not meddle.->Year3]]
 
 ::Birth-Party-Help
-(set: $allIgnoreChoices to false)
-"La’s having a birthday party, do you want to come?"
+(set: $helpCount to it + 1)
+"La's having a birthday party, do you want to come?"
 "Huh? A birthday party…? But I never got an invitation."
 "Ah, they must have forgotten to send it. Don’t worry, you can come with me!"
 "Uh… alright then."
@@ -618,8 +704,8 @@ It seemed they were having trouble finding the classroom too.
 [[…Or maybe not. They’re probably lost as well, and since I don’t know either, I’d better just ask someone on my own.->Year3-Ignore]]
 
 ::Year3-Help
-(set: $allIgnoreChoices to false)
-"Hi! Are you looking for the classroom too? I’m lost, this is way too hard for me,"
+(set: $helpCount to it + 1)
+"Hi! Are you looking for the classroom too? I'm lost, this is way too hard for me,"
 I said as I walked over to start a conversation.
 "Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help."
 "Alright, let’s take a look together."
@@ -631,8 +717,8 @@ Before long, we found the classroom without being late, and both of us let out a
 [[And the busy rhythm of school life began again.->BullyingEvent3]]
 
 ::Year3-Ignore
-(set: $allHelpChoices to false)
-Hey, isn’t that La?
+(set: $ignoreCount to it + 1)
+Hey, isn't that La?
 She probably knows the way, let me go ask her!
 "Hi, La, are you heading to that classroom?"
 "Yeah, we’ve only got five minutes left before class starts!."
@@ -671,7 +757,7 @@ A sound echos.
 (set: $redemption to 1)
 
 ::BullyChoice-Win3
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 They ran away.
 Looks like my plan worked!
 I hurried over to (print:$friendName)’s side and helped pick up their things.
@@ -683,8 +769,8 @@ I hurried over to (print:$friendName)’s side and helped pick up their things.
 [["It’s okay…" I said, trying to comfort them, though my feelings were complicated.->Volunteer]]
 
 ::BullyChoice-Ignore3
-(set: $allHelpChoices to false)
-"There are so many of bullies… I’d better not get myself into trouble,"
+(set: $ignoreCount to it + 1)
+"There are so many of bullies… I'd better not get myself into trouble,"
 I muttered to myself, quickening my steps to get away from the scene as fast as possible.
 (set: $friendship to $friendship - 20)
 (set: $event3Choice to "ignore")
@@ -725,7 +811,7 @@ But…
 [[...Or maybe I should choose another classmate who seems more capable, if we work together, we might gain greater recognition and even cooperate in the future for bigger benefits.->Volunteer-Ignore]]
 
 ::Volunteer-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 "Hey, I got a really great opportunity, do you want to join me for this volunteer activity?"
 "Really? Wouldn’t that trouble you? Are you sure you actually want to take me along?!"
 "Of course, as long as you’re willing."
@@ -736,7 +822,7 @@ I forwarded the link and shared my screen so we could fill out the application f
 
 
 ::Volunteer-Ignore
-(set: $allHelpChoices to false)
+(set: $ignoreCount to it + 1)
 I went over to invite that classmate to join me in the volunteer activity.
 Just then, (print:$friendName) quietly asked me from the side, "Um… is there any chance you could bring one more person?""Sorry, I only have two spots. You’ll have to find something on your own."
 "Oh… alright… thanks."
@@ -756,7 +842,7 @@ Today was the day we visited University A, and on the bus…
 [[A few classmates called me over to join them instead, so we could share snacks and chat about our dreams.->University-Ignore]]
 
 ::University-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 "So, have you decided where you want to go?"
 I asked.
 "Not yet… every school’s requirements are so high, I’m worried I won’t make it. What about you?"
@@ -767,8 +853,8 @@ I asked.
 [[Before long, we arrived at the university, began the tour, and gathered a lot of useful information.->Capstone]]
 
 ::University-Ignore
-(set: $allHelpChoices to false)
-"Have you all decided which schools you’re going to apply to?"
+(set: $ignoreCount to it + 1)
+"Have you all decided which schools you're going to apply to?"
 I ask.
 "I have a few in mind, but nothing’s certain yet.""Just try them all!"
 "Yeah, but the requirements for every school seem pretty tough."
@@ -790,8 +876,8 @@ The project could be done as a team or individually.
 [[...Or maybe it’s better to work alone, since managing my time would be easier. Or… there was that super talented classmate who invited me before, maybe I should go find them and team up!->Capstone-Ignore]]
 
 ::Capstone-Help
-(set: $allIgnoreChoices to false)
-"Hey! I’ve got a really good idea! Want to work on it together?"
+(set: $helpCount to it + 1)
+"Hey! I've got a really good idea! Want to work on it together?"
 "Ah, I was just worrying about it. If you’re willing to join me, that’s wonderful! Thank you."
 We divided the tasks, exchanged drafts, and filled in each other’s gaps.
 (set: $friendship to $friendship + 15)
@@ -800,7 +886,7 @@ We divided the tasks, exchanged drafts, and filled in each other’s gaps.
 
 
 ::Capstone-Ignore
-(set: $allHelpChoices to false)
+(set: $ignoreCount to it + 1)
 In the end, I completed a project all on my own, I was truly proud of~
 (set: $friendship to $friendship - 6)
 
@@ -817,14 +903,14 @@ Everyone was eager to show the best version of themselves at the ceremony, while
 
 
 ::Ceremony-Help
-(set: $allIgnoreChoices to false)
+(set: $helpCount to it + 1)
 We went to many dress shops and accessory stores together, and time passed quickly.
 (set: $friendship to it + 2)
 
 [[Then, the day of graduation arrived.->EndingScene]]
 
 ::Ceremony-Ignore
-(set: $allHelpChoices to false)
+(set: $ignoreCount to it + 1)
 To reward me for all my years of hard work, my mom booked me a trip to Europe.
 I researched tons of information and prepared a perfectly detailed itinerary.
 "I can’t wait for my trip!"
@@ -926,11 +1012,18 @@ After saying that, I tried on the dress my family had prepared for me.
 
 :: Ending1
 (set: $currentEnding to "Ending1: Dreams Achieved")
-(set: $endingsReached's "Ending1" to true)
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
+<!-- Safety: Ensure variables are proper types -->
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+
+<!-- Mark this ending as reached -->
+(set: $endingsReached's "Ending1" to 1)
+
+<!-- Check achievements: if helped in all 10 choices, unlock best -->
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 <!-- Calculate severity -->
 (set: _displaySeverity to 0)
@@ -941,8 +1034,8 @@ After saying that, I tried on the dress my family had prepared for me.
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
+<!-- Create and add log entry -->
+(set: _logEntry to (dm:
   "name", $friendName,
   "imgBase", $friendImgBase,
   "imgExt", $friendImgExt,
@@ -950,22 +1043,11 @@ After saying that, I tried on the dress my family had prepared for me.
   "severity", _displaySeverity,
   "ending", $currentEnding
 ))
-
-<!-- Add to logs and save -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
+(set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
 ]
-
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending1: Dreams Achieved</h2>
 <img src="end1.GIF" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -977,13 +1059,13 @@ I truly believe we'll have an even brighter future ahead!
 
 :: Ending2
 (set: $currentEnding to "Ending2: Paths Diverged")
-(set: $endingsReached's "Ending2" to true)
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+(set: $endingsReached's "Ending2" to 1)
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
-
-<!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
@@ -992,31 +1074,10 @@ I truly believe we'll have an even brighter future ahead!
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
-  "name", $friendName,
-  "imgBase", $friendImgBase,
-  "imgExt", $friendImgExt,
-  "friendship", $friendship,
-  "severity", _displaySeverity,
-  "ending", $currentEnding
-))
-
-<!-- Add to logs and save -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
-(if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
-]
-
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+(set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending2: Paths Diverged</h2>
 <img src="end2-3.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1030,13 +1091,13 @@ I made new friends in college, and there was no longer any contact between me an
 
 :: Ending3
 (set: $currentEnding to "Ending3: Fading into Silence")
-(set: $endingsReached's "Ending3" to true)
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+(set: $endingsReached's "Ending3" to 1)
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
-
-<!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
@@ -1045,35 +1106,16 @@ I made new friends in college, and there was no longer any contact between me an
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
-  "name", $friendName,
-  "imgBase", $friendImgBase,
-  "imgExt", $friendImgExt,
-  "friendship", $friendship,
-  "severity", _displaySeverity,
-  "ending", $currentEnding
-))
-
-<!-- Add to logs and save -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
+(set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
+(set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
 ]
 
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending3: Fading into Silence</h2>
-<img src="end2-3.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
-The graduation ceremony began, but I still didn’t see any sign of (print:$friendName).
+<img src="end3.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
 A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
 Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
 <br>
@@ -1081,13 +1123,13 @@ Later on, they deleted all of our contact information, and I never heard anythin
 
 :: Ending4
 (set: $currentEnding to "Ending4: The Turn of the Tide")
-(set: $endingsReached's "Ending4" to true)
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+(set: $endingsReached's "Ending4" to 1)
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
-
-<!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
@@ -1096,31 +1138,10 @@ Later on, they deleted all of our contact information, and I never heard anythin
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
-  "name", $friendName,
-  "imgBase", $friendImgBase,
-  "imgExt", $friendImgExt,
-  "friendship", $friendship,
-  "severity", _displaySeverity,
-  "ending", $currentEnding
-))
-
-<!-- Add to logs and save -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
-(if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
-]
-
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+(set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending4: The Turn of the Tide</h2>
 <img src="end45.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1132,13 +1153,13 @@ Although I was eventually admitted to a university, the psychological pressure I
 
 :: Ending5
 (set: $currentEnding to "Ending5: Crushed by Pressure")
-(set: $endingsReached's "Ending5" to true)
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+(set: $endingsReached's "Ending5" to 1)
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
-
-<!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
@@ -1147,31 +1168,10 @@ Although I was eventually admitted to a university, the psychological pressure I
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
-  "name", $friendName,
-  "imgBase", $friendImgBase,
-  "imgExt", $friendImgExt,
-  "friendship", $friendship,
-  "severity", _displaySeverity,
-  "ending", $currentEnding
-))
-
-<!-- Add to logs and save -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
-(if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
-]
-
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+(set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending5: Crushed by Pressure</h2>
 <img src="end45.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1189,13 +1189,13 @@ That feeling…
 
 :: Ending6
 (set: $currentEnding to "Ending6: A Tragic Loss")
-(set: $endingsReached's "Ending6" to true)
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+(set: $endingsReached's "Ending6" to 1)
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
-
-<!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
@@ -1204,31 +1204,10 @@ That feeling…
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
-  "name", $friendName,
-  "imgBase", $friendImgBase,
-  "imgExt", $friendImgExt,
-  "friendship", $friendship,
-  "severity", _displaySeverity,
-  "ending", $currentEnding
-))
-
-<!-- Add to beginning of logs array and limit to 7 -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
-(if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
-]
-
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+(set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending6: A Tragic Loss</h2>
 <img src="end6.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1241,13 +1220,13 @@ Perhaps… each one of us is a murderer.
 
 :: Ending7
 (set: $currentEnding to "Ending7: Rescue and Retribution")
-(set: $endingsReached's "Ending7" to true)
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+(set: $endingsReached's "Ending7" to 1)
+(if: $helpCount is 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: $ignoreCount is 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-<!-- Check achievements -->
-(if: $allHelpChoices)[(set: $achievementsUnlocked's "best" to true)]
-(if: $allIgnoreChoices)[(set: $achievementsUnlocked's "worst" to true)]
-
-<!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
@@ -1256,31 +1235,10 @@ Perhaps… each one of us is a murderer.
 (if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
 (if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
-<!-- Create log entry as datamap -->
-(set: _logEntry to (datamap:
-  "name", $friendName,
-  "imgBase", $friendImgBase,
-  "imgExt", $friendImgExt,
-  "friendship", $friendship,
-  "severity", _displaySeverity,
-  "ending", $currentEnding
-))
-
-<!-- Add to logs and save -->
-(set: $playthroughLogs to (a: _logEntry) + $playthroughLogs)
-(if: $playthroughLogs's length > 7)[
-  (set: $playthroughLogs to $playthroughLogs's 1..7)
-]
-
-<script>
-if (window.saveAchievements && typeof Harlowe !== 'undefined') {
-  window.saveAchievements(
-    Harlowe.State.variables.endingsReached,
-    Harlowe.State.variables.achievementsUnlocked,
-    Harlowe.State.variables.playthroughLogs
-  );
-}
-</script>
+(set: _logEntry to (dm: "name", $friendName, "imgBase", $friendImgBase, "imgExt", $friendImgExt, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
+<script>if(window.saveAchievementData) window.saveAchievementData();</script>
 
 <h2>Ending7: Rescue and Retribution</h2>
 <img src="end7.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1294,6 +1252,11 @@ In the end, I was punished by the law.
 [[See Your Summary->Achievements]]
 
 :: Achievements
+<!-- Safety: Reinitialize if variables are corrupted -->
+(unless: (datatype: $endingsReached) is "datamap")[(set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))]
+(unless: (datatype: $achievementsUnlocked) is "datamap")[(set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))]
+(unless: (datatype: $playthroughLogs) is "array")[(set: $playthroughLogs to (a:))]
+
 <h2>Playthrough Log</h2>
 <div style="max-height: 280px; overflow-y: auto; border: 1px solid #444;">
 <table class="summary-table">
@@ -1307,36 +1270,14 @@ In the end, I was punished by the law.
   </tr>
   </thead>
   <tbody>
-  (set: _hasLogs to false)
-  (if: $playthroughLogs is an array)[
-    (if: $playthroughLogs's length > 0)[
-      (set: _hasLogs to true)
-    ]
-  ]
-  (if: _hasLogs)[
+  (if: (datatype: $playthroughLogs) is "array" and $playthroughLogs's length > 0)[
     (for: each _log, ...$playthroughLogs)[
-      (set: _name to "???")
-      (set: _imgBase to "person1")
-      (set: _imgExt to ".png")
-      (set: _friendship to 0)
-      (set: _severity to 0)
-      (set: _ending to "Unknown")
-
-      (if: _log is a datamap)[
-        (if: _log contains "name")[(set: _name to _log's name)]
-        (if: _log contains "imgBase")[(set: _imgBase to _log's imgBase)]
-        (if: _log contains "imgExt")[(set: _imgExt to _log's imgExt)]
-        (if: _log contains "friendship")[(set: _friendship to _log's friendship)]
-        (if: _log contains "severity")[(set: _severity to _log's severity)]
-        (if: _log contains "ending")[(set: _ending to _log's ending)]
-      ]
-
       (print: '<tr>')
-      (print: '<td>' + _name + '</td>')
-      (print: '<td><img src="' + _imgBase + '_safe' + _imgExt + '"></td>')
-      (print: '<td>' + (text: _friendship) + '</td>')
-      (print: '<td>' + (text: _severity) + '</td>')
-      (print: '<td>' + _ending + '</td>')
+      (print: '<td>' + _log's name + '</td>')
+      (print: '<td><img src="' + _log's imgBase + '_safe' + _log's imgExt + '"></td>')
+      (print: '<td>' + (text: _log's friendship) + '</td>')
+      (print: '<td>' + (text: _log's severity) + '</td>')
+      (print: '<td>' + _log's ending + '</td>')
       (print: '</tr>')
     ]
   ](else:)[
@@ -1349,64 +1290,50 @@ In the end, I was punished by the law.
 <div class="achievements">
   <h3>Ending Collection</h3>
   <div class="star-container">
-    (set: _hasEnding1 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending1")[(set: _hasEnding1 to true)]]
-    (if: _hasEnding1)[(print: '<span class="star-c1">★</span>')]
+    (if: $endingsReached's "Ending1" is 1)[(print: '<span class="star-c1">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-
-    (set: _hasEnding2 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending2")[(set: _hasEnding2 to true)]]
-    (if: _hasEnding2)[(print: '<span class="star-c2">★</span>')]
+    
+    (if: $endingsReached's "Ending2" is 1)[(print: '<span class="star-c2">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-
-    (set: _hasEnding3 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending3")[(set: _hasEnding3 to true)]]
-    (if: _hasEnding3)[(print: '<span class="star-c3">★</span>')]
+    
+    (if: $endingsReached's "Ending3" is 1)[(print: '<span class="star-c3">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-
-    (set: _hasEnding4 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending4")[(set: _hasEnding4 to true)]]
-    (if: _hasEnding4)[(print: '<span class="star-c4">★</span>')]
+    
+    (if: $endingsReached's "Ending4" is 1)[(print: '<span class="star-c4">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-
-    (set: _hasEnding5 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending5")[(set: _hasEnding5 to true)]]
-    (if: _hasEnding5)[(print: '<span class="star-c5">★</span>')]
+    
+    (if: $endingsReached's "Ending5" is 1)[(print: '<span class="star-c5">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-
-    (set: _hasEnding6 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending6")[(set: _hasEnding6 to true)]]
-    (if: _hasEnding6)[(print: '<span class="star-c6">★</span>')]
+    
+    (if: $endingsReached's "Ending6" is 1)[(print: '<span class="star-c6">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
-
-    (set: _hasEnding7 to false)
-    (if: $endingsReached is a datamap)[(if: $endingsReached contains "Ending7")[(set: _hasEnding7 to true)]]
-    (if: _hasEnding7)[(print: '<span class="star-c7">★</span>')]
+    
+    (if: $endingsReached's "Ending7" is 1)[(print: '<span class="star-c7">★</span>')]
     (else:)[(print: '<span class="star-grey">☆</span>')]
   </div>
 
   <h3>Special Achievements</h3>
   <table style="width: 100%; border-collapse: collapse; margin-top: 1em;">
     <tr>
-      (set: _hasBest to false)
-      (if: $achievementsUnlocked is a datamap)[(if: $achievementsUnlocked contains "best")[(set: _hasBest to true)]]
-      (if: _hasBest)[
+      (if: $achievementsUnlocked's "best" is 1)[
         <td style="width: 60px; text-align: center; font-size: 2em;">🌹</td>
-        <td style="padding: 10px;"><b>Best of the Best</b><br><small>You supported your friend at every single opportunity.</small></td>
+        <td style="padding: 10px;"><b>Best of the Best</b></td>
+        <td style="padding: 10px;"><small>You supported your friend at every single opportunity.</small></td>
       ](else:)[
         <td style="width: 60px; text-align: center; font-size: 2em; color: #888;">❓</td>
-        <td style="padding: 10px; color: #888;"><b>???</b><br><small>????????????????????????????????????????????</small></td>
+        <td style="padding: 10px; color: #888;"><b>???</b></td>
+        <td style="padding: 10px; color: #888;"><small>????????????????????????????????????????????</small></td>
       ]
     </tr>
     <tr>
-      (set: _hasWorst to false)
-      (if: $achievementsUnlocked is a datamap)[(if: $achievementsUnlocked contains "worst")[(set: _hasWorst to true)]]
-      (if: _hasWorst)[
+      (if: $achievementsUnlocked's "worst" is 1)[
         <td style="width: 60px; text-align: center; font-size: 2em;">💀</td>
-        <td style="padding: 10px;"><b>Worst of the Worst</b><br><small>You abandoned your friend at every single opportunity.</small></td>
+        <td style="padding: 10px;"><b>Worst of the Worst</b></td>
+        <td style="padding: 10px;"><small>You abandoned your friend at every single opportunity.</small></td>
       ](else:)[
         <td style="width: 60px; text-align: center; font-size: 2em; color: #888;">❓</td>
-        <td style="padding: 10px; color: #888;"><b>???</b><br><small>????????????????????????????????????????????</small></td>
+        <td style="padding: 10px; color: #888;"><b>???</b></td>
+        <td style="padding: 10px; color: #888;"><small>????????????????????????????????????????????</small></td>
       ]
     </tr>
   </table>

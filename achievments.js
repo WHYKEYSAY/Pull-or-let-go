@@ -1,4 +1,13 @@
-// In-memory storage for achievements (no localStorage)
+// ====================================================================
+// NOTE: This file is NO LONGER NEEDED!
+//
+// The achievement system now uses pure Harlowe variables instead of
+// JavaScript. All functionality is built into the .twee file.
+//
+// You can safely REMOVE this file from your Twine project.
+// ====================================================================
+
+// Legacy code below (not used)
 if (!window.gameData) {
   window.gameData = {
     endingsReached: {},
