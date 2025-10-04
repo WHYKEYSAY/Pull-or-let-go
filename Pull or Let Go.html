@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="2E07210C-88E8-4A4C-A92A-7DC8CDC8B8A4" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="8635F531-9E95-4544-B277-EF41919E4513" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -250,6 +250,8 @@ a.link-internal, a.link-external {
   (set: $currentEnding to &quot;&quot;)
   (set: $helpCount to 0)
   (set: $ignoreCount to 0)
+  (set: $allWrongChoices to (a:))
+  (set: $chosenWrongChoices to (a:))
 ], true, [])
 &lt;/div&gt;</tw-passagedata><tw-passagedata pid="6" name="Start" tags="" position="650,25" size="100,100">&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
 I start my high school life with great excitement, and I made many new friends.
@@ -1097,7 +1099,7 @@ if (window.State &amp;&amp; window.State.variables) {
     pointer-events: none;
 }
 &lt;/style&gt;
-(cond: not ((history:) contains &quot;MiniGame1&quot;), [
+(cond: $allWrongChoices&#39;s length is 0, [
   (set: $allWrongChoices to (array:
     &quot;Start a loud conversation on your phone.&quot;,
     &quot;Go up to the group and ask for a pen.&quot;,

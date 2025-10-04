@@ -259,6 +259,8 @@ a.link-internal, a.link-external {
   (set: $currentEnding to "")
   (set: $helpCount to 0)
   (set: $ignoreCount to 0)
+  (set: $allWrongChoices to (a:))
+  (set: $chosenWrongChoices to (a:))
 ], true, [])
 </div>
 
@@ -1303,7 +1305,7 @@ if (window.State && window.State.variables) {
     pointer-events: none;
 }
 </style>
-(cond: not ((history:) contains "MiniGame1"), [
+(cond: $allWrongChoices's length is 0, [
   (set: $allWrongChoices to (array:
     "Start a loud conversation on your phone.",
     "Go up to the group and ask for a pen.",
