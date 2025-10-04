@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="E78F9F99-59FA-4BDA-AB61-777BBF993CED" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body {
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="A5BBE35E-FD4C-44DB-80DA-180854E3AB51" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body {
   margin: 0;
   padding: 0;
 }
@@ -148,10 +148,10 @@ a.link-internal, a.link-external {
   (set: $displaySeverity to 0)
   (if: $event1Choice is &quot;ignore&quot;)[(set: $displaySeverity to it + 1)]
   (if: $event1Choice is &quot;bully&quot;)[(set: $displaySeverity to it + 2)]
-  (if: $event2Choice is &quot;ignore&quot;)[(set: $displaySeverity to it + 1)]
-  (if: $event2Choice is &quot;bully&quot;)[(set: $displaySeverity to it + 2)]
-  (if: $event3Choice is &quot;ignore&quot;)[(set: $displaySeverity to it + 1)]
-  (if: $event3Choice is &quot;bully&quot;)[(set: $displaySeverity to it + 2)]
+  (if: $event2Choice is &quot;ignore&quot;)[(set: $displaySeverity to it + 1.5)]
+  (if: $event2Choice is &quot;bully&quot;)[(set: $displaySeverity to it + 3)]
+  (if: $event3Choice is &quot;ignore&quot;)[(set: $displaySeverity to it + 2)]
+  (if: $event3Choice is &quot;bully&quot;)[(set: $displaySeverity to it + 6)]
 
     &lt;style&gt;
         .field-notes-bg {
@@ -769,10 +769,10 @@ After saying that, I tried on the dress my family had prepared for me.
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 &lt;!-- Calculate image state for log --&gt;
 (set: _imgState to (cond:
@@ -818,10 +818,10 @@ I truly believe we&#39;ll have an even brighter future ahead!
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 (set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -849,10 +849,10 @@ I made new friends in college, and there was no longer any contact between me an
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 (set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -879,10 +879,10 @@ Later on, they deleted all of our contact information, and I never heard anythin
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 (set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -908,10 +908,10 @@ Although I was eventually admitted to a university, the psychological pressure I
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 (set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -940,10 +940,10 @@ That feeling…
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 (set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -970,10 +970,10 @@ Perhaps… each one of us is a murderer.
 (set: _displaySeverity to 0)
 (if: $event1Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
 (if: $event1Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
-(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1)]
-(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 1.5)]
+(if: $event2Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 3)]
+(if: $event3Choice is &quot;ignore&quot;)[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is &quot;bully&quot;)[(set: _displaySeverity to it + 6)]
 
 (set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
