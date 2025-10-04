@@ -1,0 +1,105 @@
+graph TD
+    subgraph "Setup"
+        A[Start Game] --> B(Choose Character Look);
+        B --> C(Name Character);
+    end
+
+    C --> D[Year 1: New Student Party];
+    
+    subgraph "Year 1"
+        D --> E{Invite to Party?};
+        E -->|Help| F[Midterm Prep];
+        E -->|Ignore| F;
+
+        F --> G{Help with Studies?};
+        G -->|Help| H[Bullying Event 1: Rumors];
+        G -->|Ignore| H;
+
+        H --> H_Choice{React to Rumors?};
+        H_Choice -->|Confront via Mini-Game 1| H_Win[Positive Outcome];
+        H_Choice -->|Ignore| H_Ignore[Neutral Outcome];
+        H_Choice -->|Join Gossip| H_Bully[Negative Outcome];
+
+        H_Win --> I[End-of-Term Party];
+        H_Ignore --> I;
+        H_Bully --> I;
+
+        I --> I_Choice{Invite to Party?};
+        I_Choice -->|Help| J[Begin Year 2];
+        I_Choice -->|Ignore| J;
+    end
+
+    subgraph "Year 2"
+        J --> K{Join Woodworking Club Together?};
+        K -->|Agree| L[Bullying Event 2: Shoving];
+        K -->|Decline| L;
+
+        L --> L_Choice{React to Shoving?};
+        L_Choice -->|Intervene via Mini-Game 2| L_Win[Positive Outcome];
+        L_Choice -->|Ignore| L_Ignore[Neutral Outcome];
+        L_Choice -->|Join Mocking| L_Bully[Negative Outcome];
+
+        L_Win --> M[Birthday Party];
+        L_Ignore --> M;
+        L_Bully --> M;
+
+        M --> M_Choice{Invite to Party?};
+        M_Choice -->|Help| N[Begin Year 3];
+        M_Choice -->|Ignore| N;
+    end
+
+    subgraph "Year 3"
+        N --> O{Find Classroom Together?};
+        O -->|Help| P[Bullying Event 3: Physical Attack];
+        O -->|Ignore| P;
+
+        P --> P_Choice{React to Attack?};
+        P_Choice -->|Intervene via Mini-Game 3| P_Win[Positive Outcome];
+        P_Choice -->|Ignore| P_Ignore[Neutral Outcome];
+        P_Choice -->|Join Attack| P_Bully[Negative Outcome];
+
+        P_Win --> Q[Volunteer Opportunity];
+        P_Ignore --> Q;
+        P_Bully --> Q;
+
+        Q --> Q_Choice{Invite to Volunteer?};
+        Q_Choice -->|Help| R[Begin Year 4];
+        Q_Choice -->|Ignore| R;
+    end
+
+    subgraph "Year 4 & Graduation"
+        R --> S{Sit Together on Bus?};
+        S -->|Help| T[Capstone Project];
+        S -->|Ignore| T;
+
+        T --> U{Partner for Project?};
+        U -->|Help| V[Graduation Ceremony];
+        U -->|Ignore| V;
+
+        V --> W{Help with Outfits?};
+        W -->|Help| X[Ending Scene];
+        W -->|Ignore| X;
+    end
+
+    subgraph "Endings"
+        X --> Y[Calculate Ending based on Friendship Level & Bullying Event Choices];
+        Y --> E1(Ending 1: Dreams Achieved);
+        Y --> E2(Ending 2: Paths Diverged);
+        Y --> E3(Ending 3: Fading into Silence);
+        Y --> E4(Ending 4: The Turn of the Tide);
+        Y --> E5(Ending 5: Crushed by Pressure);
+        Y --> E6(Ending 6: A Tragic Loss);
+        Y --> E7(Ending 7: Breaking Free);
+    end
+
+    subgraph "Post-Game"
+        E1 --> Z[View Summary & Achievements];
+        E2 --> Z;
+        E3 --> Z;
+        E4 --> Z;
+        E5 --> Z;
+        E6 --> Z;
+        E7 --> Z;
+
+        Z -->|Play Again| A;
+    end
