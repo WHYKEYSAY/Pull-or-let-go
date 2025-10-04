@@ -341,6 +341,7 @@ By this time, the rest of the class had already grown close over the past three 
 [[Alright then, I took a deep breath—let’s begin our new journey together!->NewStudentHub]]
 
 :: NewStudentHub
+<h2>Year 1</h2>
 It's only the beginning of my first year, and I carried a lighthearted attitude toward studying, filled with excitement and joy.
 Some of my classmates spontaneously organized a party and invited everyone to join.
 <br>
@@ -496,6 +497,7 @@ I excitedly looked forward to the day, getting ready for the party while also sh
 
 
 ::Year2
+<h2>Year 2</h2>
 By the time October of my second year rolled around.
 yay! We could finally choose our club activities. I had been looking forward to this for so long!
 It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) appeared behind me, patted my shoulder, and said:
@@ -578,24 +580,32 @@ Meanwhile, (print:$friendName)’s head was lowered like an ostrich, their face 
 
 ::Birth-Party
 Some time later, the popular classmate La organized a birthday party.
-I noticed once again that (print:$friendName) still wasn’t in our group chat…
+I noticed once again that (print:$friendName) still wasn't in our group chat…
 <br>
 [[I try to contact (print:$friendName) and asked: "Do you want to go to the party together?"->Birth-Party-Help]]
 <br>
-[[…Or maybe not. Since they hadn’t been added to the group chat, I’d better not meddle.->Year3]]
+[[…Or maybe not. Since they hadn't been added to the group chat, I'd better not meddle.->Birth-Party-Ignore]]
 
 ::Birth-Party-Help
 (set: $helpCount to it + 1)
 "La's having a birthday party, do you want to come?"
 "Huh? A birthday party…? But I never got an invitation."
-"Ah, they must have forgotten to send it. Don’t worry, you can come with me!"
+"Ah, they must have forgotten to send it. Don't worry, you can come with me!"
 "Uh… alright then."
 I pulled (print:$friendName) along to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
 (set: $friendship to $friendship + 2)
 
 [[Another year came to an end, and a new chapter of high school life began.->Year3]]
 
+::Birth-Party-Ignore
+(set: $ignoreCount to it + 1)
+I decided not to get involved. It wasn't my place to invite them when the organizer didn't include them.
+(set: $friendship to $friendship - 2)
+
+[[Another year came to an end, and a new chapter of high school life began.->Year3]]
+
 ::Year3
+<h2>Year3</h2>
 As we stepped into our third year, we were assigned new classrooms.
 Being terrible with directions, I quickly got lost in the new building.
 Just as I was struggling, I looked up and saw (print:$friendName) frowning, also wandering around.
@@ -891,14 +901,19 @@ After saying that, I tried on the dress my family had prepared for me.
     [[Your journey ends here.->Ending3]]
   ]
   
-  <!-- ENDING 4: Ignore event 3, help others OR bully 1-2 events, help others -->
-  (else-if: ($event3Choice is "ignore" and _bullyEventsBullied is 0) or (_bullyEventsBullied >= 1 and _bullyEventsBullied <= 2 and $event3Choice is not "bully"))[
+  <!-- ENDING 5: Bully 1-2 events BUT helped event 3, OR bully only event 3 -->
+  (else-if: ($event3Choice is "help" and _bullyEventsBullied >= 1 and _bullyEventsBullied <= 2) or ($event3Choice is "bully" and _bullyEventsBullied is 1))[
+    [[Your journey ends here.->Ending5]]
+  ]
+  
+  <!-- ENDING 4: Ignore event 3, help others -->
+  (else-if: $event3Choice is "ignore" and _bullyEventsBullied is 0)[
     [[Your journey ends here.->Ending4]]
   ]
   
-  <!-- ENDING 5: Bully event 3 only, help others -->
-  (else-if: $event3Choice is "bully" and _bullyEventsBullied is 1)[
-    [[Your journey ends here.->Ending5]]
+  <!-- ENDING 7: Bully all 3 events, but helped at many non-bully events -->
+  (else-if: _bullyEventsBullied is 3 and $helpCount >= 8)[
+    [[Your journey ends here.->Ending7]]
   ]
   
   <!-- ENDING 6: All other unfriend cases (ignore all, bully multiple including event 3, etc) -->
@@ -915,9 +930,13 @@ After saying that, I tried on the dress my family had prepared for me.
 <!-- Mark this ending as reached -->
 (set: $endingsReached's "Ending1" to 1)
 
-<!-- Check achievements: if helped in all 13 choices, unlock best -->
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+<!-- Check achievements: helped/ignored all NON-bully events only (10 events) -->
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 <!-- Calculate severity -->
 (set: _displaySeverity to 0)
@@ -960,8 +979,12 @@ I truly believe we'll have an even brighter future ahead!
 
 
 (set: $endingsReached's "Ending2" to 1)
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -991,8 +1014,12 @@ I made new friends in college, and there was no longer any contact between me an
 
 
 (set: $endingsReached's "Ending3" to 1)
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1021,8 +1048,12 @@ Later on, they deleted all of our contact information, and I never heard anythin
 
 
 (set: $endingsReached's "Ending4" to 1)
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1050,8 +1081,12 @@ Although I was eventually admitted to a university, the psychological pressure I
 
 
 (set: $endingsReached's "Ending5" to 1)
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1082,8 +1117,12 @@ That feeling…
 :: Ending6
 (set: $currentEnding to "Ending6: A Tragic Loss")
 (set: $endingsReached's "Ending6" to 1)
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1116,8 +1155,12 @@ Perhaps… each one of us is a murderer.
 
 
 (set: $endingsReached's "Ending7" to 1)
-(if: $helpCount is 13)[(set: $achievementsUnlocked's "best" to 1)]
-(if: $ignoreCount is 13)[(set: $achievementsUnlocked's "worst" to 1)]
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+(set: _nonBullyHelps to $helpCount - _bullyEventsHelped)
+(set: _nonBullyIgnores to $ignoreCount - _bullyEventsIgnored)
+(if: _nonBullyHelps >= 10)[(set: $achievementsUnlocked's "best" to 1)]
+(if: _nonBullyIgnores >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
 (set: _displaySeverity to 0)
 (if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
@@ -1175,23 +1218,40 @@ if (window.State && window.State.variables) {
     <th>Ending Reached</th>
   </tr>
   </thead>
-  <tbody>
-  (if: (datatype: $playthroughLogs) is "array" and $playthroughLogs's length > 0)[
-    (for: each _log, ...$playthroughLogs)[
-      <tr>
-        <td>(print: _log's name)</td>
-        <td><img src="(print: _log's imgBase)_safe(print: _log's imgExt)"></td>
-        <td>(print: _log's friendship)</td>
-        <td>(print: _log's severity)</td>
-        <td>(print: _log's ending)</td>
-      </tr>
-    ]
-  ](else:)[
-    <tr><td colspan="5">No playthroughs logged yet.</td></tr>
-  ]
+  <tbody id="playthrough-tbody">
   </tbody>
 </table>
 </div>
+
+<script>
+setTimeout(function() {
+  var tbody = document.getElementById('playthrough-tbody');
+  if (!tbody) return;
+  
+  if (window.State && window.State.variables && window.State.variables.playthroughLogs) {
+    var logs = window.State.variables.playthroughLogs;
+    
+    if (logs && logs.length > 0) {
+      var html = '';
+      for (var i = 0; i < logs.length; i++) {
+        var log = logs[i];
+        html += '<tr>';
+        html += '<td>' + log.name + '</td>';
+        html += '<td><img src="' + log.imgBase + '_safe' + log.imgExt + '" style="width:50px;height:50px;border-radius:5px;"></td>';
+        html += '<td>' + log.friendship + '</td>';
+        html += '<td>' + log.severity + '</td>';
+        html += '<td>' + log.ending + '</td>';
+        html += '</tr>';
+      }
+      tbody.innerHTML = html;
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">No playthroughs logged yet.</td></tr>';
+    }
+  } else {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">Loading...</td></tr>';
+  }
+}, 100);
+</script>
 
 <div class="achievements">
   <h3>Ending Collection</h3>
