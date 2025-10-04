@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="56CEEC4B-CD45-4C41-98A6-F18A45D7723D" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="2E07210C-88E8-4A4C-A92A-7DC8CDC8B8A4" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -695,7 +695,9 @@ After saying that, I tried on the dress my family had prepared for me.
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
 
 &lt;!-- Create and add log entry with timestamp --&gt;
-(set: _timestamp to (current-date:))
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
 (set: _logEntry to (dm:
   &quot;name&quot;, $friendName,
   &quot;imgPath&quot;, _imgPath,
@@ -707,10 +709,13 @@ After saying that, I tried on the dress my family had prepared for me.
   &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
   &quot;severity&quot;, _displaySeverity,
   &quot;ending&quot;, $currentEnding,
-  &quot;timestamp&quot;, (text: _timestamp)
+  &quot;timestamp&quot;, _timestamp
 ))
 (set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
 &lt;h2&gt;Ending1: Dreams Achieved&lt;/h2&gt;
 &lt;img src=&quot;end1.GIF&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -733,12 +738,29 @@ I truly believe we&#39;ll have an even brighter future ahead!
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-(set: _timestamp to (current-date:))
-(set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgPath&quot;, _imgPath, &quot;friendship&quot;, $friendship, &quot;helpCount&quot;, $helpCount, &quot;ignoreCount&quot;, $ignoreCount, &quot;bullyCount&quot;, _bullyCount, &quot;bullyHelpCount&quot;, _bullyHelpCount, &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding, &quot;timestamp&quot;, (text: _timestamp)))
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
+(set: _logEntry to (dm:
+  &quot;name&quot;, $friendName,
+  &quot;imgPath&quot;, _imgPath,
+  &quot;friendship&quot;, $friendship,
+  &quot;helpCount&quot;, $helpCount,
+  &quot;ignoreCount&quot;, $ignoreCount,
+  &quot;bullyCount&quot;, _bullyCount,
+  &quot;bullyHelpCount&quot;, _bullyHelpCount,
+  &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
+  &quot;severity&quot;, _displaySeverity,
+  &quot;ending&quot;, $currentEnding,
+  &quot;timestamp&quot;, _timestamp
+))
 (set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
-&lt;h2&gt;Ending2: Paths Diverged&lt;/h2&gt;
+&lt;h2&gt;Ending2: Paths Diverged &lt;/h2&gt;
 &lt;img src=&quot;end23.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
 It turned out that because of the psychological scars they carried, they couldn’t concentrate on their studies, they developed anxiety and depression, and failed to get into their dream university.
@@ -761,12 +783,29 @@ I made new friends in college, and there was no longer any contact between me an
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-(set: _timestamp to (current-date:))
-(set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgPath&quot;, _imgPath, &quot;friendship&quot;, $friendship, &quot;helpCount&quot;, $helpCount, &quot;ignoreCount&quot;, $ignoreCount, &quot;bullyCount&quot;, _bullyCount, &quot;bullyHelpCount&quot;, _bullyHelpCount, &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding, &quot;timestamp&quot;, (text: _timestamp)))
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
+(set: _logEntry to (dm:
+  &quot;name&quot;, $friendName,
+  &quot;imgPath&quot;, _imgPath,
+  &quot;friendship&quot;, $friendship,
+  &quot;helpCount&quot;, $helpCount,
+  &quot;ignoreCount&quot;, $ignoreCount,
+  &quot;bullyCount&quot;, _bullyCount,
+  &quot;bullyHelpCount&quot;, _bullyHelpCount,
+  &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
+  &quot;severity&quot;, _displaySeverity,
+  &quot;ending&quot;, $currentEnding,
+  &quot;timestamp&quot;, _timestamp
+))
 (set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
-&lt;h2&gt;Ending3: Fading into Silence&lt;/h2&gt;
+&lt;h2&gt;Ending3:Fading into Silence &lt;/h2&gt;
 &lt;img src=&quot;end23.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
 Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
@@ -786,12 +825,29 @@ Later on, they deleted all of our contact information, and I never heard anythin
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-(set: _timestamp to (current-date:))
-(set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgPath&quot;, _imgPath, &quot;friendship&quot;, $friendship, &quot;helpCount&quot;, $helpCount, &quot;ignoreCount&quot;, $ignoreCount, &quot;bullyCount&quot;, _bullyCount, &quot;bullyHelpCount&quot;, _bullyHelpCount, &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding, &quot;timestamp&quot;, (text: _timestamp)))
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
+(set: _logEntry to (dm:
+  &quot;name&quot;, $friendName,
+  &quot;imgPath&quot;, _imgPath,
+  &quot;friendship&quot;, $friendship,
+  &quot;helpCount&quot;, $helpCount,
+  &quot;ignoreCount&quot;, $ignoreCount,
+  &quot;bullyCount&quot;, _bullyCount,
+  &quot;bullyHelpCount&quot;, _bullyHelpCount,
+  &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
+  &quot;severity&quot;, _displaySeverity,
+  &quot;ending&quot;, $currentEnding,
+  &quot;timestamp&quot;, _timestamp
+))
 (set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
-&lt;h2&gt;Ending4: The Turn of the Tide&lt;/h2&gt;
+&lt;h2&gt;Ending4:The Turn of the Tide &lt;/h2&gt;
 &lt;img src=&quot;end45.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 Because every time (print:$friendName) was bullied, I chose to protect myself, bullies eventually found out that we were close friends.
 As a result, I also became the subject of their gossip and ridicule behind my back.
@@ -812,10 +868,27 @@ Although I was eventually admitted to a university, the psychological pressure I
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-(set: _timestamp to (current-date:))
-(set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgPath&quot;, _imgPath, &quot;friendship&quot;, $friendship, &quot;helpCount&quot;, $helpCount, &quot;ignoreCount&quot;, $ignoreCount, &quot;bullyCount&quot;, _bullyCount, &quot;bullyHelpCount&quot;, _bullyHelpCount, &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding, &quot;timestamp&quot;, (text: _timestamp)))
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
+(set: _logEntry to (dm:
+  &quot;name&quot;, $friendName,
+  &quot;imgPath&quot;, _imgPath,
+  &quot;friendship&quot;, $friendship,
+  &quot;helpCount&quot;, $helpCount,
+  &quot;ignoreCount&quot;, $ignoreCount,
+  &quot;bullyCount&quot;, _bullyCount,
+  &quot;bullyHelpCount&quot;, _bullyHelpCount,
+  &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
+  &quot;severity&quot;, _displaySeverity,
+  &quot;ending&quot;, $currentEnding,
+  &quot;timestamp&quot;, _timestamp
+))
 (set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
 &lt;h2&gt;Ending5: Crushed by Pressure&lt;/h2&gt;
 &lt;img src=&quot;end45.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -844,12 +917,29 @@ That feeling…
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-(set: _timestamp to (current-date:))
-(set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgPath&quot;, _imgPath, &quot;friendship&quot;, $friendship, &quot;helpCount&quot;, $helpCount, &quot;ignoreCount&quot;, $ignoreCount, &quot;bullyCount&quot;, _bullyCount, &quot;bullyHelpCount&quot;, _bullyHelpCount, &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding, &quot;timestamp&quot;, (text: _timestamp)))
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
+(set: _logEntry to (dm:
+  &quot;name&quot;, $friendName,
+  &quot;imgPath&quot;, _imgPath,
+  &quot;friendship&quot;, $friendship,
+  &quot;helpCount&quot;, $helpCount,
+  &quot;ignoreCount&quot;, $ignoreCount,
+  &quot;bullyCount&quot;, _bullyCount,
+  &quot;bullyHelpCount&quot;, _bullyHelpCount,
+  &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
+  &quot;severity&quot;, _displaySeverity,
+  &quot;ending&quot;, $currentEnding,
+  &quot;timestamp&quot;, _timestamp
+))
 (set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
-&lt;h2&gt;Ending6: A Tragic Loss&lt;/h2&gt;
+&lt;h2&gt;Ending6: A Tragic Loss &lt;/h2&gt;
 &lt;img src=&quot;end6.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 Not long after the graduation ceremony began, many police officers arrived and started questioning people.
 It turned out that (print:$friendName) had taken their own life an hour earlier and had already passed away by the time they reached the hospital.
@@ -871,12 +961,47 @@ Perhaps… each one of us is a murderer.
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-(set: _timestamp to (current-date:))
-(set: _logEntry to (dm: &quot;name&quot;, $friendName, &quot;imgPath&quot;, _imgPath, &quot;friendship&quot;, $friendship, &quot;helpCount&quot;, $helpCount, &quot;ignoreCount&quot;, $ignoreCount, &quot;bullyCount&quot;, _bullyCount, &quot;bullyHelpCount&quot;, _bullyHelpCount, &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount, &quot;severity&quot;, _displaySeverity, &quot;ending&quot;, $currentEnding, &quot;timestamp&quot;, (text: _timestamp)))
-(set: $playthroughLogs to it + (a: _logEntry))
-(cond: $playthroughLogs&#39;s length &gt; 7, [(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))], true, [])
+&lt;script&gt;
+setTimeout(function() {
+    var State = window.State || (window.Harlowe &amp;&amp; window.Harlowe.State);
+    if (!State) {
+        console.error(&#39;State not available&#39;);
+        return;
+    }
 
-&lt;h2&gt;Ending7: Breaking Free&lt;/h2&gt;
+    var timestamp = new Date().toLocaleString(&#39;en-US&#39;, {
+        year: &#39;numeric&#39;,
+        month: &#39;short&#39;,
+        day: &#39;numeric&#39;,
+        hour: &#39;2-digit&#39;,
+        minute: &#39;2-digit&#39;,
+        second: &#39;2-digit&#39;,
+        hour12: false
+    });
+
+    var logEntry = {
+        name: State.variables.friendName,
+        imgPath: State.temporary.imgPath,
+        friendship: State.variables.friendship,
+        helpCount: State.variables.helpCount,
+        ignoreCount: State.variables.ignoreCount,
+        bullyCount: State.temporary.bullyCount,
+        bullyHelpCount: State.temporary.bullyHelpCount,
+        bullyIgnoreCount: State.temporary.bullyIgnoreCount,
+        severity: State.temporary.displaySeverity,
+        ending: State.variables.currentEnding,
+        timestamp: timestamp
+    };
+
+    State.variables.playthroughLogs.push(logEntry);
+
+    if (State.variables.playthroughLogs.length &gt; 7) {
+        State.variables.playthroughLogs.shift();
+    }
+}, 10);
+&lt;/script&gt;
+
+&lt;h2&gt;Ending7: Rescue and Retribution &lt;/h2&gt;
 &lt;img src=&quot;end7.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 Not long after the graduation ceremony began, a large number of police officers arrived and started questioning people.
 It turned out that (print:$friendName) had attempted suicide an hour earlier, but was rescued when taken to the hospital.

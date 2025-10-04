@@ -1,0 +1,971 @@
+================================================================================
+PULL OR LET GO - TECHNICAL ISSUES AND SOLUTIONS SUMMARY
+================================================================================
+
+Project: Interactive Story Game built with Twine/Harlowe
+Author: whyke
+Date: October 2025
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+1. LocalStorage Persistence for Game Data
+2. EndingScene Table Logic Implementation
+3. NewStudent Character Picture Layout
+4. Text Layout Issues with Whitespace
+5. MiniGame1 - Reaction Time Challenge
+6. MiniGame2 - Pattern Memory Game
+7. MiniGame3 - Maze Navigation
+8. Playthrough Log System
+
+================================================================================
+1. LOCALSTORAGE PERSISTENCE FOR GAME DATA
+================================================================================
+
+ISSUE:
+------
+When the browser is refreshed, all game progress is lost. Harlowe variables only 
+persist within a single browser session without refresh. Players lose their:
+- Unlocked endings
+- Achievements
+- Playthrough history
+- Game statistics
+
+ROOT CAUSE:
+-----------
+Harlowe stores variables in memory only. When the page refreshes, JavaScript 
+memory is cleared and all data is lost.
+
+SOLUTION:
+---------
+Implemented localStorage API to persist data across browser sessions:
+
+CODE IMPLEMENTATION:
+```javascript
+// In GlobalInit passage - Load from localStorage on game start
+(unless: $gameInitialized is true)[
+  (set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, ...))
+  (set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))
+  (set: $playthroughLogs to (a:))
+  
+  // Try to load from localStorage
+  (if: (js: "typeof localStorage !== 'undefined' && localStorage.getItem('pullOrLetGo_endingsReached')") is true)[
+    (set: $endingsReached to (dm: 
+      (js: "JSON.parse(localStorage.getItem('pullOrLetGo_endingsReached'))")
+    ))
+    // Similar for achievements and logs
+  ]
+  (set: $gameInitialized to true)
+]
+```
+
+```javascript
+// In each Ending passage - Save to localStorage
+<script>
+(function() {
+    try {
+        if (typeof localStorage !== 'undefined') {
+            // Save endings
+            var endingsData = {...}; // Convert Harlowe datamap to JS object
+            localStorage.setItem('pullOrLetGo_endingsReached', JSON.stringify(endingsData));
+            
+            // Save achievements
+            localStorage.setItem('pullOrLetGo_achievements', JSON.stringify(achievementsData));
+            
+            // Save playthrough logs
+            localStorage.setItem('pullOrLetGo_logs', JSON.stringify(logsArray));
+        }
+    } catch(e) {
+        console.error('localStorage save failed:', e);
+    }
+})();
+</script>
+```
+
+KEY POINTS:
+-----------
+- localStorage stores data as strings (use JSON.stringify/parse)
+- Check if localStorage is available (some browsers/modes disable it)
+- Use unique keys with project prefix to avoid conflicts
+- Wrap in try-catch for error handling
+- Data persists until explicitly cleared or browser cache is cleared
+
+TUTORIALS & RESOURCES:
+----------------------
+- MDN Web Docs - localStorage: 
+  https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage
+
+- Video Tutorial - localStorage Explained:
+  https://www.youtube.com/watch?v=GihQAC1I39Q
+
+- Twine/Harlowe JavaScript Integration:
+  https://twine2.neocities.org/#macro_js
+
+================================================================================
+2. ENDINGSCENE TABLE LOGIC IMPLEMENTATION
+================================================================================
+
+ISSUE:
+------
+Complex branching logic needed to determine which of 7 endings should be shown
+based on:
+- Friendship score (>= 40 or < 40)
+- Choices in 3 bullying events (help/ignore/bully)
+- Combination of multiple decision paths
+
+ROOT CAUSE:
+-----------
+Over 30+ possible combinations of choices need to be evaluated to route to the
+correct ending, requiring nested conditional logic.
+
+SOLUTION:
+---------
+Created a decision table using Harlowe's conditional (cond:) macro with priority
+ordering:
+
+CODE STRUCTURE:
+```harlowe
+<!-- Calculate event choice counts -->
+(set: _bullyEvents12Helped to (cond: $event1Choice is "help", 1, 0) + ...)
+(set: _bullyEvents12Ignored to ...)
+(set: _bullyEvents12Bullied to ...)
+(set: _bullyEvent3Helped to ...)
+(set: _bullyEvent3Ignored to ...)
+(set: _bullyEvent3Bullied to ...)
+
+<!-- Branch on friendship threshold -->
+(cond: $friendship >= 40, [
+  <!-- Friend branch - check specific combinations -->
+  (cond:
+    _bullyEvents12Helped is 2 and _bullyEvent3Helped is 1, 
+      [[[Your journey ends here.->Ending1]]],
+    _bullyEvents12Ignored >= 1 and ... and _bullyEvent3Helped is 1, 
+      [[[Your journey ends here.->Ending2]]],
+    ...
+    true, [[[Your journey ends here.->Ending6]]]  <!-- Fallback -->
+  )
+], true, [
+  <!-- Unfriend branch - different routing logic -->
+  (cond: ...)
+])
+```
+
+LOGIC BREAKDOWN:
+----------------
+1. Count specific types of choices (help/ignore/bully) for events 1-2 and event 3
+2. Split into two main branches based on friendship score
+3. Within each branch, evaluate choice patterns in priority order
+4. Use "true" condition as final fallback to ensure all paths are covered
+
+DECISION TABLE STRUCTURE:
+-------------------------
+Friend Branch (Friendship >= 40):
+- Best Ending (1): Helped in all 3 events
+- Good Endings (2,3): Helped in event 3, some ignores
+- Mixed Endings (4,5): Some bullying, but helped in event 3
+- Bad Endings (6,7): Ignored or bullied in event 3
+
+Unfriend Branch (Friendship < 40):
+- Routes to worse endings even with same choices
+
+TUTORIALS & RESOURCES:
+----------------------
+- Harlowe Conditional Logic:
+  https://twine2.neocities.org/#macro_cond
+
+- Decision Trees in Interactive Fiction:
+  https://www.youtube.com/watch?v=LKuTwfZ3aMs
+
+- State Machine Design Patterns:
+  https://gameprogrammingpatterns.com/state.html
+
+================================================================================
+3. NEWSTUDENT CHARACTER PICTURE LAYOUT
+================================================================================
+
+ISSUE:
+------
+Needed to display 4 character selection images in a responsive grid layout
+with hover effects and clickable areas.
+
+SOLUTION:
+---------
+Used CSS Grid with custom styling for interactive character selection:
+
+CSS IMPLEMENTATION:
+```css
+.char-choice-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);  /* 4 equal columns */
+    gap: 5px;
+    place-items: center;
+    margin-top: 5px;
+}
+
+.char-choice {
+    width: 250px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.char-choice .image-wrapper {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+}
+
+.char-choice img {
+    width: 100%;
+    height: 250px;
+    border-radius: 5px;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.char-choice .image-wrapper:hover img {
+    border-color: #4a90e2;
+}
+
+.char-choice .img-hover {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.char-choice .image-wrapper:hover .img-hover {
+    opacity: 1;
+}
+```
+
+HTML/HARLOWE STRUCTURE:
+```html
+<div class="char-choice-container">
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper">
+            <img src="person1_safe.png" class="img-normal">
+            <img src="person1_hover.png" class="img-hover">
+        </div>')[
+            (set: $friendLook to "A student with brown hair...")
+            (set: $friendImgBase to "person1")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <!-- Repeat for person2, person3, person4 -->
+</div>
+```
+
+KEY TECHNIQUES:
+---------------
+1. CSS Grid for responsive layout (auto-adjusts to screen size)
+2. Absolute positioning for image overlay effect
+3. Opacity transition for smooth hover animation
+4. Position: relative on wrapper for absolute child positioning
+5. Harlowe's (link-reveal:) macro for clickable areas
+
+RESPONSIVE DESIGN:
+------------------
+Grid automatically adjusts on smaller screens. Can add media queries:
+```css
+@media (max-width: 768px) {
+    .char-choice-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile */
+    }
+}
+```
+
+TUTORIALS & RESOURCES:
+----------------------
+- CSS Grid Complete Guide:
+  https://css-tricks.com/snippets/css/complete-guide-grid/
+
+- Video - CSS Grid Tutorial:
+  https://www.youtube.com/watch?v=EFafSYg-PkI
+
+- Image Hover Effects:
+  https://www.youtube.com/watch?v=ExZHVLl9IpE
+
+- CSS Positioning Explained:
+  https://www.youtube.com/watch?v=jx5jmI0UlXU
+
+================================================================================
+4. TEXT LAYOUT ISSUES WITH WHITESPACE
+================================================================================
+
+ISSUE:
+------
+Text was being pushed down or wrapped unexpectedly due to whitespace in Harlowe
+code. This happens with:
+- (if:) and (else-if:) macros
+- (set:) variable assignments
+- Multi-line code blocks
+
+ROOT CAUSE:
+-----------
+Harlowe treats line breaks and whitespace in the source code as actual content
+unless properly handled. Each macro call can introduce unwanted spacing.
+
+EXAMPLE PROBLEM:
+```harlowe
+Some text
+(if: $condition)[
+  More text
+]
+(else:)[
+  Other text
+]
+← This creates visible gaps!
+```
+
+SOLUTION 1 - Remove Line Breaks:
+```harlowe
+Some text(if: $condition)[More text](else:)[Other text]
+```
+
+SOLUTION 2 - Use Hidden Containers:
+```harlowe
+<div style="position: absolute; width: 0; height: 0; overflow: hidden;">
+(set: $variable to "value")
+(if: $condition)[
+  (set: $another to "test")
+]
+</div>
+Visible text starts here...
+```
+
+SOLUTION 3 - Collapse Macro:
+```harlowe
+(collapse:)[
+  (set: $var1 to 10)
+  (set: $var2 to 20)
+]
+Text without gaps.
+```
+
+SOLUTION 4 - Smart Line Breaks:
+```harlowe
+Text here\
+(if: $x is 1)[option1]\
+(else:)[option2]\
+continues smoothly
+```
+
+BEST PRACTICES:
+---------------
+1. Put logic macros (set:, if:) in header passages when possible
+2. Use hidden divs for complex variable assignments
+3. Keep display macros inline with text
+4. Test frequently to catch spacing issues early
+5. Use browser DevTools to inspect whitespace rendering
+
+TUTORIALS & RESOURCES:
+----------------------
+- Harlowe Whitespace Guide:
+  https://twine2.neocities.org/#markup_whitespace
+
+- Twine CSS Styling Tutorial:
+  https://www.youtube.com/watch?v=ZnARX2ToqYc
+
+- Interactive Fiction Best Practices:
+  http://www.motoslave.net/sugarcube/2/
+
+================================================================================
+5. MINIGAME1 - REACTION TIME CHALLENGE
+================================================================================
+
+GAME TYPE:
+----------
+Click-the-button reaction game with visual cue (word appearing)
+
+MECHANICS:
+----------
+- Word "Go!" appears at random interval
+- Player must click button quickly
+- Reaction time measured in milliseconds
+- Must achieve < 800ms to succeed
+
+IMPLEMENTATION:
+```javascript
+<div id="reaction-game">
+    <div id="reaction-message">Wait for it...</div>
+    <button id="reaction-btn" disabled>Click when "Go!" appears</button>
+</div>
+
+<script>
+let reactionStartTime = 0;
+let gameStarted = false;
+
+function startReactionGame() {
+    const btn = document.getElementById('reaction-btn');
+    const msg = document.getElementById('reaction-message');
+    
+    // Random delay between 2-4 seconds
+    const delay = 2000 + Math.random() * 2000;
+    
+    setTimeout(() => {
+        msg.textContent = "Go!";
+        msg.style.color = "#4a90e2";
+        reactionStartTime = Date.now();
+        btn.disabled = false;
+        gameStarted = true;
+    }, delay);
+}
+
+document.getElementById('reaction-btn').addEventListener('click', function() {
+    if (!gameStarted) return;
+    
+    const reactionTime = Date.now() - reactionStartTime;
+    
+    if (reactionTime < 800) {
+        // Success!
+        document.getElementById('reaction-win').style.display = 'block';
+    } else {
+        // Too slow, try again
+        gameStarted = false;
+        startReactionGame();
+    }
+});
+
+startReactionGame();
+</script>
+```
+
+KEY CONCEPTS:
+-------------
+1. Date.now() for precise millisecond timing
+2. setTimeout() for random delays
+3. Button disabled state to prevent early clicking
+4. Event listeners for user interaction
+5. DOM manipulation for UI updates
+
+TUTORIALS & RESOURCES:
+----------------------
+- JavaScript Timing Events:
+  https://www.w3schools.com/js/js_timing.asp
+
+- Building a Reaction Game:
+  https://www.youtube.com/watch?v=n5eDKHfWeO0
+
+- JavaScript Date Object:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+
+================================================================================
+6. MINIGAME2 - PATTERN MEMORY GAME
+================================================================================
+
+GAME TYPE:
+----------
+Simon Says style pattern memory game
+
+MECHANICS:
+----------
+- 4 colored buttons flash in sequence
+- Sequence starts at 3 buttons, increases to 5
+- Player must repeat the sequence correctly
+- Complete 3 levels (3, 4, 5 buttons) to win
+
+IMPLEMENTATION:
+```javascript
+<div class="pattern-game">
+    <div class="pattern-btn" data-color="0" style="background:#ff6b6b"></div>
+    <div class="pattern-btn" data-color="1" style="background:#4ecdc4"></div>
+    <div class="pattern-btn" data-color="2" style="background:#ffe66d"></div>
+    <div class="pattern-btn" data-color="3" style="background:#95e1d3"></div>
+</div>
+
+<script>
+let sequence = [];
+let playerSequence = [];
+let level = 3;
+let playerTurn = false;
+
+function generateSequence() {
+    sequence = [];
+    for (let i = 0; i < level; i++) {
+        sequence.push(Math.floor(Math.random() * 4));
+    }
+}
+
+function lightUp(index) {
+    return new Promise((resolve) => {
+        const btn = buttons[index];
+        btn.classList.add('lit');
+        setTimeout(() => {
+            btn.classList.remove('lit');
+            setTimeout(resolve, 250);
+        }, 500);
+    });
+}
+
+async function playSequence() {
+    playerTurn = false;
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    for (const index of sequence) {
+        await lightUp(index);
+    }
+    playerTurn = true;
+}
+
+function handlePlayerClick(e) {
+    if (!playerTurn) return;
+    const colorIndex = parseInt(e.target.dataset.color);
+    playerSequence.push(colorIndex);
+    lightUp(colorIndex);
+    
+    // Check if correct
+    if (playerSequence[playerSequence.length - 1] !== 
+        sequence[playerSequence.length - 1]) {
+        // Wrong! Reset
+        playerSequence = [];
+        setTimeout(playSequence, 1500);
+        return;
+    }
+    
+    // Check if sequence complete
+    if (playerSequence.length === sequence.length) {
+        playerTurn = false;
+        if (level >= 5) {
+            // Win!
+            showWinScreen();
+        } else {
+            // Next level
+            level++;
+            playerSequence = [];
+            generateSequence();
+            setTimeout(playSequence, 1500);
+        }
+    }
+}
+</script>
+```
+
+KEY CONCEPTS:
+-------------
+1. Promises and async/await for sequential animations
+2. Array comparison for validating player input
+3. CSS classes for visual feedback (.lit class)
+4. State management (playerTurn flag)
+5. Progressive difficulty (increasing level)
+
+CSS FOR ANIMATIONS:
+```css
+.pattern-btn.lit {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px currentColor;
+    filter: brightness(1.5);
+    transition: all 0.2s;
+}
+```
+
+TUTORIALS & RESOURCES:
+----------------------
+- Simon Game Tutorial:
+  https://www.youtube.com/watch?v=n_ec3eowFLQ
+
+- JavaScript Promises Explained:
+  https://www.youtube.com/watch?v=DHvZLI7Db8E
+
+- Async/Await Tutorial:
+  https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await
+
+- Build a Memory Game:
+  https://www.youtube.com/watch?v=ZniVgo8U7ek
+
+================================================================================
+7. MINIGAME3 - MAZE NAVIGATION
+================================================================================
+
+GAME TYPE:
+----------
+Canvas-based maze with procedural generation
+
+MECHANICS:
+----------
+- Navigate 15x15 maze using arrow keys
+- Collect 3 gold stars to win
+- Brown walls (#6d4c41) on all borders
+- Blue player circle that moves tile-by-tile
+
+IMPLEMENTATION:
+
+CANVAS SETUP:
+```html
+<canvas id="mazeCanvas" width="450" height="450"></canvas>
+
+<script>
+const canvas = document.getElementById('mazeCanvas');
+const ctx = canvas.getContext('2d');
+const tileSize = 30;
+const mazeWidth = 15;
+const mazeHeight = 15;
+let player = { x: 1, y: 1 };
+let starsCollected = 0;
+const totalStars = 3;
+</script>
+```
+
+MAZE GENERATION (Depth-First Search Algorithm):
+```javascript
+function generateMaze(width, height) {
+    // Initialize all cells as walls (1)
+    let maze = Array.from({ length: height }, () => Array(width).fill(1));
+    let stack = [];
+    
+    // Start position
+    maze[1][1] = 0;
+    stack.push([1, 1]);
+    
+    while (stack.length > 0) {
+        let [cx, cy] = stack[stack.length - 1];
+        let neighbors = [];
+        
+        // Check neighbors 2 cells away (stay away from borders)
+        if (cy - 2 >= 1 && maze[cy - 2][cx] === 1) 
+            neighbors.push([0, -2]);
+        if (cy + 2 < height - 1 && maze[cy + 2][cx] === 1) 
+            neighbors.push([0, 2]);
+        if (cx - 2 >= 1 && maze[cy][cx - 2] === 1) 
+            neighbors.push([-2, 0]);
+        if (cx + 2 < width - 1 && maze[cy][cx + 2] === 1) 
+            neighbors.push([2, 0]);
+        
+        if (neighbors.length > 0) {
+            // Pick random neighbor
+            let [dx, dy] = neighbors[Math.floor(Math.random() * neighbors.length)];
+            let nx = cx + dx;
+            let ny = cy + dy;
+            
+            // Carve path (set cells to 0)
+            maze[cy + dy / 2][cx + dx / 2] = 0;
+            maze[ny][nx] = 0;
+            stack.push([nx, ny]);
+        } else {
+            stack.pop(); // Backtrack
+        }
+    }
+    
+    // Force borders to be walls
+    for (let i = 0; i < width; i++) {
+        maze[0][i] = 1; // Top
+        maze[height - 1][i] = 1; // Bottom
+    }
+    for (let i = 0; i < height; i++) {
+        maze[i][0] = 1; // Left
+        maze[i][width - 1] = 1; // Right
+    }
+    
+    return maze;
+}
+```
+
+STAR PLACEMENT:
+```javascript
+function placeStars(maze, numStars) {
+    let placed = 0;
+    while (placed < numStars) {
+        let x = Math.floor(Math.random() * maze[0].length);
+        let y = Math.floor(Math.random() * maze.length);
+        
+        // Place on path (0), not on start position
+        if (maze[y][x] === 0 && (x !== 1 || y !== 1)) {
+            maze[y][x] = 3; // 3 = star
+            placed++;
+        }
+    }
+}
+```
+
+DRAWING:
+```javascript
+function drawMaze() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw maze
+    for (let y = 0; y < maze.length; y++) {
+        for (let x = 0; x < maze[y].length; x++) {
+            if (maze[y][x] === 1) {
+                // Wall
+                ctx.fillStyle = '#6d4c41';
+                ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+            } else if (maze[y][x] === 3) {
+                // Star
+                drawStar(x * tileSize, y * tileSize);
+            }
+        }
+    }
+    
+    // Draw player
+    ctx.fillStyle = '#4a90e2';
+    ctx.beginPath();
+    ctx.arc(
+        player.x * tileSize + tileSize / 2,
+        player.y * tileSize + tileSize / 2,
+        tileSize / 3,
+        0, 2 * Math.PI
+    );
+    ctx.fill();
+}
+```
+
+PLAYER MOVEMENT:
+```javascript
+function movePlayer(dx, dy) {
+    let newX = player.x + dx;
+    let newY = player.y + dy;
+    
+    // Check if move is valid (in bounds and not a wall)
+    if (newX >= 0 && newX < mazeWidth && 
+        newY >= 0 && newY < mazeHeight && 
+        maze[newY][newX] !== 1) {
+        
+        player.x = newX;
+        player.y = newY;
+        
+        // Check if collected star
+        if (maze[player.y][player.x] === 3) {
+            maze[player.y][player.x] = 0; // Remove star
+            starsCollected++;
+            
+            if (starsCollected >= totalStars) {
+                // Win!
+                showWinScreen();
+            }
+        }
+        
+        drawMaze();
+    }
+}
+
+// Keyboard controls
+window.addEventListener('keydown', function(e) {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        switch(e.key) {
+            case 'ArrowUp': movePlayer(0, -1); break;
+            case 'ArrowDown': movePlayer(0, 1); break;
+            case 'ArrowLeft': movePlayer(-1, 0); break;
+            case 'ArrowRight': movePlayer(1, 0); break;
+        }
+    }
+});
+```
+
+KEY ALGORITHMS:
+---------------
+1. Depth-First Search (DFS) for maze generation
+2. Stack-based backtracking
+3. Collision detection for player movement
+4. Canvas 2D rendering API
+5. Keyboard event handling
+
+BORDER WALL SOLUTION:
+---------------------
+Issue: Maze generation might carve into borders
+Solution: 
+- Check neighbors with >= 1 and < dimension - 1
+- Force all border cells to wall (1) after generation
+
+TUTORIALS & RESOURCES:
+----------------------
+- Maze Generation Algorithms:
+  https://www.youtube.com/watch?v=Y37-gB83HKE
+
+- Canvas API Tutorial:
+  https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial
+
+- Depth-First Search Explained:
+  https://www.youtube.com/watch?v=Urx87-NMm6c
+
+- Building a Maze Game:
+  https://www.youtube.com/watch?v=6XS7ZQwFoE8
+
+- Procedural Maze Generation:
+  https://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
+
+================================================================================
+8. PLAYTHROUGH LOG SYSTEM
+================================================================================
+
+PURPOSE:
+--------
+Track and display history of player choices and outcomes across multiple
+playthroughs. Shows last 7 completed games with statistics.
+
+DATA STRUCTURE:
+```javascript
+$playthroughLogs = [
+    {
+        "name": "Alex",
+        "imgPath": "person1_safe.png",
+        "friendship": 45,
+        "helpCount": 8,
+        "ignoreCount": 2,
+        "bullyCount": 0,
+        "bullyHelpCount": 3,
+        "bullyIgnoreCount": 0,
+        "severity": 0,
+        "ending": "Ending1: Dreams Achieved",
+        "timestamp": "Oct 4, 2025 9:15:23"
+    },
+    // ... more playthroughs
+]
+```
+
+IMPLEMENTATION IN ENDING PASSAGES:
+```harlowe
+<!-- Calculate all stats -->
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + 
+    (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + 
+    (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + 
+    (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+<!-- Calculate image state -->
+(set: _imgState to (cond:
+    (passage:)'s name contains "Ending1", "_golden",
+    _displaySeverity >= 4, "_trauma",
+    _displaySeverity >= 2, "_suffer",
+    _displaySeverity > 0, "_isolated",
+    $friendship >= 40, "_golden",
+    $friendship >= 20, "_safe",
+    true, "_isolated"
+))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+
+<!-- Count bully event choices -->
+(set: _bullyCount to 
+    (cond: $event1Choice is "bully", 1, true, 0) + 
+    (cond: $event2Choice is "bully", 1, true, 0) + 
+    (cond: $event3Choice is "bully", 1, true, 0))
+
+<!-- Create log entry -->
+(set: _timestamp to (current-date:))
+(set: _logEntry to (dm:
+    "name", $friendName,
+    "imgPath", _imgPath,
+    "friendship", $friendship,
+    "helpCount", $helpCount,
+    "ignoreCount", $ignoreCount,
+    "bullyCount", _bullyCount,
+    "bullyHelpCount", _bullyHelpCount,
+    "bullyIgnoreCount", _bullyIgnoreCount,
+    "severity", _displaySeverity,
+    "ending", $currentEnding,
+    "timestamp", (text: _timestamp)
+))
+
+<!-- Add to log array -->
+(set: $playthroughLogs to it + (a: _logEntry))
+
+<!-- Keep only last 7 entries -->
+(cond: $playthroughLogs's length > 7, [
+    (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
+], true, [])
+```
+
+DISPLAY IN ACHIEVEMENTS PAGE:
+```harlowe
+<h3>Recent Playthroughs</h3>
+<table class="summary-table">
+    <tr>
+        <th>Character</th>
+        <th>Friendship</th>
+        <th>Helped</th>
+        <th>Ignored</th>
+        <th>Bullied</th>
+        <th>Ending</th>
+    </tr>
+    (for: each _log, ...$playthroughLogs)[
+        <tr>
+            <td>
+                <img src="(print: _log's imgPath)" style="width:40px">
+                (print: _log's name)
+            </td>
+            <td>(print: _log's friendship)</td>
+            <td>(print: _log's helpCount)</td>
+            <td>(print: _log's ignoreCount)</td>
+            <td>(print: _log's bullyCount)</td>
+            <td>(print: _log's ending)</td>
+        </tr>
+    ]
+</table>
+```
+
+KEY FEATURES:
+-------------
+1. Circular buffer (keep last 7 entries)
+2. Timestamp tracking with (current-date:)
+3. Comprehensive statistics per playthrough
+4. Dynamic image state based on severity
+5. Data persistence via localStorage
+6. Table display with responsive CSS
+
+DATA FLOW:
+----------
+1. Player completes game → Reach ending passage
+2. Calculate all statistics from game variables
+3. Create datamap with all playthrough data
+4. Add to $playthroughLogs array
+5. Trim to last 7 entries if needed
+6. Save to localStorage
+7. Display in Achievements page table
+
+CIRCULAR BUFFER IMPLEMENTATION:
+```harlowe
+<!-- Add new entry -->
+(set: $playthroughLogs to it + (a: _logEntry))
+
+<!-- Keep last 7: if length > 7, take subarray from position 1 to 7 -->
+<!-- This removes the oldest (first) entry -->
+(cond: $playthroughLogs's length > 7, [
+    (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
+], true, [])
+```
+
+TUTORIALS & RESOURCES:
+----------------------
+- Arrays and Data Structures:
+  https://twine2.neocities.org/#type_array
+
+- Harlowe Datamaps:
+  https://twine2.neocities.org/#type_datamap
+
+- JavaScript Arrays and Slicing:
+  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
+
+- For Loop in Harlowe:
+  https://twine2.neocities.org/#macro_for
+
+- Circular Buffer Pattern:
+  https://www.youtube.com/watch?v=ia__kyuwGag
+
+================================================================================
+ADDITIONAL RESOURCES
+================================================================================
+
+GENERAL TWINE/HARLOWE:
+- Official Harlowe Documentation: https://twine2.neocities.org/
+- Twine Cookbook: https://twinery.org/cookbook/
+- Interactive Fiction Community: https://intfiction.org/
+
+JAVASCRIPT FOR GAMES:
+- Mozilla JavaScript Guide: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide
+- JavaScript Game Development: https://www.youtube.com/watch?v=3EMxBkqC4z0
+
+CSS FOR INTERACTIVE FICTION:
+- CSS Tricks: https://css-tricks.com/
+- Flexbox Froggy (learning game): https://flexboxfroggy.com/
+- Grid Garden (learning game): https://cssgridgarden.com/
+
+ALGORITHMS:
+- Visualizing Algorithms: https://visualgo.net/
+- Algorithm Design Manual: https://www.algorist.com/
+
+================================================================================
+END OF DOCUMENT
+================================================================================
