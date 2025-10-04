@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="F82CED6C-F499-4DEA-9874-35A164371417" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="4FA75F1F-1440-4701-96DF-2876F4C9EAFB" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -342,7 +342,7 @@ In the third week, a new face suddenly appeared in our class, it turned out to b
             (goto: &quot;NameChoice&quot;)
         ]
     &lt;/div&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="8" name="NameChoice" tags="no-center" position="900,25" size="100,100">**(print:$friendLook)** student cleared their throat and said,
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="8" name="NameChoice" tags="no-center" position="900,25" size="100,100">**(print:$friendLook)** student cleared their throat and said.
 &quot;Hey everyone, nice to meet you all~&quot;
 (set: _n to (prompt: &quot;Enter their name:&quot;, &quot;&quot;))
 (set: $friendName to (cond: _n is &quot;&quot;, &quot;???&quot;, true, _n))
@@ -383,7 +383,7 @@ It looked like they were having a hard time.
 &lt;br&gt;
 [[Should I go over and ask if they need help? Maybe studying together would work out even better for both of us.-&gt;Midterm-Help]]
 &lt;br&gt;
-[[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else—I’d better focus on preparing myself. After all, I study more efficiently on my own.-&gt;Midterm-Ignore]]</tw-passagedata><tw-passagedata pid="14" name="Midterm-Help" tags="" position="400,150" size="100,100">(set: $helpCount to it + 1)
+[[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else. I’d better focus on preparing myself. After all, I study more efficiently on my own.-&gt;Midterm-Ignore]]</tw-passagedata><tw-passagedata pid="14" name="Midterm-Help" tags="" position="400,150" size="100,100">(set: $helpCount to it + 1)
 We spread our notes out on the desk like a map.
 I explained all the unclear points from the chapters, and we organized a more complete set of review materials together.
 Both of us smiled with relief, and I felt my heart is more confident.
@@ -530,7 +530,7 @@ It seemed they were having trouble finding the classroom too.
 [[Should I go over and ask if they’re also looking for the classroom? Maybe we could find it faster together.-&gt;Year3-Help]]
 &lt;br&gt;
 [[…Or maybe not. They’re probably lost as well, and since I don’t know either, I’d better just ask someone on my own.-&gt;Year3-Ignore]]</tw-passagedata><tw-passagedata pid="37" name="Year3-Help" tags="" position="775,400" size="100,100">(set: $helpCount to it + 1)
-&quot;Hi! Are you looking for the classroom too? I&#39;m lost, this is way too hard for me,&quot;
+&quot;Hi! Are you looking for the classroom too? I&#39;m lost, this is way too hard for me.&quot;
 I said as I walked over to start a conversation.
 &quot;Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help.&quot;
 &quot;Alright, let’s take a look together.&quot;
@@ -593,7 +593,7 @@ I said as I walked up to the group.
 (set: $event3Choice to &quot;bully&quot;)</tw-passagedata><tw-passagedata pid="44" name="Bully3" tags="" position="400,525" size="100,100">Several days passed without seeing (print:$friendName) at school.
 When I finally saw them again, I noticed that the part of their hair where the gum had been was completely cut off.
 It looked absolutely ridiculous.
-&quot;How stupid. They could’ve just washed it out, but instead cut it off. Serves them right for being bullied,&quot;
+&quot;How stupid. They could’ve just washed it out, but instead cut it off. Serves them right for being bullied.&quot;
 &lt;br&gt;
 [[I sneered inwardly with contempt.-&gt;Volunteer]]</tw-passagedata><tw-passagedata pid="45" name="Volunteer" tags="" position="525,525" size="100,100">As the third year was coming to an end, everyone began looking into different universities and preparing their applications.
 By chance, I was offered an amazing volunteer opportunity.
@@ -675,84 +675,204 @@ After saying that, I tried on the dress my family had prepared for me.
 &quot;I’ll definitely be the most dazzling one at the graduation ball!&quot;
 (set: $friendship to it - 1)
 
-[[Thinking about it, I couldn’t help but chuckle in my sleep.-&gt;EndingScene]]</tw-passagedata><tw-passagedata pid="57" name="EndingScene" tags="" position="775,650" size="100,100">(set: _bullyEventsHelped to (cond: $event1Choice is &quot;help&quot;, 1, 0) + (cond: $event2Choice is &quot;help&quot;, 1, 0) + (cond: $event3Choice is &quot;help&quot;, 1, 0))
-(set: _bullyEventsBullied to (cond: $event1Choice is &quot;bully&quot;, 1, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, 0))
-(set: _bullyEventsIgnored to (cond: $event1Choice is &quot;ignore&quot;, 1, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, 0))
+[[Thinking about it, I couldn’t help but chuckle in my sleep.-&gt;EndingScene]]</tw-passagedata><tw-passagedata pid="57" name="EndingScene" tags="" position="775,650" size="100,100">&lt;!-- Calculate event choices for events 1/2 and event 3 separately --&gt;
+(set: _bullyEvents12Helped to (cond: $event1Choice is &quot;help&quot;, 1, 0) + (cond: $event2Choice is &quot;help&quot;, 1, 0))
+(set: _bullyEvents12Ignored to (cond: $event1Choice is &quot;ignore&quot;, 1, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, 0))
+(set: _bullyEvents12Bullied to (cond: $event1Choice is &quot;bully&quot;, 1, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, 0))
+(set: _bullyEvent3Helped to (cond: $event3Choice is &quot;help&quot;, 1, 0))
+(set: _bullyEvent3Ignored to (cond: $event3Choice is &quot;ignore&quot;, 1, 0))
+(set: _bullyEvent3Bullied to (cond: $event3Choice is &quot;bully&quot;, 1, 0))
 
+&lt;!-- FRIEND BRANCH (Friendship &gt;= 40) --&gt;
 (if: $friendship &gt;= 40)[
-  &lt;!-- ENDING 6: Ignore all 3 bully events --&gt;
-  (if: _bullyEventsIgnored is 3)[
-    [[Your journey ends here.-&gt;Ending6]]
-  ]
-  
-  &lt;!-- ENDING 7: Bully all 3 bully events --&gt;
-  (else-if: _bullyEventsBullied is 3)[
-    [[Your journey ends here.-&gt;Ending7]]
-  ]
-  
-  &lt;!-- ENDING 1: Help all non-bully events --&gt;
-  (else-if: $helpCount is 10)[
+  &lt;!-- Row 1: Got bullied 0 times - User help on all events --&gt;
+  (if: _bullyEvents12Helped is 2 and _bullyEvent3Helped is 1)[
     [[Your journey ends here.-&gt;Ending1]]
   ]
-  
-  &lt;!-- ENDING 2: Ignore 1-2 bully events, help others --&gt;
-  (else-if: _bullyEventsIgnored &gt;= 1 and _bullyEventsIgnored &lt;= 2 and _bullyEventsBullied is 0)[
+
+  &lt;!-- Row 2: Got bullied 0 times, Ignore +, Bully ++ - User ignore on event 1/2, help other events --&gt;
+  (else-if: _bullyEvents12Ignored &gt;= 1 and _bullyEvents12Ignored &lt;= 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
     [[Your journey ends here.-&gt;Ending2]]
   ]
-  
-  &lt;!-- ENDING 3: Ignore event 3, help others --&gt;
-  (else-if: $event3Choice is &quot;ignore&quot; and _bullyEventsBullied is 0)[
+
+  &lt;!-- Row 3: Got bullied 0 times, Ignore +, Bully ++ - User ignore on event 3, help other events --&gt;
+  (else-if: _bullyEvents12Helped is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
     [[Your journey ends here.-&gt;Ending3]]
   ]
-  
-  &lt;!-- ENDING 4: Bully 1-2 events, help others --&gt;
-  (else-if: _bullyEventsBullied &gt;= 1 and _bullyEventsBullied &lt;= 2 and $event3Choice is not &quot;bully&quot;)[
+
+  &lt;!-- Row 4: Critical: Event3 &gt; Event2 &gt; Event1 - User bully on event 1/2, help other events --&gt;
+  (else-if: _bullyEvents12Bullied &gt;= 1 and _bullyEvents12Bullied &lt;= 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0)[
     [[Your journey ends here.-&gt;Ending4]]
   ]
-  
-  &lt;!-- ENDING 5: Bully event 3 (with or without bullying others) --&gt;
-  (else-if: $event3Choice is &quot;bully&quot; and _bullyEventsBullied &lt;= 2)[
+
+  &lt;!-- Row 5: Critical: Event3 &gt; Event2 &gt; Event1 - User bully on event 3, help other events --&gt;
+  (else-if: _bullyEvents12Helped is 2 and _bullyEvent3Bullied is 1)[
     [[Your journey ends here.-&gt;Ending5]]
   ]
-  
-  &lt;!-- ENDING 5: Other cases with event 3 bullied --&gt;
-  (else:)[
+
+  &lt;!-- Row 6: Got bullied 2 times - User ignore event 1 and event 2 and help event 3 --&gt;
+  (else-if: _bullyEvents12Ignored is 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending2]]
+  ]
+
+  &lt;!-- Row 7: Got bullied 2 times - User ignore events event 3 and event 1/2 and help event 2/1 --&gt;
+  (else-if: _bullyEvents12Ignored is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending3]]
+  ]
+
+  &lt;!-- Row 8: Got bullied 2 times - User only bully event 1/2, help event 3, ignore event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending3]]
+  ]
+
+  &lt;!-- Row 9: Got bullied 2 times - User bully on event 1 and 2, help event 3 --&gt;
+  (else-if: _bullyEvents12Bullied is 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending4]]
+  ]
+
+  &lt;!-- Row 10: Got bullied 2 times - User ignore event 3, bully event 1/2, help event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending4]]
+  ]
+
+  &lt;!-- Row 11: Got bullied 2 times - User bully on event 3, help event 1and ignore event 2 or help event 2 and ignore event 1 --&gt;
+  (else-if: _bullyEvents12Helped is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0)[
     [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 12: Got bullied 2 times - User bully event 3 and event 1/2, help event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 13: Got bullied 3 times - User ignore all events --&gt;
+  (else-if: _bullyEvents12Ignored is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 14: Got bullied 3 times - User bully event 1/2, ignore others --&gt;
+  (else-if: _bullyEvents12Bullied &gt;= 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 15: Got bullied 3 times - User bully event 1 and 2, ignore event 3 --&gt;
+  (else-if: _bullyEvents12Bullied is 2 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 16: Got bullied 3 times - User bully event 3, ignore others --&gt;
+  (else-if: _bullyEvents12Ignored is 2 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending7]]
+  ]
+
+  &lt;!-- Row 17: Got bullied 3 times - User bully event 3 and event 1/2, ignore event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending7]]
+  ]
+
+  &lt;!-- Row 18: Got bullied 3 times - User bully all events --&gt;
+  (else-if: _bullyEvents12Bullied is 2 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending7]]
+  ]
+
+  &lt;!-- Fallback for any other friend cases --&gt;
+  (else:)[
+    [[Your journey ends here.-&gt;Ending6]]
   ]
 ]
 &lt;!-- UNFRIEND BRANCH (Friendship &lt; 40) --&gt;
 (else:)[
-  &lt;!-- ENDING 6: Ignore all 3 bully events --&gt;
-  (if: _bullyEventsIgnored is 3)[
-    [[Your journey ends here.-&gt;Ending6]]
-  ]
-  
-  &lt;!-- ENDING 7: Bully all 3 events, but helped at many non-bully events --&gt;
-  (else-if: _bullyEventsBullied is 3 and $helpCount &gt;= 8)[
-    [[Your journey ends here.-&gt;Ending7]]
-  ]
-  
-  &lt;!-- ENDING 2: Help all non-bully events --&gt;
-  (else-if: $helpCount is 10)[
+  &lt;!-- Row 1: Got bullied 0 times - User help on all events --&gt;
+  (if: _bullyEvents12Helped is 2 and _bullyEvent3Helped is 1)[
     [[Your journey ends here.-&gt;Ending2]]
   ]
-  
-  &lt;!-- ENDING 3: Ignore 1-2 bully events, help others --&gt;
-  (else-if: _bullyEventsIgnored &gt;= 1 and _bullyEventsIgnored &lt;= 2 and _bullyEventsBullied is 0)[
+
+  &lt;!-- Row 2: Got bullied 0 times, Ignore +, Bully ++ - User ignore on event 1/2, help other events --&gt;
+  (else-if: _bullyEvents12Ignored &gt;= 1 and _bullyEvents12Ignored &lt;= 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
     [[Your journey ends here.-&gt;Ending3]]
   ]
-  
-  &lt;!-- ENDING 5: Bully 1-2 events (any pattern with bullying but not all 3) --&gt;
-  (else-if: _bullyEventsBullied &gt;= 1 and _bullyEventsBullied &lt;= 2)[
-    [[Your journey ends here.-&gt;Ending5]]
-  ]
-  
-  &lt;!-- ENDING 4: Ignore event 3, help others --&gt;
-  (else-if: $event3Choice is &quot;ignore&quot; and _bullyEventsBullied is 0)[
+
+  &lt;!-- Row 3: Got bullied 0 times, Ignore +, Bully ++ - User ignore on event 3, help other events --&gt;
+  (else-if: _bullyEvents12Helped is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
     [[Your journey ends here.-&gt;Ending4]]
   ]
-  
-  &lt;!-- ENDING 6: All other unfriend cases --&gt;
+
+  &lt;!-- Row 4: Critical: Event3 &gt; Event2 &gt; Event1 - User bully on event 1/2, help other events --&gt;
+  (else-if: _bullyEvents12Bullied &gt;= 1 and _bullyEvents12Bullied &lt;= 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending4]]
+  ]
+
+  &lt;!-- Row 5: Critical: Event3 &gt; Event2 &gt; Event1 - User bully on event 3, help other events --&gt;
+  (else-if: _bullyEvents12Helped is 2 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 6: Got bullied 2 times - User ignore event 1 and event 2 and help event 3 --&gt;
+  (else-if: _bullyEvents12Ignored is 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending3]]
+  ]
+
+  &lt;!-- Row 7: Got bullied 2 times - User ignore events event 3 and event 1/2 and help event 2/1 --&gt;
+  (else-if: _bullyEvents12Ignored is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending4]]
+  ]
+
+  &lt;!-- Row 8: Got bullied 2 times - User only bully event 1/2, help event 3, ignore event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending4]]
+  ]
+
+  &lt;!-- Row 9: Got bullied 2 times - User bully on event 1 and 2, help event 3 --&gt;
+  (else-if: _bullyEvents12Bullied is 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 10: Got bullied 2 times - User ignore event 3, bully event 1/2, help event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending5]]
+  ]
+
+  &lt;!-- Row 11: Got bullied 2 times - User bully on event 3, help event 1and ignore event 2 or help event 2 and ignore event 1 --&gt;
+  (else-if: _bullyEvents12Helped is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 12: Got bullied 2 times - User bully event 3 and event 1/2, help event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 13: Got bullied 3 times - User ignore all events --&gt;
+  (else-if: _bullyEvents12Ignored is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 14: Got bullied 3 times - User bully event 1/2, ignore others --&gt;
+  (else-if: _bullyEvents12Bullied &gt;= 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 15: Got bullied 3 times - User bully event 1 and 2, ignore event 3 --&gt;
+  (else-if: _bullyEvents12Bullied is 2 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 16: Got bullied 3 times - User bully event 3, ignore others --&gt;
+  (else-if: _bullyEvents12Ignored is 2 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 17: Got bullied 3 times - User bully event 3 and event 1/2, ignore event 2/1 --&gt;
+  (else-if: _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Row 18: Got bullied 3 times - User bully all events --&gt;
+  (else-if: _bullyEvents12Bullied is 2 and _bullyEvent3Bullied is 1)[
+    [[Your journey ends here.-&gt;Ending6]]
+  ]
+
+  &lt;!-- Fallback for any other unfriend cases --&gt;
   (else:)[
     [[Your journey ends here.-&gt;Ending6]]
   ]
