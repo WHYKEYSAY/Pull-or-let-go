@@ -9,28 +9,27 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="A5BBE35E-FD4C-44DB-80DA-180854E3AB51" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">body {
-  margin: 0;
-  padding: 0;
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="E2A77E84-675F-411C-AB76-AB1A1F61A3E7" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
+/* Main story container */
 tw-story {
-  display: block;
-  padding: 0;
-  margin: 0;
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
+/* Current passage - simple padding layout */
 tw-passage {
-    width: 100%;
-    max-width: 1200px;
-    text-align: left;
-    background-color: transparent;
-    padding: 0.5em 2em;
-    margin: 0 auto;
-}
-
-tw-passage:not(:last-of-type) {
-    display: none;
+    width: 100% !important;
+    max-width: 1200px !important;
+    text-align: left !important;
+    padding: 3em 2em !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
 }
 
 @media (max-width: 768px) {
@@ -130,7 +129,8 @@ a.link-internal, a.link-external {
   (set: $playthroughLogs to (a:))
 
   (set: $gameInitialized to true)
-]</tw-passagedata><tw-passagedata pid="3" name="UI-Status" tags="header" position="275,25" size="100,100">&lt;div id=&quot;field-notes-container&quot;&gt;&lt;/div&gt;
+]</tw-passagedata><tw-passagedata pid="3" name="UI-Status" tags="header" position="275,25" size="100,100">&lt;div style=&quot;position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: visible;&quot;&gt;
+&lt;div id=&quot;field-notes-container&quot;&gt;&lt;/div&gt;
 &lt;script&gt;
 (function() {
   var container = document.getElementById(&#39;field-notes-container&#39;);
@@ -217,7 +217,8 @@ a.link-internal, a.link-external {
       (link: &quot;☰ Field Notes&quot;)[ (set: $statusOpen to true)(goto: (passage:)&#39;s name) ]
     &lt;/span&gt;
   &lt;/div&gt;
-]</tw-passagedata><tw-passagedata pid="4" name="StoryAudio" tags="footer" position="400,25" size="100,100">&lt;script&gt;
+]
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="4" name="StoryAudio" tags="footer" position="400,25" size="100,100">&lt;script&gt;
 (function() {
     if (!document.getElementById(&#39;story-bgm&#39;)) {
         const bgm = document.createElement(&#39;audio&#39;);
@@ -240,7 +241,8 @@ a.link-internal, a.link-external {
         }
     }
 })();
-&lt;/script&gt;</tw-passagedata><tw-passagedata pid="5" name="ResetPlaythrough" tags="header" position="525,25" size="100,100">(if: (passage:)&#39;s name is &quot;Start&quot; and $gameInitialized is true)[
+&lt;/script&gt;</tw-passagedata><tw-passagedata pid="5" name="ResetPlaythrough" tags="header" position="525,25" size="100,100">&lt;div style=&quot;position: absolute; width: 0; height: 0; overflow: hidden;&quot;&gt;
+(if: (passage:)&#39;s name is &quot;Start&quot; and $gameInitialized is true)[
   (set: $friendship to 20)
   (set: $playerBullied to false)
   (set: $playerHelped to false)
@@ -256,11 +258,12 @@ a.link-internal, a.link-external {
   (set: $currentEnding to &quot;&quot;)
   (set: $helpCount to 0)
   (set: $ignoreCount to 0)
-]</tw-passagedata><tw-passagedata pid="6" name="Start" tags="" position="650,25" size="100,100">&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
+]
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="6" name="Start" tags="" position="650,25" size="100,100">&lt;h1&gt;Pull or Let Go&lt;/h1&gt;
 I start my high school life with great excitement, and I made many new friends.
 In the third week, a new face suddenly appeared in our class, it turned out to be a transfer student who had arrived three weeks late because of family reasons.
 &lt;br&gt;
-[[I look at them...-&gt;NewStudent]]</tw-passagedata><tw-passagedata pid="7" name="NewStudent" tags="" position="775,25" size="100,100">&lt;style&gt;
+[[I look at them...-&gt;NewStudent]]</tw-passagedata><tw-passagedata pid="7" name="NewStudent" tags="no-center" position="775,25" size="100,100">&lt;style&gt;
 .char-choice-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -339,7 +342,7 @@ In the third week, a new face suddenly appeared in our class, it turned out to b
             (goto: &quot;NameChoice&quot;)
         ]
     &lt;/div&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="8" name="NameChoice" tags="" position="900,25" size="100,100">**(print:$friendLook)** student cleared their throat and said,
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="8" name="NameChoice" tags="no-center" position="900,25" size="100,100">**(print:$friendLook)** student cleared their throat and said,
 &quot;Hey everyone, nice to meet you all~&quot;
 (set: _n to (prompt: &quot;Enter their name:&quot;, &quot;&quot;))
 (set: $friendName to (cond: _n is &quot;&quot;, &quot;???&quot;, true, _n))
@@ -754,9 +757,6 @@ After saying that, I tried on the dress my family had prepared for me.
     [[Your journey ends here.-&gt;Ending6]]
   ]
 ]</tw-passagedata><tw-passagedata pid="58" name="Ending1" tags="" position="900,650" size="100,100">(set: $currentEnding to &quot;Ending1: Dreams Achieved&quot;)
-
-
-
 &lt;!-- Mark this ending as reached --&gt;
 (set: $endingsReached&#39;s &quot;Ending1&quot; to 1)
 
@@ -808,9 +808,6 @@ In the end, we reached our goals and received offers from our dream universities
 I truly believe we&#39;ll have an even brighter future ahead!
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="59" name="Ending2" tags="" position="1025,650" size="100,100">(set: $currentEnding to &quot;Ending2: Paths Diverged&quot;)
-
-
-
 (set: $endingsReached&#39;s &quot;Ending2&quot; to 1)
 (if: $helpCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -839,9 +836,6 @@ From that day on, we went our separate ways.
 I made new friends in college, and there was no longer any contact between me and (print:$friendName).
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="60" name="Ending3" tags="" position="1150,650" size="100,100">(set: $currentEnding to &quot;Ending3: Fading into Silence&quot;)
-
-
-
 (set: $endingsReached&#39;s &quot;Ending3&quot; to 1)
 (if: $helpCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -869,9 +863,6 @@ A few days later, I learned that they had developed depression, failed to meet t
 Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="61" name="Ending4" tags="" position="25,775" size="100,100">(set: $currentEnding to &quot;Ending4: The Turn of the Tide&quot;)
-
-
-
 (set: $endingsReached&#39;s &quot;Ending4&quot; to 1)
 (if: $helpCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -898,9 +889,6 @@ As a result, I also became the subject of their gossip and ridicule behind my ba
 Although I was eventually admitted to a university, the psychological pressure I carried caused me to lose the chance to enter the school of my dreams.
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="62" name="Ending5" tags="" position="150,775" size="100,100">(set: $currentEnding to &quot;Ending5: Crushed by Pressure&quot;)
-
-
-
 (set: $endingsReached&#39;s &quot;Ending5&quot; to 1)
 (if: $helpCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -960,9 +948,6 @@ In their diary were entries filled with painful moments: being isolated, bullied
 Perhaps… each one of us is a murderer.
 &lt;br&gt;
 [[See Your Summary-&gt;Achievements]]</tw-passagedata><tw-passagedata pid="64" name="Ending7" tags="" position="400,775" size="100,100">(set: $currentEnding to &quot;Ending7: Rescue and Retribution&quot;)
-
-
-
 (set: $endingsReached&#39;s &quot;Ending7&quot; to 1)
 (if: $helpCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;best&quot; to 1)]
 (if: $ignoreCount &gt;= 10)[(set: $achievementsUnlocked&#39;s &quot;worst&quot; to 1)]
@@ -1006,30 +991,24 @@ if (window.State &amp;&amp; window.State.variables) {
 &lt;/script&gt;
 
 &lt;h2&gt;Playthrough Log&lt;/h2&gt;
-&lt;div style=&quot;max-height: 280px; overflow-y: auto; border: 1px solid #444;&quot;&gt;
-&lt;table class=&quot;summary-table&quot; style=&quot;table-layout: fixed;&quot;&gt;
-  &lt;thead&gt;
-  &lt;tr&gt;
-    &lt;th style=&quot;width: 15%;&quot;&gt;Character&lt;/th&gt;
-    &lt;th style=&quot;width: 10%;&quot;&gt;Portrait&lt;/th&gt;
-    &lt;th style=&quot;width: 10%;&quot;&gt;Bond&lt;/th&gt;
-    &lt;th style=&quot;width: 10%;&quot;&gt;Severity&lt;/th&gt;
-    &lt;th style=&quot;width: 35%;&quot;&gt;Ending&lt;/th&gt;
-    &lt;th style=&quot;width: 20%;&quot;&gt;Time&lt;/th&gt;
-  &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-{(if: $playthroughLogs&#39;s length &gt; 0)[
+&lt;div style=&quot;max-height: 400px; overflow-y: auto; border: 1px solid #555; padding: 15px; background-color: #2a2a2a; font-family: &#39;Courier New&#39;, monospace; font-size: 13px; line-height: 1.6;&quot;&gt;
+(if: $playthroughLogs&#39;s length &gt; 0)[
 (for: each _i, ...(range: 1, $playthroughLogs&#39;s length))[
 (set: _log to $playthroughLogs&#39;s (_i))
-(print: &quot;&lt;tr&gt;&lt;td&gt;&quot; + (_log&#39;s name) + &quot;&lt;/td&gt;&lt;td&gt;&lt;img src=&#39;&quot; + (_log&#39;s imgPath) + &quot;&#39; style=&#39;width:50px;height:50px;border-radius:5px;&#39; onerror=&#39;this.style.display=\&quot;none\&quot;&#39;&gt;&lt;/td&gt;&lt;td style=&#39;text-align:center;&#39;&gt;&quot; + (text: _log&#39;s friendship) + &quot;&lt;/td&gt;&lt;td style=&#39;text-align:center;&#39;&gt;&quot; + (text: _log&#39;s severity) + &quot;&lt;/td&gt;&lt;td&gt;&quot; + (_log&#39;s ending) + &quot;&lt;/td&gt;&lt;td style=&#39;font-size:0.85em;&#39;&gt;&quot; + (cond: (_log&#39;s timestamp) is &quot;&quot;, &quot;—&quot;, _log&#39;s timestamp) + &quot;&lt;/td&gt;&lt;/tr&gt;&quot;)
+&lt;div style=&quot;border-bottom: 1px solid #444; padding: 12px 0; color: #e0e0e0; display: flex; align-items: center; gap: 15px;&quot;&gt;
+(print: &#39;&lt;img src=&quot;&#39; + (_log&#39;s imgPath) + &#39;&quot; style=&quot;width: 100px; height: 100px; border-radius: 5px; flex-shrink: 0;&quot; onerror=&quot;this.style.display=\&#39;none\&#39;&quot;&gt;&#39;)
+&lt;div style=&quot;flex: 1; white-space: nowrap; overflow: hidden;&quot;&gt;
+&lt;span&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Character:&lt;/b&gt; (print: _log&#39;s name)&lt;/span&gt;
+&lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Bond:&lt;/b&gt; (print: _log&#39;s friendship)&lt;/span&gt;
+&lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Severity:&lt;/b&gt; (print: _log&#39;s severity)&lt;/span&gt;
+&lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Ending:&lt;/b&gt; (print: _log&#39;s ending)&lt;/span&gt;
+&lt;span style=&quot;margin: 0 15px; color: #999; font-size: 0.9em;&quot;&gt;&lt;b&gt;Time:&lt;/b&gt; (print: (cond: (_log&#39;s timestamp) is &quot;&quot;, &quot;—&quot;, _log&#39;s timestamp))&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
 ]
 ](else:)[
-(print: &quot;&lt;tr&gt;&lt;td colspan=&#39;6&#39; style=&#39;text-align:center;padding:20px;color:#888;&#39;&gt;No playthroughs logged yet.&lt;/td&gt;&lt;/tr&gt;&quot;)
-]}
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;/div&gt;
+&lt;div style=&quot;text-align:center; padding:30px; color:#888;&quot;&gt;No playthroughs logged yet.&lt;/div&gt;
+]&lt;/div&gt;
 
 &lt;div class=&quot;achievements&quot;&gt;
   &lt;h3&gt;Ending Collection&lt;/h3&gt;
