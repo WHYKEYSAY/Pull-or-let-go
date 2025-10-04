@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="A1AB8123-60EF-41A6-8FCC-3F474C3BE568" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="F0538128-49E5-407A-8D3C-71EEA94E8FB0" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">tw-story {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -649,91 +649,86 @@ After saying that, I tried on the dress my family had prepared for me.
 &quot;I’ll definitely be the most dazzling one at the graduation ball!&quot;
 (set: $friendship to it - 1)
 
-[[Thinking about it, I couldn’t help but chuckle in my sleep.-&gt;EndingScene]]</tw-passagedata><tw-passagedata pid="56" name="EndingScene" tags="" position="650,650" size="100,100">(if: $friendship &gt;= 40)[
-  (if: $event1Choice is &quot;help&quot; and $event2Choice is &quot;help&quot; and $event3Choice is &quot;help&quot;)[
+[[Thinking about it, I couldn’t help but chuckle in my sleep.-&gt;EndingScene]]</tw-passagedata><tw-passagedata pid="56" name="EndingScene" tags="" position="650,650" size="100,100">&lt;div style=&quot;background: #e0f7fa; padding: 10px; border: 2px solid #00acc1; margin: 10px 0; font-size: 0.8em;&quot;&gt;
+  &lt;b&gt;DEBUG (EndingScene):&lt;/b&gt;&lt;br&gt;
+  Friendship: (print: $friendship) (print: (cond: $friendship &gt;= 40, &quot;≥ 40 (High Branch)&quot;, &quot;&lt; 40 (Low Branch)&quot;))&lt;br&gt;
+  Event1: (print: $event1Choice) | Event2: (print: $event2Choice) | Event3: (print: $event3Choice)&lt;br&gt;
+  HelpCount: (print: $helpCount) | IgnoreCount: (print: $ignoreCount)&lt;br&gt;
+  Bully Events Won: (print: (cond: $event1Choice is &quot;help&quot;, 1, 0) + (cond: $event2Choice is &quot;help&quot;, 1, 0) + (cond: $event3Choice is &quot;help&quot;, 1, 0))
+&lt;/div&gt;
+
+&lt;!-- Calculate bully event choices --&gt;
+(set: _bullyEventsHelped to (cond: $event1Choice is &quot;help&quot;, 1, 0) + (cond: $event2Choice is &quot;help&quot;, 1, 0) + (cond: $event3Choice is &quot;help&quot;, 1, 0))
+(set: _bullyEventsBullied to (cond: $event1Choice is &quot;bully&quot;, 1, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is &quot;ignore&quot;, 1, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, 0))
+
+&lt;!-- FRIEND BRANCH (Friendship &gt;= 40) --&gt;
+(if: $friendship &gt;= 40)[
+  &lt;!-- ENDING 1: Help all events --&gt;
+  (if: $helpCount is 13)[
     [[Your journey ends here.-&gt;Ending1]]
   ]
-
-  (else-if: ($event1Choice is &quot;ignore&quot; or $event2Choice is &quot;ignore&quot;) and $event3Choice is &quot;help&quot;)[
+  
+  &lt;!-- ENDING 2: Ignore 1-2 events, help others --&gt;
+  (else-if: _bullyEventsIgnored &gt;= 1 and _bullyEventsIgnored &lt;= 2 and _bullyEventsBullied is 0)[
     [[Your journey ends here.-&gt;Ending2]]
   ]
-  (else-if: $event3Choice is &quot;ignore&quot; and ($event1Choice is &quot;help&quot; and $event2Choice is &quot;help&quot;))[
+  
+  &lt;!-- ENDING 3: Ignore event 3, help others --&gt;
+  (else-if: $event3Choice is &quot;ignore&quot; and _bullyEventsBullied is 0)[
     [[Your journey ends here.-&gt;Ending3]]
   ]
-  (else-if: ($event1Choice is &quot;bully&quot; or $event2Choice is &quot;bully&quot;) and $event3Choice is &quot;help&quot;)[
+  
+  &lt;!-- ENDING 4: Bully 1-2 events, help others --&gt;
+  (else-if: _bullyEventsBullied &gt;= 1 and _bullyEventsBullied &lt;= 2 and $event3Choice is not &quot;bully&quot;)[
     [[Your journey ends here.-&gt;Ending4]]
   ]
-  (else-if: $event3Choice is &quot;bully&quot; and ($event1Choice is &quot;help&quot; and $event2Choice is &quot;help&quot;))[
+  
+  &lt;!-- ENDING 5: Bully event 3 (with or without bullying others) --&gt;
+  (else-if: $event3Choice is &quot;bully&quot; and _bullyEventsBullied &lt;= 2)[
     [[Your journey ends here.-&gt;Ending5]]
   ]
-
-  (else-if: $event1Choice is &quot;ignore&quot; and $event2Choice is &quot;ignore&quot; and $event3Choice is &quot;help&quot;)[
-    [[Your journey ends here.-&gt;Ending2]]
+  
+  &lt;!-- ENDING 6: Ignore all events --&gt;
+  (else-if: _bullyEventsIgnored is 3)[
+    [[Your journey ends here.-&gt;Ending6]]
   ]
-  (else-if: ($event1Choice is &quot;ignore&quot; and $event3Choice is &quot;ignore&quot;) or ($event2Choice is &quot;ignore&quot; and $event3Choice is &quot;ignore&quot;))[
-    [[Your journey ends here.-&gt;Ending3]]
+  
+  &lt;!-- ENDING 7: Bully all events --&gt;
+  (else-if: _bullyEventsBullied is 3)[
+    [[Your journey ends here.-&gt;Ending7]]
   ]
-  (else-if: ($event1Choice is &quot;bully&quot; and $event2Choice is &quot;ignore&quot;) or ($event1Choice is &quot;ignore&quot; and $event2Choice is &quot;bully&quot;))[
-    [[Your journey ends here.-&gt;Ending3]]
-  ]
-  (else-if: $event1Choice is &quot;bully&quot; and $event2Choice is &quot;bully&quot; and $event3Choice is &quot;help&quot;)[
-    [[Your journey ends here.-&gt;Ending4]]
-  ]
-  (else-if: ($event1Choice is &quot;bully&quot; and $event3Choice is &quot;ignore&quot;) or ($event2Choice is &quot;bully&quot; and $event3Choice is &quot;ignore&quot;))[
-    [[Your journey ends here.-&gt;Ending4]]
-  ]
+  
+  &lt;!-- ENDING 5: Other cases with event 3 bullied --&gt;
   (else:)[
     [[Your journey ends here.-&gt;Ending5]]
   ]
 ]
+&lt;!-- UNFRIEND BRANCH (Friendship &lt; 40) --&gt;
 (else:)[
-  (if: $event1Choice is &quot;help&quot; and $event2Choice is &quot;help&quot; and $event3Choice is &quot;help&quot;)[
+  &lt;!-- ENDING 2: Help all events --&gt;
+  (if: $helpCount is 13)[
     [[Your journey ends here.-&gt;Ending2]]
   ]
-
-  (else-if: ($event1Choice is &quot;ignore&quot; or $event2Choice is &quot;ignore&quot;) and $event3Choice is &quot;help&quot;)[
+  
+  &lt;!-- ENDING 3: Ignore 1-2 events, help others --&gt;
+  (else-if: _bullyEventsIgnored &gt;= 1 and _bullyEventsIgnored &lt;= 2 and _bullyEventsBullied is 0)[
     [[Your journey ends here.-&gt;Ending3]]
   ]
-  (else-if: $event3Choice is &quot;ignore&quot; and ($event1Choice is &quot;help&quot; and $event2Choice is &quot;help&quot;))[
+  
+  &lt;!-- ENDING 4: Ignore event 3, help others OR bully 1-2 events, help others --&gt;
+  (else-if: ($event3Choice is &quot;ignore&quot; and _bullyEventsBullied is 0) or (_bullyEventsBullied &gt;= 1 and _bullyEventsBullied &lt;= 2 and $event3Choice is not &quot;bully&quot;))[
     [[Your journey ends here.-&gt;Ending4]]
   ]
-  (else-if: ($event1Choice is &quot;bully&quot; or $event2Choice is &quot;bully&quot;) and $event3Choice is &quot;help&quot;)[
-    [[Your journey ends here.-&gt;Ending4]]
-  ]
-  (else-if: $event3Choice is &quot;bully&quot; and ($event1Choice is &quot;help&quot; and $event2Choice is &quot;help&quot;))[
+  
+  &lt;!-- ENDING 5: Bully event 3 only, help others --&gt;
+  (else-if: $event3Choice is &quot;bully&quot; and _bullyEventsBullied is 1)[
     [[Your journey ends here.-&gt;Ending5]]
   ]
-
-  (else-if: $event1Choice is &quot;ignore&quot; and $event2Choice is &quot;ignore&quot; and $event3Choice is &quot;help&quot;)[
-    [[Your journey ends here.-&gt;Ending3]]
-  ]
-  (else-if: ($event1Choice is &quot;ignore&quot; and $event3Choice is &quot;ignore&quot;) or ($event2Choice is &quot;ignore&quot; and $event3Choice is &quot;ignore&quot;))[
-    [[Your journey ends here.-&gt;Ending4]]
-  ]
-  (else-if: ($event1Choice is &quot;bully&quot; and $event2Choice is &quot;ignore&quot;) or ($event1Choice is &quot;ignore&quot; and $event2Choice is &quot;bully&quot;))[
-    [[Your journey ends here.-&gt;Ending4]]
-  ]
-  (else-if: $event1Choice is &quot;bully&quot; and $event2Choice is &quot;bully&quot; and $event3Choice is &quot;help&quot;)[
-    [[Your journey ends here.-&gt;Ending5]]
-  ]
-  (else-if: ($event1Choice is &quot;bully&quot; and $event3Choice is &quot;ignore&quot;) or ($event2Choice is &quot;bully&quot; and $event3Choice is &quot;ignore&quot;))[
-    [[Your journey ends here.-&gt;Ending5]]
-  ]
-  (else-if: ($event1Choice is &quot;bully&quot; and $event3Choice is &quot;bully&quot;) or ($event2Choice is &quot;bully&quot; and $event3Choice is &quot;bully&quot;))[
-    [[Your journey ends here.-&gt;Ending6]]
-  ]
-  (else-if: $event1Choice is &quot;help&quot; and $event2Choice is &quot;bully&quot; and $event3Choice is &quot;ignore&quot;)[
-    [[Your journey ends here.-&gt;Ending6]]
-  ]
-
-  (else-if: $event1Choice is &quot;bully&quot; and $event2Choice is &quot;bully&quot; and $event3Choice is &quot;bully&quot;)[
-    [[Your journey ends here.-&gt;Ending6]]
-  ]
-  (else-if: ($event1Choice is &quot;bully&quot; and $event2Choice is &quot;bully&quot;) or ($event1Choice is &quot;bully&quot; and $event3Choice is &quot;bully&quot;) or ($event2Choice is &quot;bully&quot; and $event3Choice is &quot;bully&quot;))[
-    [[Your journey ends here.-&gt;Ending6]]
-  ]
+  
+  &lt;!-- ENDING 6: All other unfriend cases (ignore all, bully multiple including event 3, etc) --&gt;
   (else:)[
-    [[Your journey ends here.-&gt;Ending7]]
+    [[Your journey ends here.-&gt;Ending6]]
   ]
 ]</tw-passagedata><tw-passagedata pid="57" name="Ending1" tags="" position="775,650" size="100,100">(set: $currentEnding to &quot;Ending1: Dreams Achieved&quot;)
 
@@ -768,6 +763,10 @@ After saying that, I tried on the dress my family had prepared for me.
 (if: $playthroughLogs&#39;s length &gt; 7)[
   (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
 ]
+
+&lt;div style=&quot;background: #ffe; padding: 10px; border: 2px solid #fa0; margin: 10px 0; font-size: 0.8em;&quot;&gt;
+  &lt;b&gt;DEBUG (Ending1):&lt;/b&gt; Log created! Length now: (print: $playthroughLogs&#39;s length) | Type: (print: (datatype: $playthroughLogs))
+&lt;/div&gt;
 
 &lt;h2&gt;Ending1: Dreams Achieved&lt;/h2&gt;
 &lt;img src=&quot;end1.GIF&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -905,6 +904,10 @@ That feeling…
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs&#39;s length &gt; 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
 
+&lt;div style=&quot;background: #ffe; padding: 10px; border: 2px solid #fa0; margin: 10px 0; font-size: 0.8em;&quot;&gt;
+  &lt;b&gt;DEBUG (Ending6):&lt;/b&gt; Log created! Length now: (print: $playthroughLogs&#39;s length) | Type: (print: (datatype: $playthroughLogs))
+&lt;/div&gt;
+
 &lt;h2&gt;Ending6: A Tragic Loss&lt;/h2&gt;
 &lt;img src=&quot;end6.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
 Not long after the graduation ceremony began, many police officers arrived and started questioning people.
@@ -957,7 +960,8 @@ if (window.State &amp;&amp; window.State.variables) {
 
 &lt;h2&gt;Playthrough Log&lt;/h2&gt;
 &lt;p style=&quot;background: #f0f0f0; padding: 10px; border-radius: 5px; font-size: 0.9em;&quot;&gt;
-  &lt;b&gt;Debug Info:&lt;/b&gt; Help Count = (print: $helpCount) | Ignore Count = (print: $ignoreCount) | Total Choices = (print: $helpCount + $ignoreCount)
+  &lt;b&gt;Debug Info:&lt;/b&gt; Help Count = (print: $helpCount) | Ignore Count = (print: $ignoreCount) | Total Choices = (print: $helpCount + $ignoreCount)&lt;br&gt;
+  &lt;b&gt;Logs Array Type:&lt;/b&gt; (print: (datatype: $playthroughLogs)) | &lt;b&gt;Length:&lt;/b&gt; (print: $playthroughLogs&#39;s length) | &lt;b&gt;Contents:&lt;/b&gt; (print: $playthroughLogs)
 &lt;/p&gt;
 &lt;div style=&quot;max-height: 280px; overflow-y: auto; border: 1px solid #444;&quot;&gt;
 &lt;table class=&quot;summary-table&quot;&gt;
@@ -973,16 +977,16 @@ if (window.State &amp;&amp; window.State.variables) {
   &lt;tbody&gt;
   (if: (datatype: $playthroughLogs) is &quot;array&quot; and $playthroughLogs&#39;s length &gt; 0)[
     (for: each _log, ...$playthroughLogs)[
-      (print: &#39;&lt;tr&gt;&#39;)
-      (print: &#39;&lt;td&gt;&#39; + _log&#39;s name + &#39;&lt;/td&gt;&#39;)
-      (print: &#39;&lt;td&gt;&lt;img src=&quot;&#39; + _log&#39;s imgBase + &#39;_safe&#39; + _log&#39;s imgExt + &#39;&quot;&gt;&lt;/td&gt;&#39;)
-      (print: &#39;&lt;td&gt;&#39; + (text: _log&#39;s friendship) + &#39;&lt;/td&gt;&#39;)
-      (print: &#39;&lt;td&gt;&#39; + (text: _log&#39;s severity) + &#39;&lt;/td&gt;&#39;)
-      (print: &#39;&lt;td&gt;&#39; + _log&#39;s ending + &#39;&lt;/td&gt;&#39;)
-      (print: &#39;&lt;/tr&gt;&#39;)
+      &lt;tr&gt;
+        &lt;td&gt;(print: _log&#39;s name)&lt;/td&gt;
+        &lt;td&gt;&lt;img src=&quot;(print: _log&#39;s imgBase)_safe(print: _log&#39;s imgExt)&quot;&gt;&lt;/td&gt;
+        &lt;td&gt;(print: _log&#39;s friendship)&lt;/td&gt;
+        &lt;td&gt;(print: _log&#39;s severity)&lt;/td&gt;
+        &lt;td&gt;(print: _log&#39;s ending)&lt;/td&gt;
+      &lt;/tr&gt;
     ]
   ](else:)[
-    (print: &#39;&lt;tr&gt;&lt;td colspan=&quot;5&quot;&gt;No playthroughs logged yet.&lt;/td&gt;&lt;/tr&gt;&#39;)
+    &lt;tr&gt;&lt;td colspan=&quot;5&quot;&gt;No playthroughs logged yet.&lt;/td&gt;&lt;/tr&gt;
   ]
   &lt;/tbody&gt;
 &lt;/table&gt;

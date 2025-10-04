@@ -824,91 +824,86 @@ After saying that, I tried on the dress my family had prepared for me.
 
 
 ::EndingScene
+<div style="background: #e0f7fa; padding: 10px; border: 2px solid #00acc1; margin: 10px 0; font-size: 0.8em;">
+  <b>DEBUG (EndingScene):</b><br>
+  Friendship: (print: $friendship) (print: (cond: $friendship >= 40, "≥ 40 (High Branch)", "< 40 (Low Branch)"))<br>
+  Event1: (print: $event1Choice) | Event2: (print: $event2Choice) | Event3: (print: $event3Choice)<br>
+  HelpCount: (print: $helpCount) | IgnoreCount: (print: $ignoreCount)<br>
+  Bully Events Won: (print: (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+</div>
+
+<!-- Calculate bully event choices -->
+(set: _bullyEventsHelped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0) + (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEventsBullied to (cond: $event1Choice is "bully", 1, 0) + (cond: $event2Choice is "bully", 1, 0) + (cond: $event3Choice is "bully", 1, 0))
+(set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
+
+<!-- FRIEND BRANCH (Friendship >= 40) -->
 (if: $friendship >= 40)[
-  (if: $event1Choice is "help" and $event2Choice is "help" and $event3Choice is "help")[
+  <!-- ENDING 1: Help all events -->
+  (if: $helpCount is 13)[
     [[Your journey ends here.->Ending1]]
   ]
-
-  (else-if: ($event1Choice is "ignore" or $event2Choice is "ignore") and $event3Choice is "help")[
+  
+  <!-- ENDING 2: Ignore 1-2 events, help others -->
+  (else-if: _bullyEventsIgnored >= 1 and _bullyEventsIgnored <= 2 and _bullyEventsBullied is 0)[
     [[Your journey ends here.->Ending2]]
   ]
-  (else-if: $event3Choice is "ignore" and ($event1Choice is "help" and $event2Choice is "help"))[
+  
+  <!-- ENDING 3: Ignore event 3, help others -->
+  (else-if: $event3Choice is "ignore" and _bullyEventsBullied is 0)[
     [[Your journey ends here.->Ending3]]
   ]
-  (else-if: ($event1Choice is "bully" or $event2Choice is "bully") and $event3Choice is "help")[
+  
+  <!-- ENDING 4: Bully 1-2 events, help others -->
+  (else-if: _bullyEventsBullied >= 1 and _bullyEventsBullied <= 2 and $event3Choice is not "bully")[
     [[Your journey ends here.->Ending4]]
   ]
-  (else-if: $event3Choice is "bully" and ($event1Choice is "help" and $event2Choice is "help"))[
+  
+  <!-- ENDING 5: Bully event 3 (with or without bullying others) -->
+  (else-if: $event3Choice is "bully" and _bullyEventsBullied <= 2)[
     [[Your journey ends here.->Ending5]]
   ]
-
-  (else-if: $event1Choice is "ignore" and $event2Choice is "ignore" and $event3Choice is "help")[
-    [[Your journey ends here.->Ending2]]
+  
+  <!-- ENDING 6: Ignore all events -->
+  (else-if: _bullyEventsIgnored is 3)[
+    [[Your journey ends here.->Ending6]]
   ]
-  (else-if: ($event1Choice is "ignore" and $event3Choice is "ignore") or ($event2Choice is "ignore" and $event3Choice is "ignore"))[
-    [[Your journey ends here.->Ending3]]
+  
+  <!-- ENDING 7: Bully all events -->
+  (else-if: _bullyEventsBullied is 3)[
+    [[Your journey ends here.->Ending7]]
   ]
-  (else-if: ($event1Choice is "bully" and $event2Choice is "ignore") or ($event1Choice is "ignore" and $event2Choice is "bully"))[
-    [[Your journey ends here.->Ending3]]
-  ]
-  (else-if: $event1Choice is "bully" and $event2Choice is "bully" and $event3Choice is "help")[
-    [[Your journey ends here.->Ending4]]
-  ]
-  (else-if: ($event1Choice is "bully" and $event3Choice is "ignore") or ($event2Choice is "bully" and $event3Choice is "ignore"))[
-    [[Your journey ends here.->Ending4]]
-  ]
+  
+  <!-- ENDING 5: Other cases with event 3 bullied -->
   (else:)[
     [[Your journey ends here.->Ending5]]
   ]
 ]
+<!-- UNFRIEND BRANCH (Friendship < 40) -->
 (else:)[
-  (if: $event1Choice is "help" and $event2Choice is "help" and $event3Choice is "help")[
+  <!-- ENDING 2: Help all events -->
+  (if: $helpCount is 13)[
     [[Your journey ends here.->Ending2]]
   ]
-
-  (else-if: ($event1Choice is "ignore" or $event2Choice is "ignore") and $event3Choice is "help")[
+  
+  <!-- ENDING 3: Ignore 1-2 events, help others -->
+  (else-if: _bullyEventsIgnored >= 1 and _bullyEventsIgnored <= 2 and _bullyEventsBullied is 0)[
     [[Your journey ends here.->Ending3]]
   ]
-  (else-if: $event3Choice is "ignore" and ($event1Choice is "help" and $event2Choice is "help"))[
+  
+  <!-- ENDING 4: Ignore event 3, help others OR bully 1-2 events, help others -->
+  (else-if: ($event3Choice is "ignore" and _bullyEventsBullied is 0) or (_bullyEventsBullied >= 1 and _bullyEventsBullied <= 2 and $event3Choice is not "bully"))[
     [[Your journey ends here.->Ending4]]
   ]
-  (else-if: ($event1Choice is "bully" or $event2Choice is "bully") and $event3Choice is "help")[
-    [[Your journey ends here.->Ending4]]
-  ]
-  (else-if: $event3Choice is "bully" and ($event1Choice is "help" and $event2Choice is "help"))[
+  
+  <!-- ENDING 5: Bully event 3 only, help others -->
+  (else-if: $event3Choice is "bully" and _bullyEventsBullied is 1)[
     [[Your journey ends here.->Ending5]]
   ]
-
-  (else-if: $event1Choice is "ignore" and $event2Choice is "ignore" and $event3Choice is "help")[
-    [[Your journey ends here.->Ending3]]
-  ]
-  (else-if: ($event1Choice is "ignore" and $event3Choice is "ignore") or ($event2Choice is "ignore" and $event3Choice is "ignore"))[
-    [[Your journey ends here.->Ending4]]
-  ]
-  (else-if: ($event1Choice is "bully" and $event2Choice is "ignore") or ($event1Choice is "ignore" and $event2Choice is "bully"))[
-    [[Your journey ends here.->Ending4]]
-  ]
-  (else-if: $event1Choice is "bully" and $event2Choice is "bully" and $event3Choice is "help")[
-    [[Your journey ends here.->Ending5]]
-  ]
-  (else-if: ($event1Choice is "bully" and $event3Choice is "ignore") or ($event2Choice is "bully" and $event3Choice is "ignore"))[
-    [[Your journey ends here.->Ending5]]
-  ]
-  (else-if: ($event1Choice is "bully" and $event3Choice is "bully") or ($event2Choice is "bully" and $event3Choice is "bully"))[
-    [[Your journey ends here.->Ending6]]
-  ]
-  (else-if: $event1Choice is "help" and $event2Choice is "bully" and $event3Choice is "ignore")[
-    [[Your journey ends here.->Ending6]]
-  ]
-
-  (else-if: $event1Choice is "bully" and $event2Choice is "bully" and $event3Choice is "bully")[
-    [[Your journey ends here.->Ending6]]
-  ]
-  (else-if: ($event1Choice is "bully" and $event2Choice is "bully") or ($event1Choice is "bully" and $event3Choice is "bully") or ($event2Choice is "bully" and $event3Choice is "bully"))[
-    [[Your journey ends here.->Ending6]]
-  ]
+  
+  <!-- ENDING 6: All other unfriend cases (ignore all, bully multiple including event 3, etc) -->
   (else:)[
-    [[Your journey ends here.->Ending7]]
+    [[Your journey ends here.->Ending6]]
   ]
 ]
 
@@ -1183,16 +1178,16 @@ if (window.State && window.State.variables) {
   <tbody>
   (if: (datatype: $playthroughLogs) is "array" and $playthroughLogs's length > 0)[
     (for: each _log, ...$playthroughLogs)[
-      (print: '<tr>')
-      (print: '<td>' + _log's name + '</td>')
-      (print: '<td><img src="' + _log's imgBase + '_safe' + _log's imgExt + '"></td>')
-      (print: '<td>' + (text: _log's friendship) + '</td>')
-      (print: '<td>' + (text: _log's severity) + '</td>')
-      (print: '<td>' + _log's ending + '</td>')
-      (print: '</tr>')
+      <tr>
+        <td>(print: _log's name)</td>
+        <td><img src="(print: _log's imgBase)_safe(print: _log's imgExt)"></td>
+        <td>(print: _log's friendship)</td>
+        <td>(print: _log's severity)</td>
+        <td>(print: _log's ending)</td>
+      </tr>
     ]
   ](else:)[
-    (print: '<tr><td colspan="5">No playthroughs logged yet.</td></tr>')
+    <tr><td colspan="5">No playthroughs logged yet.</td></tr>
   ]
   </tbody>
 </table>
