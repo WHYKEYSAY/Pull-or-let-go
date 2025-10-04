@@ -640,7 +640,7 @@ It seemed they were having trouble finding the classroom too.
 
 ::Year3-Help
 (set: $helpCount to it + 1)
-"Hi! Are you looking for the classroom too? I'm lost, this is way too hard for me,"
+"Hi! Are you looking for the classroom too? I'm lost, this is way too hard for me."
 I said as I walked over to start a conversation.
 "Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help."
 "Alright, let’s take a look together."
