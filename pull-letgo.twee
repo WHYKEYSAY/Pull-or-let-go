@@ -44,7 +44,7 @@ tw-story {
 tw-passage {
     width: 100%;
     max-width: 1200px;
-    text-align: center;
+    text-align: left;
     background-color: transparent;
     padding: 0.5em 2em;
     margin: 0 auto;
@@ -148,7 +148,13 @@ a.link-internal, a.link-external {
 })();
 </script>
 (if: $statusOpen is true)[
-(set: $displaySeverity to 0)(set: $displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: $displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: $displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+  (set: $displaySeverity to 0)
+  (if: $event1Choice is "ignore")[(set: $displaySeverity to it + 1)]
+  (if: $event1Choice is "bully")[(set: $displaySeverity to it + 2)]
+  (if: $event2Choice is "ignore")[(set: $displaySeverity to it + 1)]
+  (if: $event2Choice is "bully")[(set: $displaySeverity to it + 2)]
+  (if: $event3Choice is "ignore")[(set: $displaySeverity to it + 1)]
+  (if: $event3Choice is "bully")[(set: $displaySeverity to it + 2)]
 
     <style>
         .field-notes-bg {
@@ -161,9 +167,14 @@ a.link-internal, a.link-external {
         }
     </style>
 
-(print: (cond: $displaySeverity >= 2, '<style>.field-notes-bg { background-image: url("start2.png"); }</style>', true, '<style>.field-notes-bg { background-image: url("start.png"); }</style>'))
+    (if: $displaySeverity >= 2)[
+      (print: '<style>.field-notes-bg { background-image: url("start2.png"); }</style>')
+    ]
+    (else:)[
+      (print: '<style>.field-notes-bg { background-image: url("start.png"); }</style>')
+    ]
 
-  <div class="field-notes-bg" style="position:fixed; top:10px; right:12px; width:220px; max-width:90vw; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
+  <div class="field-notes-bg" style="position:fixed; top:60px; right:12px; width:220px; max-width:90vw; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
     <span style="position:absolute; top:8px; right:8px; width:24px; height:24px; color:#fff; border-radius:4px; font-size:18px; text-align:center; line-height:24px; cursor:pointer; font-weight:bold;">
       (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
     </span>
@@ -204,7 +215,7 @@ a.link-internal, a.link-external {
   </div>
 ]
 (else:)[
-  <div style="position:fixed; top:10px; right:12px; z-index:9999;">
+  <div style="position:fixed; top:12px; right:12px; z-index:9999;">
     <span style="display:inline-block; background:#4a90e2; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-family:sans-serif; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;">
       (link: "☰ Field Notes")[ (set: $statusOpen to true)(goto: (passage:)'s name) ]
     </span>
@@ -219,7 +230,7 @@ a.link-internal, a.link-external {
         bgm.id = 'story-bgm';
         bgm.src = 'BGM.mp3';
         bgm.loop = true;
-        bgm.volume = 0.5;
+        bgm.volume = 0.5; // Set volume to 50% (adjust as needed)
         document.body.appendChild(bgm);
 
         const promise = bgm.play();
@@ -234,51 +245,6 @@ a.link-internal, a.link-external {
             });
         }
     }
-    
-    // Typewriter effect for text display
-    setTimeout(function() {
-        const passage = document.querySelector('tw-passage');
-        if (!passage || passage.classList.contains('animated')) return;
-        passage.classList.add('animated');
-        
-        // Get all text nodes and elements
-        const elements = Array.from(passage.childNodes);
-        const contentToAnimate = [];
-        
-        elements.forEach(function(node) {
-            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-                contentToAnimate.push({type: 'text', content: node.textContent, node: node});
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-                const tagName = node.tagName.toLowerCase();
-                // Skip links, images, style tags, and special Twine elements
-                if (tagName !== 'tw-link' && tagName !== 'a' && tagName !== 'img' && 
-                    tagName !== 'style' && tagName !== 'script' && !tagName.startsWith('tw-')) {
-                    contentToAnimate.push({type: 'element', content: node.innerHTML, node: node});
-                }
-            }
-        });
-        
-        // Hide all content initially
-        contentToAnimate.forEach(function(item) {
-            if (item.type === 'text') {
-                item.node.textContent = '';
-            } else {
-                item.node.style.opacity = '0';
-            }
-        });
-        
-        // Show content one by one with 1 second interval
-        contentToAnimate.forEach(function(item, index) {
-            setTimeout(function() {
-                if (item.type === 'text') {
-                    item.node.textContent = item.content;
-                } else {
-                    item.node.style.transition = 'opacity 0.5s';
-                    item.node.style.opacity = '1';
-                }
-            }, index * 1000);
-        });
-    }, 50);
 })();
 </script>
 
@@ -420,18 +386,22 @@ I thought to myself with some uncertainty.
 [[…Or maybe not. They probably have their own plans. I guess I’ll just go hang out with the new friends I’ve made for now~->NewParty-Ignore]]
 
 :: NewParty-Help
+(set: $helpCount to it + 1)
 "Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!"
 I asked.
-"Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.(set: $helpCount to it + 1)(set: $friendship to $friendship + 5)
+"Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.
+(set: $friendship to $friendship + 5)
 
 [[After attending that event, a period of calm and steady school life followed.->Midterm]]
 
 :: NewParty-Ignore
+(set: $ignoreCount to it + 1)
 "Hey! What time are you guys planning to head out? I'm so excited! I wonder what kind of fun things will be there!"
 "Yeah, my address is kind of far, so I might arrive a bit late."
 "Where do you live? Maybe I can give you a ride, and we can take a little detour along the way!"
-"Wow, that's so cool!!!"
-...(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 5)
+"Wow, that’s so cool!!!"
+...
+(set: $friendship to $friendship - 5)
 
 [[We kept chatting back and forth, planning our trip. And I thought to myself: my high school life is definitely going to be exciting!->Midterm]]
 
@@ -448,17 +418,21 @@ It looked like they were having a hard time.
 [[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else—I’d better focus on preparing myself. After all, I study more efficiently on my own.->Midterm-Ignore]]
 
 :: Midterm-Help
+(set: $helpCount to it + 1)
 We spread our notes out on the desk like a map.
 I explained all the unclear points from the chapters, and we organized a more complete set of review materials together.
-Both of us smiled with relief, and I felt my heart is more confident.(set: $helpCount to it + 1)(set: $friendship to it + 2)
+Both of us smiled with relief, and I felt my heart is more confident.
+(set: $friendship to it + 2)
 
 [[Onward we go.->BullyingEvent1]]
 
 :: Midterm-Ignore
+(set: $ignoreCount to it + 1)
 I gathered my thoughts and focused fully on my revision.
-"Hah, these points aren't so hard after all!"
+"Hah, these points aren’t so hard after all!"
 When I finished studying and was getting ready to head home, I glanced over and saw (print:$friendName) still buried in their books.
-It looked like they were stuck on something...(set: $ignoreCount to it + 1)(set: $friendship to it - 1)
+It looked like they were stuck on something...
+(set: $friendship to it - 1)
 
 [[But my stomach was already protesting, I had to go treat myself to a big, well-deserved meal!->BullyingEvent1]]
 
@@ -483,15 +457,18 @@ It looked like they had heard every word of that conversation. What should I do�
 
 :: BullyChoice-Win1
 "Ah, sorry, I didn't mean to eavesdrop on your conversation. But if (print:$friendName) isn't really that kind of person, wouldn't saying things like this be a bit unfair?"
-"Why do you care? we were just chatting, that's all."
-They sounded annoyed but didn't say much more before turning away and leaving.
-I walked over to (print:$friendName) and said, "Don't mind them. Some people just like to gossip for no reason. Don't take it to heart. I don't believe you're that kind of person!"(set: $playerHelped to true)(set: $event1Choice to "help")
+"Why do you care? we were just chatting, that’s all."
+They sounded annoyed but didn’t say much more before turning away and leaving.
+I walked over to (print:$friendName) and said, "Don't mind them. Some people just like to gossip for no reason. Don't take it to heart. I don't believe you're that kind of person!"
+(set: $playerHelped to true)
+(set: $event1Choice to "help")
 
 [[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]]
 
 :: BullyChoice-Ignore1
 Sigh… Even though gossiping behind someone's back isn't right, I don't really know if what they said is true.
-After all, we're not that close, so maybe it's better not to meddle.(set: $event1Choice to "ignore")
+After all, we're not that close, so maybe it's better not to meddle.
+(set: $event1Choice to "ignore")
 
 [["I don’t know anything," I told myself, and quickly leaving the library.->Ignore1]]
 
@@ -501,11 +478,14 @@ I don’t know if anything else happened that day, but I kept noticing that (pri
 [[Well, I guess everyone has their own way of living.->FinalParty]]
 
 :: BullyChoice-Bully1
-"Hey, are you guys talking about (print:$friendName)?! I also think they're a bit strange."
-"Yeah, don't you think they act really weird?"
-"Exactly! I even tried talking to them before, but they're always by themselves. It just felt impossible to get along."(set: $allHelpChoices to false)
+(set: $allHelpChoices to false)
+"Hey, are you guys talking about (print:$friendName)?! I also think they’re a bit strange."
+"Yeah, don’t you think they act really weird?"
+"Exactly! I even tried talking to them before, but they’re always by themselves. It just felt impossible to get along."
 <br>
-[[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]](set: $playerBullied to true)(set: $event1Choice to "bully")
+[[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]]
+(set: $playerBullied to true)
+(set: $event1Choice to "bully")
 
 ::Bully1
 I secretly glanced at the spot where (print:$friendName) had been standing, but it looked like they had already left.
@@ -522,17 +502,21 @@ Then I noticed (print:$friendName) wasn’t in our group chat…
 [[…Or maybe not. Since they didn’t add (print:$friendName) to the group chat, I’d better not meddle. I’m not the one organizing the event.->FinalParty-Ignore]]
 
 ::FinalParty-Help
+(set: $helpCount to it + 1)
 "Do you want to come with me to the end-of-term party?"
 "Huh? The end-of-term party…? But I never got an invitation."
-"Ah, they must have forgotten to send it to you. Don't worry, let's just go together~"
+"Ah, they must have forgotten to send it to you. Don’t worry, let’s just go together~"
 "Uh… okay then."
-I pulled (print:$friendName) along with me to the party. Time passed in laughter and music, and we grew a little more familiar with each other…(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)
+I pulled (print:$friendName) along with me to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
+(set: $friendship to $friendship + 2)
 
 [[And so, a new year of high school life began.->Year2]]
 
 ::FinalParty-Ignore
+(set: $ignoreCount to it + 1)
 "This top with these pants? Ah, no, I'll wear a skirt instead~ Should I prepare something to bring along?"
-I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)
+I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.
+(set: $friendship to $friendship - 1)
 
 [[We ended up having an incredibly fun party, and no one remembered or even mentioned the person who didn’t come.->Year2]]
 
@@ -871,30 +855,82 @@ After saying that, I tried on the dress my family had prepared for me.
 (set: _bullyEventsIgnored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0) + (cond: $event3Choice is "ignore", 1, 0))
 
 (if: $friendship >= 40)[
-(cond:
-  _bullyEventsIgnored is 3, [[Your journey ends here.->Ending6]],
-  _bullyEventsBullied is 3, [[Your journey ends here.->Ending7]],
-  $helpCount is 10 and _bullyEventsBullied is 0 and _bullyEventsIgnored is 0, [[Your journey ends here.->Ending1]],
-  _bullyEventsIgnored >= 1 and _bullyEventsIgnored <= 2 and _bullyEventsBullied is 0, [[Your journey ends here.->Ending2]],
-  $event3Choice is "ignore" and _bullyEventsBullied is 0, [[Your journey ends here.->Ending3]],
-  _bullyEventsBullied >= 1 and _bullyEventsBullied <= 2 and $event3Choice is not "bully", [[Your journey ends here.->Ending4]],
-  $event3Choice is "bully" and _bullyEventsBullied <= 2, [[Your journey ends here.->Ending5]],
-  true, [[Your journey ends here.->Ending5]]
-)
+  <!-- ENDING 6: Ignore all 3 bully events -->
+  (if: _bullyEventsIgnored is 3)[
+    [[Your journey ends here.->Ending6]]
+  ]
+  
+  <!-- ENDING 7: Bully all 3 bully events -->
+  (else-if: _bullyEventsBullied is 3)[
+    [[Your journey ends here.->Ending7]]
+  ]
+  
+  <!-- ENDING 1: Help all non-bully events -->
+  (else-if: $helpCount is 10)[
+    [[Your journey ends here.->Ending1]]
+  ]
+  
+  <!-- ENDING 2: Ignore 1-2 bully events, help others -->
+  (else-if: _bullyEventsIgnored >= 1 and _bullyEventsIgnored <= 2 and _bullyEventsBullied is 0)[
+    [[Your journey ends here.->Ending2]]
+  ]
+  
+  <!-- ENDING 3: Ignore event 3, help others -->
+  (else-if: $event3Choice is "ignore" and _bullyEventsBullied is 0)[
+    [[Your journey ends here.->Ending3]]
+  ]
+  
+  <!-- ENDING 4: Bully 1-2 events, help others -->
+  (else-if: _bullyEventsBullied >= 1 and _bullyEventsBullied <= 2 and $event3Choice is not "bully")[
+    [[Your journey ends here.->Ending4]]
+  ]
+  
+  <!-- ENDING 5: Bully event 3 (with or without bullying others) -->
+  (else-if: $event3Choice is "bully" and _bullyEventsBullied <= 2)[
+    [[Your journey ends here.->Ending5]]
+  ]
+  
+  <!-- ENDING 5: Other cases with event 3 bullied -->
+  (else:)[
+    [[Your journey ends here.->Ending5]]
+  ]
 ]
+<!-- UNFRIEND BRANCH (Friendship < 40) -->
 (else:)[
-(cond:
-  _bullyEventsIgnored is 3, [[Your journey ends here.->Ending6]],
-  _bullyEventsBullied is 3, [[Your journey ends here.->Ending7]],
-  $helpCount is 10 and _bullyEventsBullied is 0 and _bullyEventsIgnored is 0, [[Your journey ends here.->Ending2]],
-  _bullyEventsIgnored >= 1 and _bullyEventsIgnored <= 2 and _bullyEventsBullied is 0, [[Your journey ends here.->Ending3]],
-  _bullyEventsIgnored is 2 and _bullyEventsBullied is 1, [[Your journey ends here.->Ending4]],
-  _bullyEventsBullied is 1 and $event3Choice is "ignore" and _bullyEventsIgnored is 1, [[Your journey ends here.->Ending4]],
-  _bullyEventsBullied >= 1 and _bullyEventsBullied <= 2 and $event3Choice is not "bully", [[Your journey ends here.->Ending4]],
-  $event3Choice is "ignore" and _bullyEventsBullied is 2, [[Your journey ends here.->Ending5]],
-  $event3Choice is "bully" and _bullyEventsBullied <= 2, [[Your journey ends here.->Ending5]],
-  true, [[Your journey ends here.->Ending6]]
-)
+  <!-- ENDING 6: Ignore all 3 bully events -->
+  (if: _bullyEventsIgnored is 3)[
+    [[Your journey ends here.->Ending6]]
+  ]
+  
+  <!-- ENDING 7: Bully all 3 events, but helped at many non-bully events -->
+  (else-if: _bullyEventsBullied is 3 and $helpCount >= 8)[
+    [[Your journey ends here.->Ending7]]
+  ]
+  
+  <!-- ENDING 2: Help all non-bully events -->
+  (else-if: $helpCount is 10)[
+    [[Your journey ends here.->Ending2]]
+  ]
+  
+  <!-- ENDING 3: Ignore 1-2 bully events, help others -->
+  (else-if: _bullyEventsIgnored >= 1 and _bullyEventsIgnored <= 2 and _bullyEventsBullied is 0)[
+    [[Your journey ends here.->Ending3]]
+  ]
+  
+  <!-- ENDING 5: Bully 1-2 events (any pattern with bullying but not all 3) -->
+  (else-if: _bullyEventsBullied >= 1 and _bullyEventsBullied <= 2)[
+    [[Your journey ends here.->Ending5]]
+  ]
+  
+  <!-- ENDING 4: Ignore event 3, help others -->
+  (else-if: $event3Choice is "ignore" and _bullyEventsBullied is 0)[
+    [[Your journey ends here.->Ending4]]
+  ]
+  
+  <!-- ENDING 6: All other unfriend cases -->
+  (else:)[
+    [[Your journey ends here.->Ending6]]
+  ]
 ]
 
 :: Ending1
@@ -910,7 +946,14 @@ After saying that, I tried on the dress my family had prepared for me.
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+<!-- Calculate severity -->
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 <!-- Calculate image state for log -->
 (set: _imgState to (cond:
@@ -956,7 +999,13 @@ I truly believe we'll have an even brighter future ahead!
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -984,7 +1033,13 @@ I made new friends in college, and there was no longer any contact between me an
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -1011,7 +1066,13 @@ Later on, they deleted all of our contact information, and I never heard anythin
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -1037,7 +1098,13 @@ Although I was eventually admitted to a university, the psychological pressure I
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -1066,7 +1133,13 @@ That feeling…
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -1093,7 +1166,13 @@ Perhaps… each one of us is a murderer.
 (if: $helpCount >= 10)[(set: $achievementsUnlocked's "best" to 1)]
 (if: $ignoreCount >= 10)[(set: $achievementsUnlocked's "worst" to 1)]
 
-(set: _displaySeverity to 0)(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 1, $event1Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 1, $event2Choice is "bully", 2, true, 0))(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 1, $event3Choice is "bully", 2, true, 0))
+(set: _displaySeverity to 0)
+(if: $event1Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event1Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event2Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event2Choice is "bully")[(set: _displaySeverity to it + 2)]
+(if: $event3Choice is "ignore")[(set: _displaySeverity to it + 1)]
+(if: $event3Choice is "bully")[(set: _displaySeverity to it + 2)]
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
@@ -1131,15 +1210,29 @@ if (window.State && window.State.variables) {
 </script>
 
 <h2>Playthrough Log</h2>
-<div style="max-height: 400px; overflow-y: auto; border: 1px solid #555; padding: 15px; background-color: #2a2a2a; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8;">
-(if: $playthroughLogs's length > 0)[
+<div style="max-height: 280px; overflow-y: auto; border: 1px solid #444;">
+<table class="summary-table" style="table-layout: fixed;">
+  <thead>
+  <tr>
+    <th style="width: 15%;">Character</th>
+    <th style="width: 10%;">Portrait</th>
+    <th style="width: 10%;">Bond</th>
+    <th style="width: 10%;">Severity</th>
+    <th style="width: 35%;">Ending</th>
+    <th style="width: 20%;">Time</th>
+  </tr>
+  </thead>
+  <tbody>
+{(if: $playthroughLogs's length > 0)[
 (for: each _i, ...(range: 1, $playthroughLogs's length))[
 (set: _log to $playthroughLogs's (_i))
-(print: "<div style='border-bottom: 1px solid #444; padding: 10px 0; color: #e0e0e0; display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow-x: auto;'><span style='color: #fca5a5; font-weight: bold;'>Character:</span> <span>" + (_log's name) + "</span><span style='color: #666;'>|</span><img src='" + (_log's imgPath) + "' style='width: 40px; height: 40px; border-radius: 5px; flex-shrink: 0; vertical-align: middle;' onerror=\"this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27%3E%3Crect fill=%27%23555%27 width=%2740%27 height=%2740%27/%3E%3C/svg%3E'\"><span style='color: #666;'>|</span><span style='color: #fca5a5; font-weight: bold;'>Bond:</span> <span>" + (text: _log's friendship) + "</span><span style='color: #666;'>|</span><span style='color: #fca5a5; font-weight: bold;'>Severity:</span> <span>" + (text: _log's severity) + "</span><span style='color: #666;'>|</span><span style='color: #fca5a5; font-weight: bold;'>Ending:</span> <span>" + (_log's ending) + "</span><span style='color: #666;'>|</span><span style='color: #fca5a5; font-weight: bold;'>Time:</span> <span style='color: #999; font-size: 0.9em;'>" + (cond: (_log's timestamp) is "", "—", _log's timestamp) + "</span></div>")
+(print: "<tr><td>" + (_log's name) + "</td><td><img src='" + (_log's imgPath) + "' style='width:50px;height:50px;border-radius:5px;' onerror='this.style.display=\"none\"'></td><td style='text-align:center;'>" + (text: _log's friendship) + "</td><td style='text-align:center;'>" + (text: _log's severity) + "</td><td>" + (_log's ending) + "</td><td style='font-size:0.85em;'>" + (cond: (_log's timestamp) is "", "—", _log's timestamp) + "</td></tr>")
 ]
 ](else:)[
-<div style="text-align:center; padding:30px; color:#888;">No playthroughs logged yet.</div>
-]
+(print: "<tr><td colspan='6' style='text-align:center;padding:20px;color:#888;'>No playthroughs logged yet.</td></tr>")
+]}
+  </tbody>
+</table>
 </div>
 
 <div class="achievements">
