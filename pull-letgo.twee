@@ -389,24 +389,20 @@ I thought to myself with some uncertainty.
 [[…Or maybe not. They probably have their own plans. I guess I’ll just go hang out with the new friends I’ve made for now~->NewParty-Ignore]]
 
 :: NewParty-Help
-(set: $helpCount to it + 1)
 "Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!"
 I asked.
 "Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.
-(set: $friendship to $friendship + 5)
 
-[[After attending that event, a period of calm and steady school life followed.->Midterm]]
+(link: "After attending that event, a period of calm and steady school life followed.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 5)(goto: "Midterm")]
 
 :: NewParty-Ignore
-(set: $ignoreCount to it + 1)
 "Hey! What time are you guys planning to head out? I'm so excited! I wonder what kind of fun things will be there!"
 "Yeah, my address is kind of far, so I might arrive a bit late."
 "Where do you live? Maybe I can give you a ride, and we can take a little detour along the way!"
-"Wow, that’s so cool!!!"
+"Wow, that's so cool!!!"
 ...
-(set: $friendship to $friendship - 5)
 
-[[We kept chatting back and forth, planning our trip. And I thought to myself: my high school life is definitely going to be exciting!->Midterm]]
+(link: "We kept chatting back and forth, planning our trip. And I thought to myself: my high school life is definitely going to be exciting!")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 5)(goto: "Midterm")]
 
 
 :: Midterm
@@ -421,23 +417,19 @@ It looked like they were having a hard time.
 [[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else. I’d better focus on preparing myself. After all, I study more efficiently on my own.->Midterm-Ignore]]
 
 :: Midterm-Help
-(set: $helpCount to it + 1)
 We spread our notes out on the desk like a map.
 I explained all the unclear points from the chapters, and we organized a more complete set of review materials together.
 Both of us smiled with relief, and I felt my heart is more confident.
-(set: $friendship to it + 2)
 
-[[Onward we go.->BullyingEvent1]]
+(link: "Onward we go.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "BullyingEvent1")]
 
 :: Midterm-Ignore
-(set: $ignoreCount to it + 1)
 I gathered my thoughts and focused fully on my revision.
-"Hah, these points aren’t so hard after all!"
+"Hah, these points aren't so hard after all!"
 When I finished studying and was getting ready to head home, I glanced over and saw (print:$friendName) still buried in their books.
 It looked like they were stuck on something...
-(set: $friendship to it - 1)
 
-[[But my stomach was already protesting, I had to go treat myself to a big, well-deserved meal!->BullyingEvent1]]
+(link: "But my stomach was already protesting, I had to go treat myself to a big, well-deserved meal!")[(set: $ignoreCount to it + 1)(set: $friendship to it - 1)(goto: "BullyingEvent1")]
 
 
 :: BullyingEvent1
@@ -460,20 +452,16 @@ It looked like they had heard every word of that conversation. What should I do�
 
 :: BullyChoice-Win1
 "Ah, sorry, I didn't mean to eavesdrop on your conversation. But if (print:$friendName) isn't really that kind of person, wouldn't saying things like this be a bit unfair?"
-"Why do you care? we were just chatting, that’s all."
-They sounded annoyed but didn’t say much more before turning away and leaving.
+"Why do you care? we were just chatting, that's all."
+They sounded annoyed but didn't say much more before turning away and leaving.
 I walked over to (print:$friendName) and said, "Don't mind them. Some people just like to gossip for no reason. Don't take it to heart. I don't believe you're that kind of person!"
-(set: $playerHelped to true)
-(set: $event1Choice to "help")
 
-[[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]]
-
+(link: (print:$friendName) + " smiled. Yes! I had successfully lightened their mood!")[(set: $playerHelped to true)(set: $event1Choice to "help")(goto: "FinalParty")]
 :: BullyChoice-Ignore1
 Sigh… Even though gossiping behind someone's back isn't right, I don't really know if what they said is true.
 After all, we're not that close, so maybe it's better not to meddle.
-(set: $event1Choice to "ignore")
 
-[["I don’t know anything," I told myself, and quickly leaving the library.->Ignore1]]
+(link: "\"I don't know anything,\" I told myself, and quickly leaving the library.")[(set: $event1Choice to "ignore")(goto: "Ignore1")]
 
 :: Ignore1
 I don’t know if anything else happened that day, but I kept noticing that (print:$friendName) was always alone.
@@ -481,14 +469,11 @@ I don’t know if anything else happened that day, but I kept noticing that (pri
 [[Well, I guess everyone has their own way of living.->FinalParty]]
 
 :: BullyChoice-Bully1
-(set: $allHelpChoices to false)
-"Hey, are you guys talking about (print:$friendName)?! I also think they’re a bit strange."
-"Yeah, don’t you think they act really weird?"
-"Exactly! I even tried talking to them before, but they’re always by themselves. It just felt impossible to get along."
+"Hey, are you guys talking about (print:$friendName)?! I also think they're a bit strange."
+"Yeah, don't you think they act really weird?"
+"Exactly! I even tried talking to them before, but they're always by themselves. It just felt impossible to get along."
 <br>
-[[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]]
-(set: $playerBullied to true)
-(set: $event1Choice to "bully")
+(link: "We went on and on, taking turns venting our complaints, completely unaware that " + (print:$friendName) + " was right behind us, hearing every word of our conversation.")[(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event1Choice to "bully")(goto: "Bully1")]
 
 ::Bully1
 I secretly glanced at the spot where (print:$friendName) had been standing, but it looked like they had already left.
@@ -505,23 +490,19 @@ Then I noticed (print:$friendName) wasn’t in our group chat…
 [[…Or maybe not. Since they didn’t add (print:$friendName) to the group chat, I’d better not meddle. I’m not the one organizing the event.->FinalParty-Ignore]]
 
 ::FinalParty-Help
-(set: $helpCount to it + 1)
 "Do you want to come with me to the end-of-term party?"
 "Huh? The end-of-term party…? But I never got an invitation."
 "Ah, they must have forgotten to send it to you. Don’t worry, let’s just go together~"
 "Uh… okay then."
 I pulled (print:$friendName) along with me to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
-(set: $friendship to $friendship + 2)
 
-[[And so, a new year of high school life began.->Year2]]
+(link: "And so, a new year of high school life began.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "Year2")]
 
 ::FinalParty-Ignore
-(set: $ignoreCount to it + 1)
-"This top with these pants? Ah, no, I'll wear a skirt instead~ Should I prepare something to bring along?"
+"This top with these pants? Ah, no, I'll wear a skirt instead~ Should I prepare something to bring?"
 I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.
-(set: $friendship to $friendship - 1)
 
-[[We ended up having an incredibly fun party, and no one remembered or even mentioned the person who didn’t come.->Year2]]
+(link: "We ended up having an incredibly fun party, and no one remembered or even mentioned the person who didn't come.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)(goto: "Year2")]
 
 
 ::Year2
@@ -536,20 +517,16 @@ It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) app
 [["Um… actually, woodworking is just okay for me. I’d rather join the film club. Do you want to join that one with me?"->Year2-Ignore]]
 
 ::Year2-Help
-(set: $helpCount to it + 1)
 We wrote our names down on the same sheet of paper.
 From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
-(set: $friendship to $friendship + 10)
 
-[[Tick-tock, tick-tock…->BullyingEvent2]]
+(link: "Tick-tock, tick-tock…")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 10)(goto: "BullyingEvent2")]
 
 ::Year2-Ignore
-(set: $ignoreCount to it + 1)
 "I'm not really interested in movies… alright then, you go join the film club, and I'll just go to the woodworking club on my own."
 "Okay, I hope you have fun making crafts!"
-(set: $friendship to $friendship - 5)
 
-[[After that, for quite a long time, we didn’t really have much interaction anymore.->BullyingEvent2]]
+(link: "After that, for quite a long time, we didn't really have much interaction anymore.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 5)(goto: "BullyingEvent2")]
 
 
 :: BullyingEvent2
@@ -573,26 +550,19 @@ The few who had been leading the trouble left reluctantly.
 I walked over to (print:$friendName) and comforted them:
 "It's okay now, it's over!"(print:$friendName) looked at me gratefully and said,
 **"Thank you."**
-(set: $playerHelped to true)
-(set: $event2Choice to "help")
 
-[["You don’t need to thank me! You have to be brave!"->Birth-Party]]
+(link: "\"You don't need to thank me! You have to be brave!\"")[(set: $playerHelped to true)(set: $event2Choice to "help")(goto: "Birth-Party")]
 
 ::BullyChoice-Ignore2
 "I can't really do much about this. There are so many people of them, and it doesn't seem like any real harm has been done. They're probably just joking around. Roughhousing between classmates is normal."
-(set: $event2Choice to "ignore")
-
-[[I lowered my head, pulled out the homework I hadn’t finished yet, and went back to my own business.->Birth-Party]]
+(link: "I lowered my head, pulled out the homework I hadn't finished yet, and went back to my own business.")[(set: $event2Choice to "ignore")(goto: "Birth-Party")]
 
 ::BullyChoice-Bully2
-(set: $allHelpChoices to false)
-"Hey, I noticed before that you’re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying ‘an inferior imitation’?"
+"Hey, I noticed before that you're always staring at La. So you were trying to imitate them, huh? Ever you heard the saying 'an inferior imitation'?"
 I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
-"Hahaha, exactly!""Oh my gosh, that’s hilarious, probably doesn’t even know what it means."
+"Hahaha, exactly!""Oh my gosh, that's hilarious, probably doesn't even know what it means."
 <br>
-[[At that moment, I felt like I had told a really effective joke and gained everyone's approval.->Bully2]]
-(set: $playerBullied to true)
-(set: $event2Choice to "bully")
+(link: "At that moment, I felt like I had told a really effective joke and gained everyone's approval.")[(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event2Choice to "bully")(goto: "Bully2")]
 
 ::Bully2
 Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader.
@@ -610,22 +580,18 @@ I noticed once again that (print:$friendName) still wasn't in our group chat…
 [[…Or maybe not. Since they hadn't been added to the group chat, I'd better not meddle.->Birth-Party-Ignore]]
 
 ::Birth-Party-Help
-(set: $helpCount to it + 1)
 "La's having a birthday party, do you want to come?"
 "Huh? A birthday party…? But I never got an invitation."
 "Ah, they must have forgotten to send it. Don't worry, you can come with me!"
 "Uh… alright then."
 I pulled (print:$friendName) along to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
-(set: $friendship to $friendship + 2)
 
-[[Another year came to an end, and a new chapter of high school life began.->Year3]]
+(link: "Another year came to an end, and a new chapter of high school life began.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "Year3")]
 
 ::Birth-Party-Ignore
-(set: $ignoreCount to it + 1)
 I decided not to get involved. It wasn't my place to invite them when the organizer didn't include them.
-(set: $friendship to $friendship - 2)
 
-[[Another year came to an end, and a new chapter of high school life began.->Year3]]
+(link: "Another year came to an end, and a new chapter of high school life began.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 2)(goto: "Year3")]
 
 ::Year3
 <h2>Year3</h2>
@@ -639,7 +605,6 @@ It seemed they were having trouble finding the classroom too.
 [[…Or maybe not. They’re probably lost as well, and since I don’t know either, I’d better just ask someone on my own.->Year3-Ignore]]
 
 ::Year3-Help
-(set: $helpCount to it + 1)
 "Hi! Are you looking for the classroom too? I'm lost, this is way too hard for me."
 I said as I walked over to start a conversation.
 "Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help."
@@ -647,23 +612,20 @@ I said as I walked over to start a conversation.
 We found the building map and took a photo of it.
 Since (print:$friendName) had a better sense of direction, I handed them the map along with the classroom number for reference.
 Before long, we found the classroom without being late, and both of us let out a sigh of relief.
-(set: $friendship to $friendship + 2)
 
-[[And the busy rhythm of school life began again.->BullyingEvent3]]
+(link: "And the busy rhythm of school life began again.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "BullyingEvent3")]
 
 ::Year3-Ignore
-(set: $ignoreCount to it + 1)
 Hey, isn't that La?
 She probably knows the way, let me go ask her!
 "Hi, La, are you heading to that classroom?"
-"Yeah, we’ve only got five minutes left before class starts!."
-"Me too! Let’s go together."
+"Yeah, we've only got five minutes left before class starts!."
+"Me too! Let's go together."
 "Alright."
 We arrived at the classroom, and much later (print:$friendName) rushed in, panting and dripping with sweat.
-"S...so...sorry… I’m late."
-(set: $friendship to $friendship - 1)
+"S...so...sorry… I'm late."
 
-[[As soon as the words left their mouth, the whole class burst into laughter.->BullyingEvent3]]
+(link: "As soon as the words left their mouth, the whole class burst into laughter.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)(goto: "BullyingEvent3")]
 
 
 :: BullyingEvent3
@@ -696,30 +658,24 @@ They ran away.
 Looks like my plan worked!
 I hurried over to (print:$friendName)’s side and helped pick up their things.
 (print:$friendName) looked at me with fear in their eyes and whispered, "Th-thank you…"
-(set: $playerHelped to true)
-(set: $event3Choice to "help")
-
-[["It’s okay…" I said, trying to comfort them, though my feelings were complicated.->Volunteer]]
+(link: "\"It's okay…\" I said, trying to comfort them, though my feelings were complicated.")[(set: $playerHelped to true)(set: $event3Choice to "help")(goto: "Volunteer")]
 
 ::BullyChoice-Ignore3
 "There are so many of bullies… I'd better not get myself into trouble,"
 I muttered to myself, quickening my steps to get away from the scene as fast as possible.
-(set: $event3Choice to "ignore")
+<br>
+(link: "\"I didn't see anything.\"")[(set: $event3Choice to "ignore")(goto: "Volunteer")]
 
-[["I didn’t see anything."->Volunteer]]
 
 ::BullyChoice-Bully3
-(set: $allHelpChoices to false)
-Isn’t that (print:$friendName)?
+Isn't that (print:$friendName)?
 Caught doing something annoying again?
 I knew there was something off about them!
 "Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?"
 I said as I walked up to the group.
-"Yeah, yeah, we’re curious too!"
+"Yeah, yeah, we're curious too!"
 <br>
-[[With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into (print:$friendName)'s hair.->Bully3]]
-(set: $playerBullied to true)
-(set: $event3Choice to "bully")
+(link: "With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into " + (print:$friendName) + "'s hair.")[(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event3Choice to "bully")(goto: "Bully3")]
 
 ::Bully3
 Several days passed without seeing (print:$friendName) at school.
@@ -741,25 +697,22 @@ But…
 [[...Or maybe I should choose another classmate who seems more capable, if we work together, we might gain greater recognition and even cooperate in the future for bigger benefits.->Volunteer-Ignore]]
 
 ::Volunteer-Help
-(set: $helpCount to it + 1)
+
 "Hey, I got a really great opportunity, do you want to join me for this volunteer activity?"
 "Really? Wouldn’t that trouble you? Are you sure you actually want to take me along?!"
 "Of course, as long as you’re willing."
 I forwarded the link and shared my screen so we could fill out the application form together.
-(set: $friendship to $friendship + 12)
 
-[[I was overwhelmed by their repeated words of gratitude…->University]]
+(link: "I was overwhelmed by their repeated words of gratitude…")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 12)(goto: "University")]
 
 
 ::Volunteer-Ignore
-(set: $ignoreCount to it + 1)
 I went over to invite that classmate to join me in the volunteer activity.
-Just then, (print:$friendName) quietly asked me from the side, "Um… is there any chance you could bring one more person?""Sorry, I only have two spots. You’ll have to find something on your own."
+Just then, (print:$friendName) quietly asked me from the side, "Um… is there any chance you could bring one more person?""Sorry, I only have two spots. You'll have to find something on your own."
 "Oh… alright… thanks."
 (print:$friendName) asked me timidly, but I turned them down firmly.
-(set: $friendship to $friendship - 8)
 
-[[Later, I found out that (print:$friendName) never managed to get into any volunteer activity.->University]]
+(link: "Later, I found out that " + (print:$friendName) + " never managed to get into any volunteer activity.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 8)(goto: "University")]
 
 
 ::University
@@ -773,29 +726,25 @@ Today was the day we visited University A, and on the bus…
 [[A few classmates called me over to join them instead, so we could share snacks and chat about our dreams.->University-Ignore]]
 
 ::University-Help
-(set: $helpCount to it + 1)
 "So, have you decided where you want to go?"
 I asked.
 "Not yet… every school’s requirements are so high, I’m worried I won’t make it. What about you?"
 "I haven’t decided either, but there are a few I’m interested in."
 "Oh… I see…"
-(set: $friendship to $friendship + 2)
 
-[[Before long, we arrived at the university, began the tour, and gathered a lot of useful information.->Capstone]]
+(link: "Before long, we arrived at the university, began the tour, and gathered a lot of useful information.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "Capstone")]
 
 ::University-Ignore
-(set: $ignoreCount to it + 1)
 "Have you all decided which schools you're going to apply to?"
 I ask.
-"I have a few in mind, but nothing’s certain yet.""Just try them all!"
+"I have a few in mind, but nothing's certain yet.""Just try them all!"
 "Yeah, but the requirements for every school seem pretty tough."
-"True, but did you hear? (print:$friendName) still hasn’t completed enough volunteer hours."
-"Ah, if that’s the case, even getting into a less competitive school might not be easy."
+"True, but did you hear? (print:$friendName) still hasn't completed enough volunteer hours."
+"Ah, if that's the case, even getting into a less competitive school might not be easy."
 "Right."
 …
-(set: $friendship to $friendship - 1)
 
-[[As we kept chatting, the topic turned to (print:$friendName). Tsk, looks like things are pretty tough for them.->Capstone]]
+(link: "As we kept chatting, the topic turned to " + (print:$friendName) + ". Tsk, looks like things are pretty tough for them.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)(goto: "Capstone")]
 
 
 ::Capstone
@@ -807,21 +756,17 @@ The project could be done as a team or individually.
 [[...Or maybe it’s better to work alone, since managing my time would be easier. Or… there was that super talented classmate who invited me before, maybe I should go find them and team up!->Capstone-Ignore]]
 
 ::Capstone-Help
-(set: $helpCount to it + 1)
 "Hey! I've got a really good idea! Want to work on it together?"
 "Ah, I was just worrying about it. If you’re willing to join me, that’s wonderful! Thank you."
 We divided the tasks, exchanged drafts, and filled in each other’s gaps.
-(set: $friendship to $friendship + 15)
 
-[[The coffee grew cold, but our trust steadily grew warmer.->Graduation]]
+(link: "The coffee grew cold, but our trust steadily grew warmer.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 15)(goto: "Graduation")]
 
 
 ::Capstone-Ignore
-(set: $ignoreCount to it + 1)
 In the end, I completed a project all on my own, I was truly proud of~
-(set: $friendship to $friendship - 6)
 
-[[With a cheerful heart, I began planning my graduation holiday!->Graduation]]
+(link: "With a cheerful heart, I began planning my graduation holiday!")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 6)(goto: "Graduation")]
 
 
 :: Graduation
@@ -834,22 +779,18 @@ Everyone was eager to show the best version of themselves at the ceremony, while
 
 
 ::Ceremony-Help
-(set: $helpCount to it + 1)
 We went to many dress shops and accessory stores together, and time passed quickly.
-(set: $friendship to it + 2)
 
-[[Then, the day of graduation arrived.->EndingScene]]
+(link: "Then, the day of graduation arrived.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "EndingScene")]
 
 ::Ceremony-Ignore
-(set: $ignoreCount to it + 1)
 To reward me for all my years of hard work, my mom booked me a trip to Europe.
 I researched tons of information and prepared a perfectly detailed itinerary.
-"I can’t wait for my trip!"
+"I can't wait for my trip!"
 After saying that, I tried on the dress my family had prepared for me.
-"I’ll definitely be the most dazzling one at the graduation ball!"
-(set: $friendship to it - 1)
+"I'll definitely be the most dazzling one at the graduation ball!"
 
-[[Thinking about it, I couldn’t help but chuckle in my sleep.->EndingScene]]
+(link: "Thinking about it, I couldn't help but chuckle in my sleep.")[(set: $ignoreCount to it + 1)(set: $friendship to it - 1)(goto: "EndingScene")]
 
 
 ::EndingScene
@@ -1087,12 +1028,31 @@ After saying that, I tried on the dress my family had prepared for me.
 ))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
 
+<!-- Count bully events -->
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+
 <!-- Create and add log entry with timestamp -->
 (set: _timestamp to (current-date:))
 (set: _logEntry to (dm:
   "name", $friendName,
   "imgPath", _imgPath,
   "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
   "severity", _displaySeverity,
   "ending", $currentEnding,
   "timestamp", (text: _timestamp)
@@ -1126,8 +1086,20 @@ I truly believe we'll have an even brighter future ahead!
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
 (set: _timestamp to (current-date:))
-(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
+(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "helpCount", $helpCount, "ignoreCount", $ignoreCount, "bullyCount", _bullyCount, "bullyHelpCount", _bullyHelpCount, "bullyIgnoreCount", _bullyIgnoreCount, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
 
@@ -1157,8 +1129,20 @@ I made new friends in college, and there was no longer any contact between me an
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
 (set: _timestamp to (current-date:))
-(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
+(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "helpCount", $helpCount, "ignoreCount", $ignoreCount, "bullyCount", _bullyCount, "bullyHelpCount", _bullyHelpCount, "bullyIgnoreCount", _bullyIgnoreCount, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[
   (set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))
@@ -1187,8 +1171,20 @@ Later on, they deleted all of our contact information, and I never heard anythin
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
 (set: _timestamp to (current-date:))
-(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
+(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "helpCount", $helpCount, "ignoreCount", $ignoreCount, "bullyCount", _bullyCount, "bullyHelpCount", _bullyHelpCount, "bullyIgnoreCount", _bullyIgnoreCount, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
 
@@ -1216,8 +1212,20 @@ Although I was eventually admitted to a university, the psychological pressure I
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
 (set: _timestamp to (current-date:))
-(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
+(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "helpCount", $helpCount, "ignoreCount", $ignoreCount, "bullyCount", _bullyCount, "bullyHelpCount", _bullyHelpCount, "bullyIgnoreCount", _bullyIgnoreCount, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
 
@@ -1251,8 +1259,20 @@ That feeling…
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
 (set: _timestamp to (current-date:))
-(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
+(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "helpCount", $helpCount, "ignoreCount", $ignoreCount, "bullyCount", _bullyCount, "bullyHelpCount", _bullyHelpCount, "bullyIgnoreCount", _bullyIgnoreCount, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
 
@@ -1281,8 +1301,20 @@ Perhaps… each one of us is a murderer.
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to 0)
+(if: $event1Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event2Choice is "bully")[(set: _bullyCount to it + 1)]
+(if: $event3Choice is "bully")[(set: _bullyCount to it + 1)]
+(set: _bullyHelpCount to 0)
+(if: $event1Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event2Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(if: $event3Choice is "help")[(set: _bullyHelpCount to it + 1)]
+(set: _bullyIgnoreCount to 0)
+(if: $event1Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event2Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
+(if: $event3Choice is "ignore")[(set: _bullyIgnoreCount to it + 1)]
 (set: _timestamp to (current-date:))
-(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
+(set: _logEntry to (dm: "name", $friendName, "imgPath", _imgPath, "friendship", $friendship, "helpCount", $helpCount, "ignoreCount", $ignoreCount, "bullyCount", _bullyCount, "bullyHelpCount", _bullyHelpCount, "bullyIgnoreCount", _bullyIgnoreCount, "severity", _displaySeverity, "ending", $currentEnding, "timestamp", (text: _timestamp)))
 (set: $playthroughLogs to it + (a: _logEntry))
 (if: $playthroughLogs's length > 7)[(set: $playthroughLogs to (subarray: $playthroughLogs, 1, 7))]
 
@@ -1321,8 +1353,8 @@ if (window.State && window.State.variables) {
 (print: '<img src="' + (_log's imgPath) + '" style="width: 150px; height: 150px; border-radius: 5px; flex-shrink: 0;" onerror="this.style.display=\'none\'">')
 <div style="flex: 1; white-space: nowrap; overflow: hidden;">
 <span style="margin: 0 15px;"><b style="color: #fca5a5;">Character:</b> (print: _log's name)</span>
-<span style="margin: 0 15px;"><b style="color: #fca5a5;">Bond:</b> (print: _log's friendship)</span>
-<span style="margin: 0 15px;"><b style="color: #fca5a5;">Severity:</b> (print: _log's severity)</span>
+<span style="margin: 0 15px;"><b style="color: #fca5a5;">Bond:</b> (print: _log's friendship) (you helped (print: _log's helpCount) times, ignored (print: _log's ignoreCount) times)</span>
+<span style="margin: 0 15px;"><b style="color: #fca5a5;">Severity:</b> (print: _log's severity) (you bullied them (print: _log's bullyCount) times, helped them (print: _log's bullyHelpCount) times, watched them get bullied (print: _log's bullyIgnoreCount) times)</span>
 <span style="margin: 0 15px;"><b style="color: #fca5a5;">Ending:</b> (print: _log's ending)</span>
 <span style="margin: 0 15px; color: #999; font-size: 0.9em;"><b>Time:</b> (print: (cond: (_log's timestamp) is "", "—", _log's timestamp))</span>
 </div>

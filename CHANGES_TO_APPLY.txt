@@ -1,0 +1,254 @@
+COMPREHENSIVE GUIDE: Moving Event Choices and Friendship Changes to Link Actions
+==================================================================================
+
+This guide shows how to move all (set:) commands from the passage body to the link itself,
+so that values only change when the player clicks to proceed (commits to the choice).
+
+SYNTAX: In Harlowe, you add code to a link like this:
+[[Link text->Destination]<hookname|(code here)]
+
+===============================================================================
+PART 1: BULLYING EVENT 1 - BullyChoice-Win1
+===============================================================================
+
+FIND (around line 414-421):
+----------------------------
+I walked over to (print:$friendName) and said, "Don't mind them. Some people just like to gossip for no reason. Don't take it to heart. I don't believe you're that kind of person!"
+(set: $playerHelped to true)
+(set: $event1Choice to "help")
+
+[[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]]
+
+REPLACE WITH:
+-------------
+I walked over to (print:$friendName) and said, "Don't mind them. Some people just like to gossip for no reason. Don't take it to heart. I don't believe you're that kind of person!"
+
+[[(print:$friendName) smiled. Yes! I had successfully lightened their mood!->FinalParty]<ev1help|(set: $playerHelped to true)(set: $event1Choice to "help")]
+
+===============================================================================
+PART 2: BULLYING EVENT 1 - BullyChoice-Ignore1  
+===============================================================================
+
+FIND (around line 420-424):
+----------------------------
+Sigh… Even though gossiping behind someone's back isn't right, I don't really know if what they said is true.
+After all, we're not that close, so maybe it's better not to meddle.
+(set: $event1Choice to "ignore")
+
+[["I don't know anything," I told myself, and quickly leaving the library.->Ignore1]]
+
+REPLACE WITH:
+-------------
+Sigh… Even though gossiping behind someone's back isn't right, I don't really know if what they said is true.
+After all, we're not that close, so maybe it's better not to meddle.
+
+[["I don't know anything," I told myself, and quickly leaving the library.->Ignore1]<ev1ignore|(set: $event1Choice to "ignore")]
+
+===============================================================================
+PART 3: BULLYING EVENT 1 - BullyChoice-Bully1
+===============================================================================
+
+FIND (around line 426-434):
+----------------------------
+(set: $allHelpChoices to false)
+"Hey, are you guys talking about (print:$friendName)?! I also think they're a bit strange."
+"Yeah, don't you think they act really weird?"
+"Exactly! I even tried talking to them before, but they're always by themselves. It just felt impossible to get along."
+<br>
+[[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]]
+(set: $playerBullied to true)
+(set: $event1Choice to "bully")
+
+REPLACE WITH:
+-------------
+"Hey, are you guys talking about (print:$friendName)?! I also think they're a bit strange."
+"Yeah, don't you think they act really weird?"
+"Exactly! I even tried talking to them before, but they're always by themselves. It just felt impossible to get along."
+<br>
+[[We went on and on, taking turns venting our complaints, completely unaware that (print:$friendName) was right behind us, hearing every word of our conversation.->Bully1]<ev1bully|(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event1Choice to "bully")]
+
+===============================================================================
+PART 4: BULLYING EVENT 2 - BullyChoice-Win2
+===============================================================================
+
+FIND (around line 483-491):
+----------------------------
+"Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!"
+I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering.
+The few who had been leading the trouble left reluctantly.
+I walked over to (print:$friendName) and comforted them:
+"It's okay now, it's over!"(print:$friendName) looked at me gratefully and said,
+**"Thank you."**
+(set: $playerHelped to true)
+(set: $event2Choice to "help")
+
+[["You don't need to thank me! You have to be brave!"->Birth-Party]]
+
+REPLACE WITH:
+-------------
+"Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!"
+I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering.
+The few who had been leading the trouble left reluctantly.
+I walked over to (print:$friendName) and comforted them:
+"It's okay now, it's over!"(print:$friendName) looked at me gratefully and said,
+**"Thank you."**
+
+[["You don't need to thank me! You have to be brave!"->Birth-Party]<ev2help|(set: $playerHelped to true)(set: $event2Choice to "help")]
+
+===============================================================================
+PART 5: BULLYING EVENT 2 - BullyChoice-Ignore2
+===============================================================================
+
+FIND (around line 491-494):
+----------------------------
+"I can't really do much about this. There are so many people of them, and it doesn't seem like any real harm has been done. They're probably just joking around. Roughhousing between classmates is normal."
+(set: $event2Choice to "ignore")
+
+[[I lowered my head, pulled out the homework I hadn't finished yet, and went back to my own business.->Birth-Party]]
+
+REPLACE WITH:
+-------------
+"I can't really do much about this. There are so many people of them, and it doesn't seem like any real harm has been done. They're probably just joking around. Roughhousing between classmates is normal."
+
+[[I lowered my head, pulled out the homework I hadn't finished yet, and went back to my own business.->Birth-Party]<ev2ignore|(set: $event2Choice to "ignore")]
+
+===============================================================================
+PART 6: BULLYING EVENT 2 - BullyChoice-Bully2
+===============================================================================
+
+FIND (around line 494-501):
+----------------------------
+(set: $allHelpChoices to false)
+"Hey, I noticed before that you're always staring at La. So you were trying to imitate them, huh? Ever you heard the saying 'an inferior imitation'?"
+I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
+"Hahaha, exactly!""Oh my gosh, that's hilarious, probably doesn't even know what it means."
+<br>
+[[At that moment, I felt like I had told a really effective joke and gained everyone's approval.->Bully2]]
+(set: $playerBullied to true)
+(set: $event2Choice to "bully")
+
+REPLACE WITH:
+-------------
+"Hey, I noticed before that you're always staring at La. So you were trying to imitate them, huh? Ever you heard the saying 'an inferior imitation'?"
+I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
+"Hahaha, exactly!""Oh my gosh, that's hilarious, probably doesn't even know what it means."
+<br>
+[[At that moment, I felt like I had told a really effective joke and gained everyone's approval.->Bully2]<ev2bully|(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event2Choice to "bully")]
+
+===============================================================================
+PART 7: BULLYING EVENT 3 - BullyChoice-Win3
+===============================================================================
+
+FIND (around line 572-579):
+----------------------------
+They ran away.
+Looks like my plan worked!
+I hurried over to (print:$friendName)'s side and helped pick up their things.
+(print:$friendName) looked at me with fear in their eyes and whispered, "Th-thank you…"
+(set: $playerHelped to true)
+(set: $event3Choice to "help")
+
+[["It's okay…" I said, trying to comfort them, though my feelings were complicated.->Volunteer]]
+
+REPLACE WITH:
+-------------
+They ran away.
+Looks like my plan worked!
+I hurried over to (print:$friendName)'s side and helped pick up their things.
+(print:$friendName) looked at me with fear in their eyes and whispered, "Th-thank you…"
+
+[["It's okay…" I said, trying to comfort them, though my feelings were complicated.->Volunteer]<ev3help|(set: $playerHelped to true)(set: $event3Choice to "help")]
+
+===============================================================================
+PART 8: BULLYING EVENT 3 - BullyChoice-Ignore3
+===============================================================================
+
+FIND (around line 579-583):
+----------------------------
+"There are so many of bullies… I'd better not get myself into trouble,"
+I muttered to myself, quickening my steps to get away from the scene as fast as possible.
+(set: $event3Choice to "ignore")
+
+[["I didn't see anything."->Volunteer]]
+
+REPLACE WITH:
+-------------
+"There are so many of bullies… I'd better not get myself into trouble,"
+I muttered to myself, quickening my steps to get away from the scene as fast as possible.
+
+[["I didn't see anything."->Volunteer]<ev3ignore|(set: $event3Choice to "ignore")]
+
+===============================================================================
+PART 9: BULLYING EVENT 3 - BullyChoice-Bully3
+===============================================================================
+
+FIND (around line 583-593):
+----------------------------
+(set: $allHelpChoices to false)
+Isn't that (print:$friendName)?
+Caught doing something annoying again?
+I knew there was something off about them!
+"Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?"
+I said as I walked up to the group.
+"Yeah, yeah, we're curious too!"
+<br>
+[[With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into (print:$friendName)'s hair.->Bully3]]
+(set: $playerBullied to true)
+(set: $event3Choice to "bully")
+
+REPLACE WITH:
+-------------
+Isn't that (print:$friendName)?
+Caught doing something annoying again?
+I knew there was something off about them!
+"Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?"
+I said as I walked up to the group.
+"Yeah, yeah, we're curious too!"
+<br>
+[[With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into (print:$friendName)'s hair.->Bully3]<ev3bully|(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event3Choice to "bully")]
+
+===============================================================================
+PART 10: NON-BULLYING EVENTS - Move friendship and counter changes
+===============================================================================
+
+For all the other non-bullying event passages (NewParty-Help, NewParty-Ignore, Midterm-Help, 
+Midterm-Ignore, FinalParty-Help, FinalParty-Ignore, Year2-Help, Year2-Ignore, Year3-Help, 
+Year3-Ignore, Birth-Party-Help, Birth-Party-Ignore, Volunteer-Help, Volunteer-Ignore, 
+University-Help, University-Ignore, Capstone-Help, Capstone-Ignore, Ceremony-Help, Ceremony-Ignore):
+
+Apply the same pattern - move the (set:) commands from the passage body to the link.
+
+EXAMPLE for NewParty-Help (around line 364-370):
+-------------------------------------------------
+FIND:
+(set: $helpCount to it + 1)
+"Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!"
+I asked.
+"Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.
+(set: $friendship to $friendship + 5)
+
+[[After attending that event, a period of calm and steady school life followed.->Midterm]]
+
+REPLACE WITH:
+"Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!"
+I asked.
+"Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.
+
+[[After attending that event, a period of calm and steady school life followed.->Midterm]<partyhelp|(set: $helpCount to it + 1)(set: $friendship to $friendship + 5)]
+
+===============================================================================
+SUMMARY OF CHANGES NEEDED:
+===============================================================================
+
+For EVERY passage that has choices, move ALL (set:) commands from the passage body
+into the link using this syntax:
+
+[[Link Text->Destination]<hookname|(set: commands here)]
+
+This ensures that:
+1. When a player arrives at a choice page, NO variables are changed yet
+2. Only when they click a link to proceed, the variables are updated
+3. Using the browser back button will NOT have changed any variables
+4. They can freely change their mind before committing
+
+Apply this pattern to ALL 20+ choice passages in your game!
