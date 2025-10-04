@@ -150,7 +150,7 @@ a.link-internal, a.link-external {
 (cond: $statusOpen is true, [
   (set: $displaySeverity to 0)
   (set: $displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-  (set: $displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+  (set: $displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
   (set: $displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
     <style>
@@ -200,9 +200,10 @@ a.link-internal, a.link-external {
     <b>Headspace:</b>
     (cond:
       $displaySeverity is 0, "Safe ground",
-      $displaySeverity is 2, "Alone in the crowd",
-      $displaySeverity <= 5, "Under verbal fire",
-      true, "Trauma critical"
+      $displaySeverity >= 4, "Trauma critical",
+      $displaySeverity >= 2, "Under verbal fire",
+      $displaySeverity > 0, "Alone in the crowd",
+      true, "Safe ground"
     )<br>
   </div>
 ], true, [
@@ -853,7 +854,7 @@ After saying that, I tried on the dress my family had prepared for me.
 <!-- Calculate severity -->
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 <!-- Calculate image state for log -->
@@ -907,7 +908,7 @@ I truly believe we'll have an even brighter future ahead!
 
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
@@ -938,7 +939,7 @@ I made new friends in college, and there was no longer any contact between me an
 
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
@@ -966,7 +967,7 @@ Later on, they deleted all of our contact information, and I never heard anythin
 
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
@@ -995,7 +996,7 @@ Although I was eventually admitted to a university, the psychological pressure I
 
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
@@ -1030,7 +1031,7 @@ That feeling…
 
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
@@ -1060,7 +1061,7 @@ Perhaps… each one of us is a murderer.
 
 (set: _displaySeverity to 0)
 (set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
-(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 3, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
 (set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
