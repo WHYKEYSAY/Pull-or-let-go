@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="81A1C521-A11C-4BC5-A091-966C72BEE55B" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="56CEEC4B-CD45-4C41-98A6-F18A45D7723D" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -459,6 +459,7 @@ I walked over to (print:$friendName) and comforted them:
 **&quot;Thank you.&quot;**
 
 (link: &quot;\&quot;You don&#39;t need to thank me! You have to be brave!\&quot;&quot;)[(set: $playerHelped to true)(set: $event2Choice to &quot;help&quot;)(goto: &quot;Birth-Party&quot;)]</tw-passagedata><tw-passagedata pid="30" name="BullyChoice-Ignore2" tags="" position="1150,275" size="100,100">&quot;I can&#39;t really do much about this. There are so many people of them, and it doesn&#39;t seem like any real harm has been done. They&#39;re probably just joking around. Roughhousing between classmates is normal.&quot;
+&lt;br&gt;
 (link: &quot;I lowered my head, pulled out the homework I hadn&#39;t finished yet, and went back to my own business.&quot;)[(set: $event2Choice to &quot;ignore&quot;)(goto: &quot;Birth-Party&quot;)]</tw-passagedata><tw-passagedata pid="31" name="BullyChoice-Bully2" tags="" position="25,400" size="100,100">&quot;Hey, I noticed before that you&#39;re always staring at La. So you were trying to imitate them, huh? Ever you heard the saying &#39;an inferior imitation&#39;?&quot;
 I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
 &quot;Hahaha, exactly!&quot;&quot;Oh my gosh, that&#39;s hilarious, probably doesn&#39;t even know what it means.&quot;
@@ -528,6 +529,7 @@ A sound echos.
 Looks like my plan worked!
 I hurried over to (print:$friendName)’s side and helped pick up their things.
 (print:$friendName) looked at me with fear in their eyes and whispered, &quot;Th-thank you…&quot;
+&lt;br&gt;
 (link: &quot;\&quot;It&#39;s okay…\&quot; I said, trying to comfort them, though my feelings were complicated.&quot;)[(set: $playerHelped to true)(set: $event3Choice to &quot;help&quot;)(goto: &quot;Volunteer&quot;)]</tw-passagedata><tw-passagedata pid="42" name="BullyChoice-Ignore3" tags="" position="150,525" size="100,100">&quot;There are so many of bullies… I&#39;d better not get myself into trouble,&quot;
 I muttered to myself, quickening my steps to get away from the scene as fast as possible.
 &lt;br&gt;
@@ -1171,7 +1173,7 @@ I forced myself to stay calm and think fast...
 }
 &lt;/style&gt;
 
-&lt;canvas id=&quot;mazeCanvas&quot; width=&quot;300&quot; height=&quot;270&quot;&gt;&lt;/canvas&gt;
+&lt;canvas id=&quot;mazeCanvas&quot; width=&quot;450&quot; height=&quot;450&quot;&gt;&lt;/canvas&gt;
 &lt;div id=&quot;maze-win-container&quot; style=&quot;text-align: center; display: none;&quot;&gt;
 Got it!
 First I called the police, then I ran around to the bushes on the other side, found a police-siren sound on my phone and played it, then shouted.
@@ -1187,8 +1189,8 @@ setTimeout(function() {
         var ctx = canvas.getContext(&#39;2d&#39;);
 
         var tileSize = 30;
-        var mazeWidth = 10;
-        var mazeHeight = 9;
+        var mazeWidth = 15;
+        var mazeHeight = 15;
         var starsCollected = 0;
         var totalStars = 3;
         var playerStart = { x: 1, y: 1 };
@@ -1208,10 +1210,11 @@ setTimeout(function() {
                 var cx = current[0];
                 var cy = current[1];
                 var neighbors = [];
-                if (cy - 2 &gt;= 0 &amp;&amp; maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
-                if (cy + 2 &lt; height &amp;&amp; maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
-                if (cx - 2 &gt;= 0 &amp;&amp; maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
-                if (cx + 2 &lt; width &amp;&amp; maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
+                // Ensure we stay away from borders (leave at least 1 cell as wall on each side)
+                if (cy - 2 &gt;= 1 &amp;&amp; maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
+                if (cy + 2 &lt; height - 1 &amp;&amp; maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
+                if (cx - 2 &gt;= 1 &amp;&amp; maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
+                if (cx + 2 &lt; width - 1 &amp;&amp; maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
                 if (neighbors.length &gt; 0) {
                     var direction = neighbors[Math.floor(Math.random() * neighbors.length)];
                     var dx = direction[0];
@@ -1224,6 +1227,15 @@ setTimeout(function() {
                 } else {
                     stack.pop();
                 }
+            }
+            // Ensure all borders are walls
+            for (var i = 0; i &lt; width; i++) {
+                maze[0][i] = 1; // Top border
+                maze[height - 1][i] = 1; // Bottom border
+            }
+            for (var i = 0; i &lt; height; i++) {
+                maze[i][0] = 1; // Left border
+                maze[i][width - 1] = 1; // Right border
             }
             return maze;
         }

@@ -547,6 +547,7 @@ I walked over to (print:$friendName) and comforted them:
 
 ::BullyChoice-Ignore2
 "I can't really do much about this. There are so many people of them, and it doesn't seem like any real harm has been done. They're probably just joking around. Roughhousing between classmates is normal."
+<br>
 (link: "I lowered my head, pulled out the homework I hadn't finished yet, and went back to my own business.")[(set: $event2Choice to "ignore")(goto: "Birth-Party")]
 
 ::BullyChoice-Bully2
@@ -650,6 +651,7 @@ They ran away.
 Looks like my plan worked!
 I hurried over to (print:$friendName)’s side and helped pick up their things.
 (print:$friendName) looked at me with fear in their eyes and whispered, "Th-thank you…"
+<br>
 (link: "\"It's okay…\" I said, trying to comfort them, though my feelings were complicated.")[(set: $playerHelped to true)(set: $event3Choice to "help")(goto: "Volunteer")]
 
 ::BullyChoice-Ignore3
@@ -1389,7 +1391,7 @@ I forced myself to stay calm and think fast...
 }
 </style>
 
-<canvas id="mazeCanvas" width="300" height="270"></canvas>
+<canvas id="mazeCanvas" width="450" height="450"></canvas>
 <div id="maze-win-container" style="text-align: center; display: none;">
 Got it!
 First I called the police, then I ran around to the bushes on the other side, found a police-siren sound on my phone and played it, then shouted.
@@ -1405,8 +1407,8 @@ setTimeout(function() {
         var ctx = canvas.getContext('2d');
 
         var tileSize = 30;
-        var mazeWidth = 10;
-        var mazeHeight = 9;
+        var mazeWidth = 15;
+        var mazeHeight = 15;
         var starsCollected = 0;
         var totalStars = 3;
         var playerStart = { x: 1, y: 1 };
@@ -1426,10 +1428,11 @@ setTimeout(function() {
                 var cx = current[0];
                 var cy = current[1];
                 var neighbors = [];
-                if (cy - 2 >= 0 && maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
-                if (cy + 2 < height && maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
-                if (cx - 2 >= 0 && maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
-                if (cx + 2 < width && maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
+                // Ensure we stay away from borders (leave at least 1 cell as wall on each side)
+                if (cy - 2 >= 1 && maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
+                if (cy + 2 < height - 1 && maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
+                if (cx - 2 >= 1 && maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
+                if (cx + 2 < width - 1 && maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
                 if (neighbors.length > 0) {
                     var direction = neighbors[Math.floor(Math.random() * neighbors.length)];
                     var dx = direction[0];
@@ -1442,6 +1445,15 @@ setTimeout(function() {
                 } else {
                     stack.pop();
                 }
+            }
+            // Ensure all borders are walls
+            for (var i = 0; i < width; i++) {
+                maze[0][i] = 1; // Top border
+                maze[height - 1][i] = 1; // Bottom border
+            }
+            for (var i = 0; i < height; i++) {
+                maze[i][0] = 1; // Left border
+                maze[i][width - 1] = 1; // Right border
             }
             return maze;
         }
