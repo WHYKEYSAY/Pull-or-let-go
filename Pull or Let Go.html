@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="E2A77E84-675F-411C-AB76-AB1A1F61A3E7" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="2DE0DA61-A3C3-4DBE-83AD-F860EE1092A9" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -996,9 +996,9 @@ if (window.State &amp;&amp; window.State.variables) {
 (for: each _i, ...(range: 1, $playthroughLogs&#39;s length))[
 (set: _log to $playthroughLogs&#39;s (_i))
 &lt;div style=&quot;border-bottom: 1px solid #444; padding: 12px 0; color: #e0e0e0; display: flex; align-items: center; gap: 15px;&quot;&gt;
-(print: &#39;&lt;img src=&quot;&#39; + (_log&#39;s imgPath) + &#39;&quot; style=&quot;width: 100px; height: 100px; border-radius: 5px; flex-shrink: 0;&quot; onerror=&quot;this.style.display=\&#39;none\&#39;&quot;&gt;&#39;)
+(print: &#39;&lt;img src=&quot;&#39; + (_log&#39;s imgPath) + &#39;&quot; style=&quot;width: 150px; height: 150px; border-radius: 5px; flex-shrink: 0;&quot; onerror=&quot;this.style.display=\&#39;none\&#39;&quot;&gt;&#39;)
 &lt;div style=&quot;flex: 1; white-space: nowrap; overflow: hidden;&quot;&gt;
-&lt;span&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Character:&lt;/b&gt; (print: _log&#39;s name)&lt;/span&gt;
+&lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Character:&lt;/b&gt; (print: _log&#39;s name)&lt;/span&gt;
 &lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Bond:&lt;/b&gt; (print: _log&#39;s friendship)&lt;/span&gt;
 &lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Severity:&lt;/b&gt; (print: _log&#39;s severity)&lt;/span&gt;
 &lt;span style=&quot;margin: 0 15px;&quot;&gt;&lt;b style=&quot;color: #fca5a5;&quot;&gt;Ending:&lt;/b&gt; (print: _log&#39;s ending)&lt;/span&gt;
