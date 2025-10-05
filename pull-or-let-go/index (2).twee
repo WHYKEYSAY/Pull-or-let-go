@@ -1,0 +1,1905 @@
+:: StoryTitle
+Pull or Let Go
+
+:: StoryFormat
+Harlowe 3
+
+:: GlobalInit [header]
+(unless: $gameInitialized is true)[
+  (set: $friendship to 20)
+  (set: $playerBullied to false)
+  (set: $playerHelped to false)
+  (set: $friendLook to "")
+  (set: $friendName to "???")
+  (set: $statusOpen to false)
+  (set: $friendImgBase to "")
+  (set: $friendImgExt to "")
+  (set: $event1Choice to "")
+  (set: $event2Choice to "")
+  (set: $event3Choice to "")
+  (set: $redemption to 0)
+  (set: $currentEnding to "")
+  (set: $helpCount to 0)
+  (set: $ignoreCount to 0)
+
+  (set: $endingsReached to (dm: "Ending1", 0, "Ending2", 0, "Ending3", 0, "Ending4", 0, "Ending5", 0, "Ending6", 0, "Ending7", 0))
+  (set: $achievementsUnlocked to (dm: "best", 0, "worst", 0))
+  (set: $playthroughLogs to (a:))
+
+  (set: $gameInitialized to true)
+]
+
+:: StoryStylesheet [stylesheet]
+/* Reset all spacing */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Main story container */
+tw-story {
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Current passage - simple padding layout */
+tw-passage {
+    width: 100% !important;
+    max-width: 1200px !important;
+    text-align: left !important;
+    padding: 3em 2em !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  tw-passage {
+    max-width: 100%;
+    padding: 0.5em 1em;
+  }
+}
+
+a.link-internal, a.link-external {
+    color: #fca5a5;
+    border-bottom: 1px solid #fca5a5;
+}
+
+.char-choice-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    place-items: center;
+    margin-top: 20px;
+}
+.char-choice {
+    width: 250px;
+    text-align: center;
+    font-size: 1.2em;
+}
+.char-choice .image-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    cursor: pointer;
+}
+.char-choice img {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.3s;
+}
+.char-choice .image-wrapper:hover img {
+    border-color: #4a90e2;
+}
+.char-choice .img-hover {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.char-choice .image-wrapper:hover .img-hover {
+    opacity: 1;
+}
+.char-choice .hidden-link {
+    display: none;
+}
+.star-container { display: flex; justify-content: center; font-size: 2em; gap: 0.5em; }
+.star-grey { color: #ccc; }
+.star-c1 { color: #F09EA7; }
+.star-c2 { color: #F6CA94; }
+.star-c3 { color: #FAFABE; }
+.star-c4 { color: #C1EBC0; }
+.star-c5 { color: #C7CAFF; }
+.star-c6 { color: #CDABEB; }
+.star-c7 { color: #F6C2F3; }
+.summary-table { width: 100%; border-collapse: collapse; margin-top: 1em; overflow-x: auto; }
+.summary-table th, .summary-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+.summary-table th { background-color: #f2f2f2; font-weight: bold; }
+.summary-table img { width: 50px; height: 50px; border-radius: 5px; }
+.summary-table td { vertical-align: middle; }
+@media (max-width: 768px) {
+  .summary-table th, .summary-table td { padding: 8px; font-size: 0.85em; }
+  .summary-table img { width: 40px; height: 40px; }
+}
+.achievements { margin-top: 2em; }
+.achievements h3 { border-bottom: 1px solid #eee; padding-bottom: 0.5em; }
+.achievement-unlocked { font-size: 1.2em; }
+.achievement-locked { font-size: 1.2em; color: #888; }
+/* Secret Button and Message Styles */
+.secret-button-container {
+  text-align: center;
+  margin-top: 2.5em;
+  margin-bottom: 2em;
+}
+
+.secret-button-locked, .secret-button-unlocked {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border: none;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.secret-button-locked {
+  background-color: #555;
+  color: #888;
+  cursor: not-allowed;
+  border: 2px solid #444;
+}
+
+.secret-button-unlocked {
+  background: linear-gradient(45deg, #ffd700, #ffec80, #ffd700);
+  color: #4a2c00;
+  cursor: pointer;
+  border: 2px solid #e6c300;
+  animation: sparkle 1.5s infinite ease-in-out;
+  box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffec80;
+  text-decoration: none !important;
+}
+
+/* Ensure the link inside doesn't have default styling */
+.secret-button-unlocked a.link-internal {
+    color: inherit !important;
+    border-bottom: none !important;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffec80;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #ffd700, 0 0 25px #ffec80, 0 0 35px #fff7d1;
+  }
+}
+
+.npc-message {
+  margin-top: 2em;
+  padding: 25px;
+  background-color: rgba(20, 20, 20, 0.7);
+  border-left: 5px solid #ffd700;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+:: UI-Status [header]
+<div style="position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: visible;">
+<div id="field-notes-container"></div>
+<script>
+(function() {
+  var container = document.getElementById('field-notes-container');
+  if (container) {
+    container.style.position = 'absolute';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '0';
+    container.style.height = '0';
+    container.style.overflow = 'visible';
+  }
+})();
+</script>
+(cond: $statusOpen is true, [
+  (set: $displaySeverity to 0)
+  (set: $displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+  (set: $displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+  (set: $displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+    <style>
+        .field-notes-bg {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff !important;
+            text-shadow: 1px 1px 2px #000;
+        }
+    </style>
+
+    (print: (cond: $displaySeverity >= 2, '<style>.field-notes-bg { background-image: url("start2.png"); }</style>', '<style>.field-notes-bg { background-image: url("start.png"); }</style>'))
+
+  <div class="field-notes-bg" style="position:fixed; top:60px; right:12px; width:220px; max-width:90vw; z-index:9998; border:1px solid #ddd; border-radius:10px; padding:14px; font-size:13px; font-family:sans-serif; box-shadow:0 4px 10px rgba(0,0,0,0.15); line-height:1.4;">
+    <span style="position:absolute; top:8px; right:8px; width:24px; height:24px; color:#fff; border-radius:4px; font-size:18px; text-align:center; line-height:24px; cursor:pointer; font-weight:bold;">
+      (link: "✕")[ (set: $statusOpen to false)(goto: (passage:)'s name) ]
+    </span>
+    <h3 style="margin:0 0 8px 0; font-size:15px; color:#fff;">Field Notes</h3>
+
+    <!-- Only show image if character has been selected -->
+    (cond: $friendImgBase is not "", [
+        (set: _state to
+          (cond:
+                (passage:)'s name contains "Ending1", "_golden",
+                $displaySeverity >= 4, "_trauma",
+                $displaySeverity >= 2, "_suffer",
+                $displaySeverity > 0, "_isolated",
+                $friendship >= 40, "_golden",
+                $friendship >= 20, "_safe",
+                true, "_isolated"
+            )
+        )
+        (set: _imgSrc to $friendImgBase + _state + $friendImgExt)
+        (print: '<img src="' + _imgSrc + '" alt="' + $friendName + '" style="width:100%; border-radius: 1px; margin-bottom: 1px;">')
+    ], true, [])
+
+    <b>Codename:</b> (print:$friendName)<br>
+    <b>Bond:</b>
+    (cond:
+        $friendship >= 40, "Solid",
+        $friendship >= 20, "Steady",
+        $friendship >= 0, "Distant",
+        true, "Frayed"
+    )<br>
+    <b>Headspace:</b>
+    (cond:
+      $displaySeverity is 0, "Safe ground",
+      $displaySeverity >= 4, "Trauma critical",
+      $displaySeverity >= 2, "Under verbal fire",
+      $displaySeverity > 0, "Alone in the crowd",
+      true, "Safe ground"
+    )<br>
+  </div>
+], true, [
+  <div style="position:fixed; top:12px; right:12px; z-index:9999;">
+    <span style="display:inline-block; background:#4a90e2; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-family:sans-serif; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.2); transition: background 0.2s;">
+      (link: "☰ Field Notes")[ (set: $statusOpen to true)(goto: (passage:)'s name) ]
+    </span>
+  </div>
+])
+</div>
+
+:: StoryAudio [footer]
+<script>
+(function() {
+    if (!document.getElementById('story-bgm')) {
+        const bgm = document.createElement('audio');
+        bgm.id = 'story-bgm';
+        bgm.src = 'BGM.mp3';
+        bgm.loop = true;
+        bgm.volume = 0.5; // Set volume to 50% (adjust as needed)
+        document.body.appendChild(bgm);
+
+        const promise = bgm.play();
+        if (promise !== undefined) {
+            promise.catch(error => {
+                console.log("Autoplay prevented. Waiting for user interaction.");
+                const playOnFirstClick = () => {
+                    bgm.play();
+                    window.removeEventListener('click', playOnFirstClick);
+                };
+                window.addEventListener('click', playOnFirstClick);
+            });
+        }
+    }
+})();
+</script>
+
+:: ResetPlaythrough [header]
+<div style="position: absolute; width: 0; height: 0; overflow: hidden;">
+(cond: (passage:)'s name is "Start" and $gameInitialized is true, [
+  (set: $friendship to 20)
+  (set: $playerBullied to false)
+  (set: $playerHelped to false)
+  (set: $friendLook to "")
+  (set: $friendName to "???")
+  (set: $statusOpen to false)
+  (set: $friendImgBase to "")
+  (set: $friendImgExt to "")
+  (set: $event1Choice to "")
+  (set: $event2Choice to "")
+  (set: $event3Choice to "")
+  (set: $redemption to 0)
+  (set: $currentEnding to "")
+  (set: $helpCount to 0)
+  (set: $ignoreCount to 0)
+  (set: $allWrongChoices to (a:))
+  (set: $chosenWrongChoices to (a:))
+], true, [])
+</div>
+
+:: Start
+<h1>Pull or Let Go</h1>
+I start my high school life with great excitement, and I made many new friends.
+In the third week, a new face suddenly appeared in our class, it turned out to be a transfer student who had arrived three weeks late because of family reasons.
+<br>
+[[I look at them...->NewStudent]]
+
+:: NewStudent [no-center]
+<style>
+.char-choice-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    place-items: center;
+    margin-top: 5px;
+}
+.char-choice {
+    width: 250px;
+    text-align: center;
+    font-size: 1.2em;
+}
+.char-choice .image-wrapper {
+    position: relative;
+    width: 250px;
+    height: 250px;
+    cursor: pointer;
+}
+.char-choice img {
+    width: 100%;
+    height: 250px;
+    border-radius: 5px;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    border: 3px solid transparent;
+    transition: border-color 0.3s;
+}
+.char-choice .image-wrapper:hover img {
+    border-color: #4a90e2;
+}
+.char-choice .img-hover {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.char-choice .image-wrapper:hover .img-hover {
+    opacity: 1;
+}
+.char-choice .hidden-link {
+    display: none;
+}
+</style>
+
+<h4>The new student looks like...</h4>
+<div class="char-choice-container">
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person1_safe.png" class="img-normal"><img src="person1_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "A student with brown hair and a friendly wink")
+            (set: $friendImgBase to "person1")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person2_safe.png" class="img-normal"><img src="person2_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "A student with braided pigtails and red glasses")
+            (set: $friendImgBase to "person2")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person3_safe.png" class="img-normal"><img src="person3_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "A student with cute double buns and earrings")
+            (set: $friendImgBase to "person3")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+    <div class="char-choice">
+        (link-reveal: '<div class="image-wrapper"><img src="person4_safe.png" class="img-normal"><img src="person4_hover.png" class="img-hover"></div><div class="hidden-link">Select</div>')[
+            (set: $friendLook to "A student with spiky blond hair and a sporty headband")
+            (set: $friendImgBase to "person4")
+            (set: $friendImgExt to ".png")
+            (goto: "NameChoice")
+        ]
+    </div>
+</div>
+
+
+:: NameChoice [no-center]
+**(print:$friendLook)** student cleared their throat and said.
+"Hey everyone, nice to meet you all~"
+(set: _n to (prompt: "Enter their name:", ""))
+(set: $friendName to (cond: _n is "", "???", true, _n))
+"My name is **(print:$friendName)**"
+After finishing the self-introduction, the new student sat down at their seat.
+By this time, the rest of the class had already grown close over the past three weeks.
+"Quiet down, let’s begin class," the teacher said, speaking as if coaxing little children.
+"(print:$friendName)..." I repeated myself.
+<br>
+[[Alright then, I took a deep breath—let’s begin our new journey together!->NewStudentHub]]
+
+:: NewStudentHub
+<h2>Year 1</h2>
+It's only the beginning of my first year, and I carried a lighthearted attitude toward studying, filled with excitement and joy.
+Some of my classmates spontaneously organized a party and invited everyone to join.
+<br>
+[["Wow, how exciting! I definitely had to go!"->MeetNewstudent]]
+
+:: MeetNewstudent
+After I finished filling out the sign-up form, I was happily humming a tune when I suddenly noticed the new classmate sitting alone over there."Huh? Why are they sitting there all by themselves? They look kind of lonely… maybe it’s because they don’t know anyone yet. I wonder if they’ll go to the party?"
+I thought to myself with some uncertainty.
+<br>
+[[Should I go over and ask, maybe invite them to come along with me?->NewParty-Help]]
+<br>
+[[…Or maybe not. They probably have their own plans. I guess I’ll just go hang out with the new friends I’ve made for now~->NewParty-Ignore]]
+
+:: NewParty-Help
+"Hi, why are you sitting here all alone? Did you sign up yet? Do you want to go to the party together?!"
+I asked.
+"Ah… um… not yet… but sure, I'll go sign up now," the new student stammered, then went to fill out the registration form.
+
+(link: "After attending that event, a period of calm and steady school life followed.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 5)(goto: "Midterm")]
+
+:: NewParty-Ignore
+"Hey! What time are you guys planning to head out? I'm so excited! I wonder what kind of fun things will be there!"
+"Yeah, my address is kind of far, so I might arrive a bit late."
+"Where do you live? Maybe I can give you a ride, and we can take a little detour along the way!"
+"Wow, that's so cool!!!"
+...
+
+(link: "We kept chatting back and forth, planning our trip. And I thought to myself: my high school life is definitely going to be exciting!")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 5)(goto: "Midterm")]
+
+
+:: Midterm
+Before I knew it, October had arrived, and I started to worry about the upcoming midterm exams.
+"Ah, luckily we haven’t learned too much yet. If I review properly, it should be fine!"
+I told myself, trying to stay motivated.
+Just then, I looked up and noticed (print:$friendName) sitting there with a frown, resting their chin on their hand.
+It looked like they were having a hard time.
+<br>
+[[Should I go over and ask if they need help? Maybe studying together would work out even better for both of us.->Midterm-Help]]
+<br>
+[[…Or maybe not. They’re probably just stressed about the exams too. But right now, I don’t really have the energy to worry about someone else. I’d better focus on preparing myself. After all, I study more efficiently on my own.->Midterm-Ignore]]
+
+:: Midterm-Help
+We spread our notes out on the desk like a map.
+I explained all the unclear points from the chapters, and we organized a more complete set of review materials together.
+Both of us smiled with relief, and I felt my heart is more confident.
+
+(link: "Onward we go.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "BullyingEvent1")]
+
+:: Midterm-Ignore
+I gathered my thoughts and focused fully on my revision.
+"Hah, these points aren't so hard after all!"
+When I finished studying and was getting ready to head home, I glanced over and saw (print:$friendName) still buried in their books.
+It looked like they were stuck on something...
+
+(link: "But my stomach was already protesting, I had to go treat myself to a big, well-deserved meal!")[(set: $ignoreCount to it + 1)(set: $friendship to it - 1)(goto: "BullyingEvent1")]
+
+
+:: BullyingEvent1
+Finally, all the exams were over, I could finally relax!
+While I'm at the library returning books, I suddenly overheard someone talking about (print:$friendName).
+"Hey, did you hear? (print:$friendName) once stole something, and that’s why they were expelled and transferred to our school."
+"Really? No wonder I always thought they were kind of strange, like they’re always on guard, shifty-eyed."
+"And don’t you think their behavior is weird? They’re always alone and never say hi to us."
+"Better stay away from them! It’s scary."
+My heart skipped a beat. Were they talking about (print:$friendName)?!
+Could all this really be true? …
+When I turned my head, I saw (print:$friendName) not far away, head down, clutching their books tightly.
+It looked like they had heard every word of that conversation. What should I do…?
+<br>
+[[Step in and confront.->MiniGame1]]
+<br>
+[[Pretend I saw nothing and walk away->BullyChoice-Ignore1]]
+<br>
+[[Curiosity gets the better of me, I want to join their gossip, if I do, I’ll have more to talk about, and it’ll be easier to fit in!->BullyChoice-Bully1]]
+
+:: BullyChoice-Win1
+"Ah, sorry, I didn't mean to eavesdrop on your conversation. But if (print:$friendName) isn't really that kind of person, wouldn't saying things like this be a bit unfair?"
+"Why do you care? we were just chatting, that's all."
+They sounded annoyed but didn't say much more before turning away and leaving.
+I walked over to (print:$friendName) and said, "Don't mind them. Some people just like to gossip for no reason. Don't take it to heart. I don't believe you're that kind of person!"
+
+(link: (print:$friendName) + " smiled. Yes! I had successfully lightened their mood!")[(set: $playerHelped to true)(set: $event1Choice to "help")(goto: "FinalParty")]
+:: BullyChoice-Ignore1
+Sigh… Even though gossiping behind someone's back isn't right, I don't really know if what they said is true.
+After all, we're not that close, so maybe it's better not to meddle.
+
+(link: "\"I don't know anything,\" I told myself, and quickly leaving the library.")[(set: $event1Choice to "ignore")(goto: "Ignore1")]
+
+:: Ignore1
+I don’t know if anything else happened that day, but I kept noticing that (print:$friendName) was always alone.
+<br>
+[[Well, I guess everyone has their own way of living.->FinalParty]]
+
+:: BullyChoice-Bully1
+"Hey, are you guys talking about (print:$friendName)?! I also think they're a bit strange."
+"Yeah, don't you think they act really weird?"
+"Exactly! I even tried talking to them before, but they're always by themselves. It just felt impossible to get along."
+<br>
+(link: "We went on and on, taking turns venting our complaints, completely unaware that " + (print:$friendName) + " was right behind us, hearing every word of our conversation.")[(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event1Choice to "bully")(goto: "Bully1")]
+
+::Bully1
+I secretly glanced at the spot where (print:$friendName) had been standing, but it looked like they had already left.
+<br>
+[[After that, every time they saw me, their eyes would deliberately avoid mine.->FinalParty]]
+
+:: FinalParty
+Another semester passed, and some classmates organized an end-of-term party.
+Someone sent me the address, and saying "the bass was already thumping in the night sky."
+Then I noticed (print:$friendName) wasn’t in our group chat…
+<br>
+[[I found a way to contact (print:$friendName) and asked: "Do you want to go to the party together?->FinalParty-Help]]
+<br>
+[[…Or maybe not. Since they didn’t add (print:$friendName) to the group chat, I’d better not meddle. I’m not the one organizing the event.->FinalParty-Ignore]]
+
+::FinalParty-Help
+"Do you want to come with me to the end-of-term party?"
+"Huh? The end-of-term party…? But I never got an invitation."
+"Ah, they must have forgotten to send it to you. Don’t worry, let’s just go together~"
+"Uh… okay then."
+I pulled (print:$friendName) along with me to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
+
+(link: "And so, a new year of high school life began.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "Year2")]
+
+::FinalParty-Ignore
+"This top with these pants? Ah, no, I'll wear a skirt instead~ Should I prepare something to bring?"
+I excitedly looked forward to the day, getting ready for the party while also sharing in the group chat what each of us planned to bring.
+
+(link: "We ended up having an incredibly fun party, and no one remembered or even mentioned the person who didn't come.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)(goto: "Year2")]
+
+
+::Year2
+<h2>Year 2</h2>
+By the time October of my second year rolled around.
+yay! We could finally choose our club activities. I had been looking forward to this for so long!
+It was Club Week, and posters were everywhere. Suddenly, (print:$friendName) appeared behind me, patted my shoulder, and said:
+"Have you decided which one to join? How about we go to the woodworking club together?! It’s gotta be so much fun!"
+<br>
+[["Sure, sure! I think it’ll be really fun too!"->Year2-Help]]
+<br>
+[["Um… actually, woodworking is just okay for me. I’d rather join the film club. Do you want to join that one with me?"->Year2-Ignore]]
+
+::Year2-Help
+We wrote our names down on the same sheet of paper.
+From then on, every Wednesday afternoon took on a new rhythm, we shared jokes, exchanged skills, and little by little, the craft studio began to feel like it belonged to us.
+
+(link: "Tick-tock, tick-tock…")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 10)(goto: "BullyingEvent2")]
+
+::Year2-Ignore
+"I'm not really interested in movies… alright then, you go join the film club, and I'll just go to the woodworking club on my own."
+"Okay, I hope you have fun making crafts!"
+
+(link: "After that, for quite a long time, we didn't really have much interaction anymore.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 5)(goto: "BullyingEvent2")]
+
+
+:: BullyingEvent2
+One day, as I was sitting in the classroom, I suddenly heard a commotion outside.
+When I looked toward the door, I saw some classmates by the lockers shoving (print:$friendName) while saying:
+"I heard you’re always copying La? Maybe you should take a look in the mirror first."
+"Hahaha, exactly! Just look at yourself! Isn’t it ridiculous?"
+As they spoke, they tugged at (print:$friendName)’s clothes and pulled at their hair, mocking and jeering.
+This drew more and more stares from people nearby, and the crowd began to grow…
+<br>
+[[How could they do this?! What should I do to stop them…?->MiniGame2]]
+<br>
+[[There are so many people… I feel sympathy, but it doesn’t really concern me. I’ll just pretend I didn’t see.->BullyChoice-Ignore2]]
+<br>
+[[It’s so lively, everyone’s pointing fingers at (print:$friendName), which must mean they’re really like that, right? Why not join in and see for it!->BullyChoice-Bully2]]
+
+::BullyChoice-Win2
+"Hey! What are you all doing here?! Class is about to start! Get back to your classrooms and get ready!"
+I had quietly gone to find the dean, who sternly scolded the crowd and dispersed the gathering.
+The few who had been leading the trouble left reluctantly.
+I walked over to (print:$friendName) and comforted them:
+"It's okay now, it's over!"(print:$friendName) looked at me gratefully and said,
+**"Thank you."**
+
+(link: "\"You don't need to thank me! You have to be brave!\"")[(set: $playerHelped to true)(set: $event2Choice to "help")(goto: "Birth-Party")]
+
+::BullyChoice-Ignore2
+"I can't really do much about this. There are so many people of them, and it doesn't seem like any real harm has been done. They're probably just joking around. Roughhousing between classmates is normal."
+<br>
+(link: "I lowered my head, pulled out the homework I hadn't finished yet, and went back to my own business.")[(set: $event2Choice to "ignore")(goto: "Birth-Party")]
+
+::BullyChoice-Bully2
+"Hey, I noticed before that you're always staring at La. So you were trying to imitate them, huh? Ever you heard the saying 'an inferior imitation'?"
+I chimed in, making the atmosphere even livelier. Everyone burst into laughter.
+"Hahaha, exactly!""Oh my gosh, that's hilarious, probably doesn't even know what it means."
+<br>
+(link: "At that moment, I felt like I had told a really effective joke and gained everyone's approval.")[(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event2Choice to "bully")(goto: "Bully2")]
+
+::Bully2
+Because my words were met with support, I felt quite proud, just like when I was a kid and earned the title of team leader.
+Everyone agreed with what I said and even built on it.
+Meanwhile, (print:$friendName)’s head was lowered like an ostrich, their face flushed bright red, as if they wanted to find a hole to crawl into and escape from this place.
+<br>
+[[I don't care...->Birth-Party]]
+
+::Birth-Party
+Some time later, the popular classmate La organized a birthday party.
+I noticed once again that (print:$friendName) still wasn't in our group chat…
+<br>
+[[I try to contact (print:$friendName) and asked: "Do you want to go to the party together?"->Birth-Party-Help]]
+<br>
+[[…Or maybe not. Since they hadn't been added to the group chat, I'd better not meddle.->Birth-Party-Ignore]]
+
+::Birth-Party-Help
+"La's having a birthday party, do you want to come?"
+"Huh? A birthday party…? But I never got an invitation."
+"Ah, they must have forgotten to send it. Don't worry, you can come with me!"
+"Uh… alright then."
+I pulled (print:$friendName) along to the party. Time passed in laughter and music, and we grew a little more familiar with each other…
+
+(link: "Another year came to an end, and a new chapter of high school life began.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "Year3")]
+
+::Birth-Party-Ignore
+I decided not to get involved. It wasn't my place to invite them when the organizer didn't include them.
+
+(link: "Another year came to an end, and a new chapter of high school life began.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 2)(goto: "Year3")]
+
+::Year3
+<h2>Year3</h2>
+As we stepped into our third year, we were assigned new classrooms.
+Being terrible with directions, I quickly got lost in the new building.
+Just as I was struggling, I looked up and saw (print:$friendName) frowning, also wandering around.
+It seemed they were having trouble finding the classroom too.
+<br>
+[[Should I go over and ask if they’re also looking for the classroom? Maybe we could find it faster together.->Year3-Help]]
+<br>
+[[…Or maybe not. They’re probably lost as well, and since I don’t know either, I’d better just ask someone on my own.->Year3-Ignore]]
+
+::Year3-Help
+"Hi! Are you looking for the classroom too? I'm lost, this is way too hard for me."
+I said as I walked over to start a conversation.
+"Yeah, I don’t know where it is either, but I see a map over there. Maybe that’ll help."
+"Alright, let’s take a look together."
+We found the building map and took a photo of it.
+Since (print:$friendName) had a better sense of direction, I handed them the map along with the classroom number for reference.
+Before long, we found the classroom without being late, and both of us let out a sigh of relief.
+
+(link: "And the busy rhythm of school life began again.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "BullyingEvent3")]
+
+::Year3-Ignore
+Hey, isn't that La?
+She probably knows the way, let me go ask her!
+"Hi, La, are you heading to that classroom?"
+"Yeah, we've only got five minutes left before class starts!."
+"Me too! Let's go together."
+"Alright."
+We arrived at the classroom, and much later (print:$friendName) rushed in, panting and dripping with sweat.
+"S...so...sorry… I'm late."
+
+(link: "As soon as the words left their mouth, the whole class burst into laughter.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)(goto: "BullyingEvent3")]
+
+
+:: BullyingEvent3
+After finally finishing a busy stretch, I was ready to relax.
+But just a short distance from the school gate, in a small alley, I saw (print:$friendName) cornered against a wall.
+Their backpack lay on the ground, torn open, with books scattered everywhere.
+The bullies were picking up pebbles and whatever they could find nearby to throw at them.
+(print:$friendName)’s hair was a mess, their clothes torn, their whole body covered in dust.
+Seeing this only made the bullies laugh even harder…
+<br>
+[[How despicable! But what should I do... how can I help them?->MiniGame3]]
+<br>
+[[It's terrifying! I'd better just slip away quickly…->BullyChoice-Ignore3]]
+<br>
+(cond: $redemption is 0, [
+	[[Wow, this actually feels exciting. I've had enough of them too, let me take this chance to add fuel to the fire, hahaha!->Redemption-Bully]]
+], true, [])
+
+::Redemption-Bully
+"Are you sure you really want to do this???"
+A sound echos.
+<br>
+[[Choose again->BullyingEvent3]]
+<br>
+[["I have decided to bear the consequences of this action."->BullyChoice-Bully3]]
+(set: $redemption to 1)
+
+::BullyChoice-Win3
+They ran away.
+Looks like my plan worked!
+I hurried over to (print:$friendName)’s side and helped pick up their things.
+(print:$friendName) looked at me with fear in their eyes and whispered, "Th-thank you…"
+<br>
+(link: "\"It's okay…\" I said, trying to comfort them, though my feelings were complicated.")[(set: $playerHelped to true)(set: $event3Choice to "help")(goto: "Volunteer")]
+
+::BullyChoice-Ignore3
+"There are so many of bullies… I'd better not get myself into trouble,"
+I muttered to myself, quickening my steps to get away from the scene as fast as possible.
+<br>
+(link: "\"I didn't see anything.\"")[(set: $event3Choice to "ignore")(goto: "Volunteer")]
+
+
+::BullyChoice-Bully3
+Isn't that (print:$friendName)?
+Caught doing something annoying again?
+I knew there was something off about them!
+"Hey! I just thought of something fun, how about sticking some chewing gum in their hair? Want to give it a try?"
+I said as I walked up to the group.
+"Yeah, yeah, we're curious too!"
+<br>
+(link: "With their encouragement, I grew bolder. I chewed a big piece of gum and pressed it hard into " + (print:$friendName) + "'s hair.")[(set: $allHelpChoices to false)(set: $playerBullied to true)(set: $event3Choice to "bully")(goto: "Bully3")]
+
+::Bully3
+Several days passed without seeing (print:$friendName) at school.
+When I finally saw them again, I noticed that the part of their hair where the gum had been was completely cut off.
+It looked absolutely ridiculous.
+"How stupid. They could’ve just washed it out, but instead cut it off. Serves them right for being bullied."
+<br>
+[[I sneered inwardly with contempt.->Volunteer]]
+
+::Volunteer
+As the third year was coming to an end, everyone began looking into different universities and preparing their applications.
+By chance, I was offered an amazing volunteer opportunity.
+The organizer even allowed me to bring along one more classmate.
+This would be a huge advantage for our university applications!
+But…
+<br>
+[[(print:$friendName) seemed to have been seeking help from teachers recently, after being turned down by volunteer organizations. Should I invite them to join me?->Volunteer-Help]]
+<br>
+[[...Or maybe I should choose another classmate who seems more capable, if we work together, we might gain greater recognition and even cooperate in the future for bigger benefits.->Volunteer-Ignore]]
+
+::Volunteer-Help
+
+"Hey, I got a really great opportunity, do you want to join me for this volunteer activity?"
+"Really? Wouldn’t that trouble you? Are you sure you actually want to take me along?!"
+"Of course, as long as you’re willing."
+I forwarded the link and shared my screen so we could fill out the application form together.
+
+(link: "I was overwhelmed by their repeated words of gratitude…")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 12)(goto: "University")]
+
+
+::Volunteer-Ignore
+I went over to invite that classmate to join me in the volunteer activity.
+Just then, (print:$friendName) quietly asked me from the side, "Um… is there any chance you could bring one more person?""Sorry, I only have two spots. You'll have to find something on your own."
+"Oh… alright… thanks."
+(print:$friendName) asked me timidly, but I turned them down firmly.
+
+(link: "Later, I found out that " + (print:$friendName) + " never managed to get into any volunteer activity.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 8)(goto: "University")]
+
+
+::University
+<h2>Year 4</h2>
+In the blink of an eye, our final year had arrived.
+Everyone was busy applying to universities and preparing for interviews.
+Today was the day we visited University A, and on the bus…
+<br>
+[[Huh? (print:$friendName) was sitting alone in the back, maybe I should go sit beside them.->University-Help]]
+<br>
+[[A few classmates called me over to join them instead, so we could share snacks and chat about our dreams.->University-Ignore]]
+
+::University-Help
+"So, have you decided where you want to go?"
+I asked.
+"Not yet… every school’s requirements are so high, I’m worried I won’t make it. What about you?"
+"I haven’t decided either, but there are a few I’m interested in."
+"Oh… I see…"
+
+(link: "Before long, we arrived at the university, began the tour, and gathered a lot of useful information.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "Capstone")]
+
+::University-Ignore
+"Have you all decided which schools you're going to apply to?"
+I ask.
+"I have a few in mind, but nothing's certain yet.""Just try them all!"
+"Yeah, but the requirements for every school seem pretty tough."
+"True, but did you hear? (print:$friendName) still hasn't completed enough volunteer hours."
+"Ah, if that's the case, even getting into a less competitive school might not be easy."
+"Right."
+…
+
+(link: "As we kept chatting, the topic turned to " + (print:$friendName) + ". Tsk, looks like things are pretty tough for them.")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 1)(goto: "Capstone")]
+
+
+::Capstone
+It was the final semester, and every university required a creative project for admission.
+The project could be done as a team or individually.
+<br>
+[[Should I ask (print:$friendName) to be my partner?->Capstone-Help]]
+<br>
+[[...Or maybe it’s better to work alone, since managing my time would be easier. Or… there was that super talented classmate who invited me before, maybe I should go find them and team up!->Capstone-Ignore]]
+
+::Capstone-Help
+"Hey! I've got a really good idea! Want to work on it together?"
+"Ah, I was just worrying about it. If you’re willing to join me, that’s wonderful! Thank you."
+We divided the tasks, exchanged drafts, and filled in each other’s gaps.
+
+(link: "The coffee grew cold, but our trust steadily grew warmer.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 15)(goto: "Graduation")]
+
+
+::Capstone-Ignore
+In the end, I completed a project all on my own, I was truly proud of~
+
+(link: "With a cheerful heart, I began planning my graduation holiday!")[(set: $ignoreCount to it + 1)(set: $friendship to $friendship - 6)(goto: "Graduation")]
+
+
+:: Graduation
+Finally, graduation was approaching.
+Everyone was eager to show the best version of themselves at the ceremony, while the classmates who had bullied (print:$friendName) were just waiting to see them make a fool of themselves.
+<br>
+[["Do you want to go pick out outfits together?" I asked (print:$friendName).->Ceremony-Help]]
+<br>
+[[Meanwhile, my own family had already prepared everything for me well in advance. I had no intention of paying attention to others and instead immersed myself in fantasies of my own graduation ceremony.->Ceremony-Ignore]]
+
+
+::Ceremony-Help
+We went to many dress shops and accessory stores together, and time passed quickly.
+
+(link: "Then, the day of graduation arrived.")[(set: $helpCount to it + 1)(set: $friendship to $friendship + 2)(goto: "EndingScene")]
+
+::Ceremony-Ignore
+To reward me for all my years of hard work, my mom booked me a trip to Europe.
+I researched tons of information and prepared a perfectly detailed itinerary.
+"I can't wait for my trip!"
+After saying that, I tried on the dress my family had prepared for me.
+"I'll definitely be the most dazzling one at the graduation ball!"
+
+(link: "Thinking about it, I couldn't help but chuckle in my sleep.")[(set: $ignoreCount to it + 1)(set: $friendship to it - 1)(goto: "EndingScene")]
+
+
+::EndingScene
+<!-- Calculate event choices for events 1/2 and event 3 separately -->
+(set: _bullyEvents12Helped to (cond: $event1Choice is "help", 1, 0) + (cond: $event2Choice is "help", 1, 0))
+(set: _bullyEvents12Ignored to (cond: $event1Choice is "ignore", 1, 0) + (cond: $event2Choice is "ignore", 1, 0))
+(set: _bullyEvents12Bullied to (cond: $event1Choice is "bully", 1, 0) + (cond: $event2Choice is "bully", 1, 0))
+(set: _bullyEvent3Helped to (cond: $event3Choice is "help", 1, 0))
+(set: _bullyEvent3Ignored to (cond: $event3Choice is "ignore", 1, 0))
+(set: _bullyEvent3Bullied to (cond: $event3Choice is "bully", 1, 0))
+
+<!-- FRIEND BRANCH (Friendship >= 40) vs UNFRIEND BRANCH (Friendship < 40) -->
+(cond: $friendship >= 40, [
+  (cond:
+    _bullyEvents12Helped is 2 and _bullyEvent3Helped is 1, [[[Your journey ends here.->Ending1]]],
+    _bullyEvents12Ignored >= 1 and _bullyEvents12Ignored <= 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending2]]],
+    _bullyEvents12Helped is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending3]]],
+    _bullyEvents12Bullied >= 1 and _bullyEvents12Bullied <= 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Helped is 2 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Ignored is 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending2]]],
+    _bullyEvents12Ignored is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending3]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending3]]],
+    _bullyEvents12Bullied is 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Helped is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Ignored is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Bullied >= 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Bullied is 2 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Ignored is 2 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0, [[[Your journey ends here.->Ending7]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending7]]],
+    _bullyEvents12Bullied is 2 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending7]]],
+    true, [[[Your journey ends here.->Ending6]]]
+  )
+], true, [
+  (cond:
+    _bullyEvents12Helped is 2 and _bullyEvent3Helped is 1, [[[Your journey ends here.->Ending2]]],
+    _bullyEvents12Ignored >= 1 and _bullyEvents12Ignored <= 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending3]]],
+    _bullyEvents12Helped is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Bullied >= 1 and _bullyEvents12Bullied <= 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Helped is 2 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Ignored is 2 and _bullyEvent3Helped is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending3]]],
+    _bullyEvents12Ignored is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending4]]],
+    _bullyEvents12Bullied is 2 and _bullyEvent3Helped is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending5]]],
+    _bullyEvents12Helped is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Helped is 1 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Ignored is 2 and _bullyEvent3Ignored is 1 and _bullyEvents12Bullied is 0 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Bullied >= 1 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Bullied is 2 and _bullyEvent3Ignored is 1 and _bullyEvent3Bullied is 0, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Ignored is 2 and _bullyEvent3Bullied is 1 and _bullyEvents12Bullied is 0, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Bullied is 1 and _bullyEvents12Ignored is 1 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending6]]],
+    _bullyEvents12Bullied is 2 and _bullyEvent3Bullied is 1, [[[Your journey ends here.->Ending6]]],
+    true, [[[Your journey ends here.->Ending6]]]
+  )
+])
+
+:: Ending1
+(set: $currentEnding to "Ending1: Dreams Achieved")
+<!-- Mark this ending as reached -->
+(set: $endingsReached's "Ending1" to 1)
+
+<!-- Check achievements: helped/ignored all NON-bully events only (10 events) -->
+<!-- Note: $helpCount and $ignoreCount now only track non-bully events -->
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+<!-- Calculate severity -->
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+<!-- Calculate image state for log -->
+(set: _imgState to (cond:
+  (passage:)'s name contains "Ending1", "_golden",
+  _displaySeverity >= 4, "_trauma",
+  _displaySeverity >= 2, "_suffer",
+  _displaySeverity > 0, "_isolated",
+  $friendship >= 40, "_golden",
+  $friendship >= 20, "_safe",
+  true, "_isolated"
+))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+
+<!-- Count bully events -->
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+
+<!-- Create and add log entry with timestamp -->
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending1: Dreams Achieved</h2>
+<img src="end1.GIF" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+Time and again, we lit the way for each other, helping and supporting one another all the way until graduation.
+In the end, we reached our goals and received offers from our dream universities.
+I truly believe we'll have an even brighter future ahead!
+<br>
+[[See Your Summary->Achievements]]
+
+:: Ending2
+(set: $currentEnding to "Ending2: Paths Diverged")
+(set: $endingsReached's "Ending2" to 1)
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+(set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending2: Paths Diverged </h2>
+<img src="end23.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+The graduation ceremony began, and I looked over at (print:$friendName), who didn’t seem excited, in fact, they didn’t even look happy.
+It turned out that because of the psychological scars they carried, they couldn’t concentrate on their studies, they developed anxiety and depression, and failed to get into their dream university.
+In the end, they had to settle for another school far away.
+From that day on, we went our separate ways.
+I made new friends in college, and there was no longer any contact between me and (print:$friendName).
+<br>
+[[See Your Summary->Achievements]]
+
+:: Ending3
+(set: $currentEnding to "Ending3: Fading into Silence")
+(set: $endingsReached's "Ending3" to 1)
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+(set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending3:Fading into Silence </h2>
+<img src="end23.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+A few days later, I learned that they had developed depression, failed to meet the requirements, and were not admitted to university.
+Later on, they deleted all of our contact information, and I never heard anything about (print:$friendName) again.
+<br>
+[[See Your Summary->Achievements]]
+
+:: Ending4
+(set: $currentEnding to "Ending4: The Turn of the Tide")
+(set: $endingsReached's "Ending4" to 1)
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+(set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending4:The Turn of the Tide </h2>
+<img src="end45.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+Because every time (print:$friendName) was bullied, I chose to protect myself, bullies eventually found out that we were close friends.
+As a result, I also became the subject of their gossip and ridicule behind my back.
+Although I was eventually admitted to a university, the psychological pressure I carried caused me to lose the chance to enter the school of my dreams.
+<br>
+[[See Your Summary->Achievements]]
+
+:: Ending5
+(set: $currentEnding to "Ending5: Crushed by Pressure")
+(set: $endingsReached's "Ending5" to 1)
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+(set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending5: Crushed by Pressure</h2>
+<img src="end45.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+I don’t know who reported to my university that I had once taken part in bullying a classmate, but my dream school withdrew the offer they had given me.
+I was left with no choice but to attend the lowest-ranked school on my list.
+To my surprise, when I enrolled a few weeks late, I discovered that (print:$friendName) was there too.
+It was as if they had become a completely different person.
+They already fitting in with many others.
+When they saw me, they gave me a strange, unsettling smile.
+From then on, in the eyes of my classmates, I became the one labeled as a bully, despicable, childish, ignorant, and pathetic.
+No one wanted to be around me, and I constantly overheard whispers and gossip about myself.
+That feeling…
+<br>
+[[See Your Summary->Achievements]]
+
+:: Ending6
+(set: $currentEnding to "Ending6: A Tragic Loss")
+(set: $endingsReached's "Ending6" to 1)
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+(set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending6: A Tragic Loss </h2>
+<img src="end6.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+Not long after the graduation ceremony began, many police officers arrived and started questioning people.
+It turned out that (print:$friendName) had taken their own life an hour earlier and had already passed away by the time they reached the hospital.
+In their diary were entries filled with painful moments: being isolated, bullied, falling into depression, losing the strength to complete their studies, feeling abandoned by the world, and ultimately choosing suicide.
+Perhaps… each one of us is a murderer.
+<br>
+[[See Your Summary->Achievements]]
+:: Ending7
+(set: $currentEnding to "Ending7: Rescue and Retribution")
+(set: $endingsReached's "Ending7" to 1)
+(cond: $helpCount >= 10, [(set: $achievementsUnlocked's "best" to 1)], true, [])
+(cond: $ignoreCount >= 10, [(set: $achievementsUnlocked's "worst" to 1)], true, [])
+
+(set: _displaySeverity to 0)
+(set: _displaySeverity to it + (cond: $event1Choice is "ignore", 0.5, $event1Choice is "bully", 1, true, 0))
+(set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
+(set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
+
+(set: _imgState to (cond:
+  (passage:)'s name contains "Ending1", "_golden",
+  _displaySeverity >= 4, "_trauma",
+  _displaySeverity >= 2, "_suffer",
+  _displaySeverity > 0, "_isolated",
+  $friendship >= 40, "_golden",
+  $friendship >= 20, "_safe",
+  true, "_isolated"
+))
+(set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+
+(set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
+(set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
+(set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
+
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
+
+<h2>Ending7: Rescue and Retribution </h2>
+<img src="end7.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
+Not long after the graduation ceremony began, a large number of police officers arrived and started questioning people.
+It turned out that (print:$friendName) had attempted suicide an hour earlier, but was rescued when taken to the hospital.
+They told the police about many painful moments: being isolated, bullied, and driven into depression, losing the energy to complete their studies, feeling abandoned by the world, and ultimately choosing to end their life.
+The police questioned everyone one by one.
+In order to protect myself, I gave them the names of the classmates who had bullied (print:$friendName), but they all said it was me who had forced them to act that way.
+In the end, I was punished by the law.
+<br>
+[[See Your Summary->Achievements]]
+
+:: Achievements
+<script>
+console.log("=== Achievements Page Debug ===");
+if (window.State && window.State.variables) {
+  console.log("endingsReached:", window.State.variables.endingsReached);
+  console.log("achievementsUnlocked:", window.State.variables.achievementsUnlocked);
+  console.log("playthroughLogs:", window.State.variables.playthroughLogs);
+  console.log("playthroughLogs length:", window.State.variables.playthroughLogs ? window.State.variables.playthroughLogs.length : 'undefined');
+  console.log("helpCount:", window.State.variables.helpCount);
+  console.log("ignoreCount:", window.State.variables.ignoreCount);
+} else {
+  console.error("State not available in Achievements");
+}
+</script>
+
+<h2>Playthrough Log</h2>
+<div style="max-height: 400px; overflow-y: auto; border: 1px solid #555; padding: 15px; background-color: #2a2a2a; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6;">
+(cond: $playthroughLogs's length > 0, [
+(for: each _i, ...(range: 1, $playthroughLogs's length))[
+(set: _log to $playthroughLogs's (_i))
+<div style="border-bottom: 1px solid #444; padding: 12px 0; color: #e0e0e0; display: flex; align-items: center; gap: 15px;">
+(print: '<img src="' + (_log's imgPath) + '" style="width: 150px; height: 150px; border-radius: 5px; flex-shrink: 0;" onerror="this.style.display=\'none\'">')
+<div style="flex: 1; white-space: nowrap; overflow: hidden;">
+<span style="margin: 0 15px;"><b style="color: #fca5a5;">Character:</b> (print: _log's name)</span>
+<span style="margin: 0 15px;"><b style="color: #fca5a5;">Bond:</b> (print: _log's friendship) (you helped (print: _log's helpCount) times, ignored (print: _log's ignoreCount) times)</span>
+<span style="margin: 0 15px;"><b style="color: #fca5a5;">Severity:</b> (print: _log's severity) (you bullied them (print: _log's bullyCount) times, helped them (print: _log's bullyHelpCount) times, watched them get bullied (print: _log's bullyIgnoreCount) times)</span>
+<span style="margin: 0 15px;"><b style="color: #fca5a5;">Ending:</b> (print: _log's ending)</span>
+<span style="margin: 0 15px; color: #999; font-size: 0.9em;"><b>Time:</b> (print: (cond: (_log's timestamp) is "", "—", _log's timestamp))</span>
+</div>
+</div>
+]
+], true, [
+<div style="text-align:center; padding:30px; color:#888;">No playthroughs logged yet.</div>
+])</div>
+
+<div class="achievements">
+  <h3>Ending Collection</h3>
+  <div class="star-container">
+    (print: (cond: $endingsReached's "Ending1" is 1, '<span class="star-c1">★</span>', '<span class="star-grey">☆</span>'))
+    (print: (cond: $endingsReached's "Ending2" is 1, '<span class="star-c2">★</span>', '<span class="star-grey">☆</span>'))
+    (print: (cond: $endingsReached's "Ending3" is 1, '<span class="star-c3">★</span>', '<span class="star-grey">☆</span>'))
+    (print: (cond: $endingsReached's "Ending4" is 1, '<span class="star-c4">★</span>', '<span class="star-grey">☆</span>'))
+    (print: (cond: $endingsReached's "Ending5" is 1, '<span class="star-c5">★</span>', '<span class="star-grey">☆</span>'))
+    (print: (cond: $endingsReached's "Ending6" is 1, '<span class="star-c6">★</span>', '<span class="star-grey">☆</span>'))
+    (print: (cond: $endingsReached's "Ending7" is 1, '<span class="star-c7">★</span>', '<span class="star-grey">☆</span>'))
+  </div>
+
+  <div class="secret-button-container">
+    (set: _allEndings to ($endingsReached's "Ending1" is 1) and ($endingsReached's "Ending2" is 1) and ($endingsReached's "Ending3" is 1) and ($endingsReached's "Ending4" is 1) and ($endingsReached's "Ending5" is 1) and ($endingsReached's "Ending6" is 1) and ($endingsReached's "Ending7" is 1))
+    
+    (if: _allEndings)[
+      <div class="secret-button-unlocked">
+        (link-reveal: "A Final Word")[
+          (show: ?secretMessage)
+        ]
+      </div>
+    ] (else:)[
+      <div class="secret-button-locked">Unlock</div>
+    ]
+  </div>
+  
+  (hidden:)|secretMessage>[
+    <div class="npc-message">
+      "Congratulations on completing all possible game outcomes...
+      <br><br>
+      You have seen every path, every joy, and every sorrow that could unfold. You've walked in the shoes of a steadfast friend, a distant bystander, and even a tormentor. It is my hope that through this journey, you've felt the weight of each choice and the ripple effect it creates.
+      <br><br>
+      Remember this always: When faced with the difficulties of others, every small act of kindness or indifference can profoundly change a person's destiny, and ultimately, determine your own future."
+    </div>
+  ]
+  <h3>Special Achievements</h3>
+  <table style="width: 100%; border-collapse: collapse; margin-top: 1em;">
+    <tr>
+      (cond: $achievementsUnlocked's "best" is 1, [
+        <td style="width: 60px; text-align: center; font-size: 2em;">🌹</td>
+        <td style="padding: 10px;"><b>Best of the Best</b></td>
+        <td style="padding: 10px;"><small>You supported your friend at every single opportunity.</small></td>
+      ], true, [
+        <td style="width: 60px; text-align: center; font-size: 2em; color: #888;">❓</td>
+        <td style="padding: 10px; color: #888;"><b>???</b></td>
+        <td style="padding: 10px; color: #888;"><small>????????????????????????????????????????????</small></td>
+      ])
+    </tr>
+    <tr>
+      (cond: $achievementsUnlocked's "worst" is 1, [
+        <td style="width: 60px; text-align: center; font-size: 2em;">💀</td>
+        <td style="padding: 10px;"><b>Worst of the Worst</b></td>
+        <td style="padding: 10px;"><small>You abandoned your friend at every single opportunity.</small></td>
+      ], true, [
+        <td style="width: 60px; text-align: center; font-size: 2em; color: #888;">❓</td>
+        <td style="padding: 10px; color: #888;"><b>???</b></td>
+        <td style="padding: 10px; color: #888;"><small>????????????????????????????????????????????</small></td>
+      ])
+    </tr>
+  </table>
+</div>
+
+<br><br>
+[[Play Again?->Start]]
+
+:: MiniGame1
+<style>
+.crossed-out {
+    text-decoration: line-through;
+    color: grey;
+    pointer-events: none;
+}
+</style>
+(cond: $allWrongChoices's length is 0, [
+  (set: $allWrongChoices to (array:
+    "Start a loud conversation on your phone.",
+    "Go up to the group and ask for a pen.",
+    "Start coughing loudly.",
+    "Ask the librarian a question in a loud voice.",
+    "Pretend to trip and fall near another table.",
+    "Start humming a distracting tune."
+  ))
+  (set: $chosenWrongChoices to (a:))
+], true, [])
+I couldn’t just make a big scene, but maybe I could think of a way to stop their gossip and help (print:$friendName) get away from this mess.
+<br>
+What should I do?
+(set: _displayChoices to (shuffled: ...$allWrongChoices))
+(for: each _choice, ..._displayChoices)[
+    (cond: $chosenWrongChoices contains _choice, [
+        (print: '<span class="crossed-out">' + _choice + '</span><br>')
+    ], true, [
+      (link: _choice)[
+        (set: $chosenWrongChoices to it + (a: _choice))
+        (goto: "MiniGame1")
+      ]<br>
+    ])
+]
+<br>
+[[‘Accidentally’ drop your heavy stack of books near their table.->MiniGame1-Win]]
+<br>
+
+:: MiniGame1-Win
+I successfully, unintentionally drew the attention of the onlookers.
+<br>
+[[Success!->BullyChoice-Win1]]
+
+:: MiniGame2
+My mind was in chaos, but I had to stay calm and think of a good strategy to help (print:$friendName) out of this situation…
+<br><br>
+<style>
+#pattern-game { 
+    text-align: center;
+    padding: 20px;
+}
+.pattern-btn { 
+    width: 80px; 
+    height: 80px; 
+    border-radius: 50%; 
+    margin: 10px; 
+    border: 3px solid #555;
+    cursor: pointer; 
+    display: inline-block;
+    transition: background-color 0.2s; 
+}
+.pattern-btn.red { background-color: #fca5a5; }
+.pattern-btn.blue { background-color: #93c5fd; }
+.pattern-btn.green { background-color: #86efac;
+}
+.pattern-btn.yellow { background-color: #fde047; }
+.pattern-btn.lit { filter: brightness(1.5); }
+#pattern-message { 
+    font-weight: bold; 
+    height: 2em;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+</style>
+<div id="pattern-game">
+    <div id="pattern-message">Watch the pattern...</div>
+    <div>
+        <div class="pattern-btn red" data-color="0"></div>
+        <div class="pattern-btn blue" data-color="1"></div>
+    </div>
+    <div>
+        <div class="pattern-btn green" data-color="2"></div>
+        <div class="pattern-btn yellow" data-color="3"></div>
+    </div>
+    <div id="start-pattern-btn-container" style="margin-top: 1em;">
+        (link: "Start")[ (goto: "MiniGame2-StartGame") ]
+    </div>
+    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win2")]</div>
+</div>
+
+:: MiniGame2-StartGame
+<style>
+#pattern-game {
+    text-align: center;
+    padding: 20px;
+}
+.pattern-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 10px;
+    border: 3px solid #555;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+.pattern-btn.red { background-color: #fca5a5; }
+.pattern-btn.blue { background-color: #93c5fd; }
+.pattern-btn.green { background-color: #86efac; }
+.pattern-btn.yellow { background-color: #fde047; }
+.pattern-btn.lit { filter: brightness(1.5);
+}
+#pattern-message {
+    font-weight: bold;
+    height: 2em;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+}
+</style>
+<div id="pattern-game">
+    <div id="pattern-message">Watch the pattern...</div>
+    <div>
+        <div class="pattern-btn red" data-color="0"></div>
+        <div class="pattern-btn blue" data-color="1"></div>
+    </div>
+    <div>
+        <div class="pattern-btn green" data-color="2"></div>
+        <div class="pattern-btn yellow" data-color="3"></div>
+    </div>
+    <div id="start-pattern-btn-container" style="display:none; margin-top: 1em;">
+        (link: "Start")[ (goto: "MiniGame2-StartGame") ]
+    </div>
+    <div id="pattern-win-container" style="display:none;">(link:"Success!")[(goto:"BullyChoice-Win2")]</div>
+</div>
+<script>
+    const messageEl = document.getElementById('pattern-message');
+    const winContainer = document.getElementById('pattern-win-container');
+    const buttons = Array.from(document.querySelectorAll('.pattern-btn'));
+    let sequence = [];
+    let playerSequence = [];
+    let level = 3;
+    let playerTurn = false;
+    function generateSequence() {
+        sequence = [];
+        for (let i = 0; i < level; i++) {
+            sequence.push(Math.floor(Math.random() * 4));
+        }
+    }
+
+    function lightUp(index) {
+        return new Promise((resolve) => {
+            const btn = buttons[index];
+            if (btn) {
+                btn.classList.add('lit');
+                setTimeout(() => {
+                    btn.classList.remove('lit');
+                    setTimeout(resolve, 250);
+                }, 500);
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    async function playSequence() {
+        playerTurn = false;
+        if (messageEl) messageEl.textContent = "Watch carefully...";
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        for (const index of sequence) {
+            await lightUp(index);
+        }
+        playerTurn = true;
+        if (messageEl) messageEl.textContent = "Your turn...";
+    }
+
+    function handlePlayerClick(e) {
+        if (!playerTurn || !e.target.dataset.color) return;
+        const colorIndex = parseInt(e.target.dataset.color, 10);
+        playerSequence.push(colorIndex);
+        lightUp(colorIndex);
+        const currentStep = playerSequence.length - 1;
+        if (playerSequence[currentStep] !== sequence[currentStep]) {
+            if (messageEl) messageEl.textContent = "That's not right. Let's try again.";
+            playerSequence = [];
+            setTimeout(playSequence, 1500);
+            return;
+        }
+
+        if (playerSequence.length === sequence.length) {
+            playerTurn = false;
+            if (level >= 5) {
+                if (messageEl) messageEl.textContent = "You focused your thoughts and found your voice!";
+                if (winContainer) winContainer.style.display = 'block';
+            } else {
+                if (messageEl) messageEl.textContent = "Good! Next level...";
+                level++;
+                playerSequence = [];
+                generateSequence();
+                setTimeout(playSequence, 1500);
+            }
+        }
+    }
+
+    buttons.forEach(btn => btn.addEventListener('click', handlePlayerClick));
+    generateSequence();
+    playSequence();
+</script>
+
+:: MiniGame3
+I was all alone... how could I possibly drive them off?
+I forced myself to stay calm and think fast...
+<br><br>
+<b>Use the arrow keys to move</b>
+<style>
+#mazeCanvas {
+    background-color: #f0f0f0;
+    border: 2px solid #333;
+    display: block;
+    margin: 1em auto;
+}
+
+/* Mobile Controls Styles */
+#mobile-toggle {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 10px auto;
+    display: block;
+}
+
+#mobile-toggle:hover {
+    background-color: #357abd;
+}
+
+#virtual-controls {
+    display: none;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 300px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.virtual-arrow {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 5px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.virtual-arrow:active {
+    background-color: #357abd;
+    transform: scale(0.95);
+}
+
+.virtual-arrow:hover {
+    background-color: #357abd;
+}
+
+#controls-row1 {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#controls-row2 {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+}
+</style>
+
+<canvas id="mazeCanvas" width="450" height="450"></canvas>
+<button id="mobile-toggle" onclick="toggleMobileControls()">Show Mobile Controls</button>
+<div id="virtual-controls">
+    <div id="controls-row1">
+        <button class="virtual-arrow" id="arrow-up">▲</button>
+    </div>
+    <div id="controls-row2">
+        <button class="virtual-arrow" id="arrow-left">◀</button>
+        <button class="virtual-arrow" id="arrow-right">▶</button>
+    </div>
+    <div id="controls-row1">
+        <button class="virtual-arrow" id="arrow-down">▼</button>
+    </div>
+</div>
+<div id="maze-win-container" style="text-align: center; display: none;">
+Got it!
+First I called the police, then I ran around to the bushes on the other side, found a police-siren sound on my phone and played it, then shouted.
+<br>
+[["The police are coming! Run!!!"->BullyChoice-Win3]]
+</div>
+
+<script>
+setTimeout(function() {
+    try {
+        var canvas = document.getElementById('mazeCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+
+        var tileSize = 30;
+        var mazeWidth = 15;
+        var mazeHeight = 15;
+        var starsCollected = 0;
+        var totalStars = 3;
+        var playerStart = { x: 1, y: 1 };
+
+        function generateMaze(width, height) {
+            var maze = Array.from({ length: height }, function() { return Array(width).fill(1); });
+            var stack = [];
+
+            var startX = playerStart.x;
+            var startY = playerStart.y;
+
+            maze[startY][startX] = 0;
+            stack.push([startX, startY]);
+
+            while (stack.length > 0) {
+                var current = stack[stack.length - 1];
+                var cx = current[0];
+                var cy = current[1];
+                var neighbors = [];
+                // Ensure we stay away from borders (leave at least 1 cell as wall on each side)
+                if (cy - 2 >= 1 && maze[cy - 2][cx] === 1) neighbors.push([0, -2]);
+                if (cy + 2 < height - 1 && maze[cy + 2][cx] === 1) neighbors.push([0, 2]);
+                if (cx - 2 >= 1 && maze[cy][cx - 2] === 1) neighbors.push([-2, 0]);
+                if (cx + 2 < width - 1 && maze[cy][cx + 2] === 1) neighbors.push([2, 0]);
+                if (neighbors.length > 0) {
+                    var direction = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    var dx = direction[0];
+                    var dy = direction[1];
+                    var nx = cx + dx;
+                    var ny = cy + dy;
+                    maze[cy + dy / 2][cx + dx / 2] = 0;
+                    maze[ny][nx] = 0;
+                    stack.push([nx, ny]);
+                } else {
+                    stack.pop();
+                }
+            }
+            // Ensure all borders are walls
+            for (var i = 0; i < width; i++) {
+                maze[0][i] = 1; // Top border
+                maze[height - 1][i] = 1; // Bottom border
+            }
+            for (var i = 0; i < height; i++) {
+                maze[i][0] = 1; // Left border
+                maze[i][width - 1] = 1; // Right border
+            }
+            return maze;
+        }
+
+        function placeStars(maze, numStars) {
+            var placed = 0;
+            while(placed < numStars) {
+                var x = Math.floor(Math.random() * maze[0].length);
+                var y = Math.floor(Math.random() * maze.length);
+                if(maze[y][x] === 0 && (x !== playerStart.x || y !== playerStart.y)) {
+                    maze[y][x] = 3;
+                    placed++;
+                }
+            }
+        }
+
+        var maze = generateMaze(mazeWidth, mazeHeight);
+        placeStars(maze, totalStars);
+        var player = { x: playerStart.x, y: playerStart.y };
+        function drawStar(x, y) {
+            ctx.fillStyle = 'gold';
+            ctx.strokeStyle = '#c9a200';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + tileSize / 2, y + 2);
+            ctx.lineTo(x + tileSize * 0.65, y + tileSize * 0.35);
+            ctx.lineTo(x + tileSize - 2, y + tileSize * 0.35);
+            ctx.lineTo(x + tileSize * 0.75, y + tileSize * 0.65);
+            ctx.lineTo(x + tileSize * 0.85, y + tileSize - 2);
+            ctx.lineTo(x + tileSize / 2, y + tileSize * 0.75);
+            ctx.lineTo(x + tileSize * 0.15, y + tileSize - 2);
+            ctx.lineTo(x + tileSize * 0.25, y + tileSize * 0.65);
+            ctx.lineTo(x + 2, y + tileSize * 0.35);
+            ctx.lineTo(x + tileSize * 0.35, y + tileSize * 0.35);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (var y = 0; y < maze.length; y++) {
+                for (var x = 0; x < maze[y].length; x++) {
+                    if (maze[y][x] === 1) {
+                        ctx.fillStyle = '#6d4c41';
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    } else if (maze[y][x] === 3) {
+                        drawStar(x * tileSize, y * tileSize);
+                    }
+                }
+            }
+            ctx.fillStyle = '#4a90e2';
+            ctx.beginPath();
+            ctx.arc(player.x * tileSize + tileSize / 2, player.y * tileSize + tileSize / 2, tileSize / 3, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function movePlayer(dx, dy) {
+            if (window.mazeGameWon) return;
+            var newX = player.x + dx;
+            var newY = player.y + dy;
+            if (newX >= 0 && newX < mazeWidth && newY >= 0 && newY < mazeHeight && maze[newY][newX] !== 1) {
+                player.x = newX;
+                player.y = newY;
+
+                if (maze[player.y][player.x] === 3) {
+                    maze[player.y][player.x] = 0;
+                    starsCollected++;
+                    if (starsCollected >= totalStars) {
+                        window.mazeGameWon = true;
+                        window.removeEventListener('keydown', handleKey);
+                        document.getElementById('maze-win-container').style.display = 'block';
+                    }
+                }
+                drawMaze();
+            }
+        }
+
+        function handleKey(e) {
+            var allowedKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+            if (allowedKeys.indexOf(e.key) !== -1) {
+                e.preventDefault();
+                switch (e.key) {
+                    case 'ArrowUp':
+                        movePlayer(0, -1);
+                        break;
+                    case 'ArrowDown':
+                        movePlayer(0, 1);
+                        break;
+                    case 'ArrowLeft':
+                        movePlayer(-1, 0);
+                        break;
+                    case 'ArrowRight':
+                        movePlayer(1, 0);
+                        break;
+                }
+            }
+        }
+
+        if (canvas) {
+            canvas.cleanup = function() {
+                window.removeEventListener('keydown', handleKey);
+            };
+        }
+
+        // Mobile Controls Setup
+        var virtualControlsVisible = false;
+        
+        function setupVirtualControls() {
+            var virtualControlsSetup = false;
+            if (!virtualControlsSetup) {
+                document.getElementById('arrow-up').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, -1); 
+                });
+                document.getElementById('arrow-down').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, 1); 
+                });
+                document.getElementById('arrow-left').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(-1, 0); 
+                });
+                document.getElementById('arrow-right').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(1, 0); 
+                });
+                
+                // Also add click events for non-touch devices
+                document.getElementById('arrow-up').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, -1); 
+                });
+                document.getElementById('arrow-down').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, 1); 
+                });
+                document.getElementById('arrow-left').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(-1, 0); 
+                });
+                document.getElementById('arrow-right').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(1, 0); 
+                });
+                
+                virtualControlsSetup = true;
+            }
+        }
+        
+        window.toggleMobileControls = function() {
+            var controls = document.getElementById('virtual-controls');
+            var button = document.getElementById('mobile-toggle');
+            
+            if (virtualControlsVisible) {
+                controls.style.display = 'none';
+                button.textContent = 'Show Mobile Controls';
+                virtualControlsVisible = false;
+            } else {
+                controls.style.display = 'block';
+                button.textContent = 'Hide Mobile Controls';
+                virtualControlsVisible = true;
+                setupVirtualControls();
+            }
+        };
+        
+        // Initialize the game
+        setupVirtualControls();
+        window.mazeGameWon = false;
+        drawMaze();
+        window.addEventListener('keydown', handleKey);
+    } catch (e) {
+        console.error("Maze game error:", e);
+    }
+}, 100);
+</script>

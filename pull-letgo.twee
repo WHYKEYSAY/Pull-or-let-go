@@ -1585,9 +1585,86 @@ I forced myself to stay calm and think fast...
     display: block;
     margin: 1em auto;
 }
+
+/* Mobile Controls Styles */
+#mobile-toggle {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 10px auto;
+    display: block;
+}
+
+#mobile-toggle:hover {
+    background-color: #357abd;
+}
+
+#virtual-controls {
+    display: none;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 300px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.virtual-arrow {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 5px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.virtual-arrow:active {
+    background-color: #357abd;
+    transform: scale(0.95);
+}
+
+.virtual-arrow:hover {
+    background-color: #357abd;
+}
+
+#controls-row1 {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+#controls-row2 {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+}
 </style>
 
 <canvas id="mazeCanvas" width="450" height="450"></canvas>
+<button id="mobile-toggle" onclick="toggleMobileControls()">Show Mobile Controls</button>
+<div id="virtual-controls">
+    <div id="controls-row1">
+        <button class="virtual-arrow" id="arrow-up">▲</button>
+    </div>
+    <div id="controls-row2">
+        <button class="virtual-arrow" id="arrow-left">◀</button>
+        <button class="virtual-arrow" id="arrow-right">▶</button>
+    </div>
+    <div id="controls-row1">
+        <button class="virtual-arrow" id="arrow-down">▼</button>
+    </div>
+</div>
 <div id="maze-win-container" style="text-align: center; display: none;">
 Got it!
 First I called the police, then I ran around to the bushes on the other side, found a police-siren sound on my phone and played it, then shouted.
@@ -1755,6 +1832,69 @@ setTimeout(function() {
             };
         }
 
+        // Mobile Controls Setup
+        var virtualControlsVisible = false;
+        
+        function setupVirtualControls() {
+            var virtualControlsSetup = false;
+            if (!virtualControlsSetup) {
+                document.getElementById('arrow-up').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, -1); 
+                });
+                document.getElementById('arrow-down').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, 1); 
+                });
+                document.getElementById('arrow-left').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(-1, 0); 
+                });
+                document.getElementById('arrow-right').addEventListener('touchstart', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(1, 0); 
+                });
+                
+                // Also add click events for non-touch devices
+                document.getElementById('arrow-up').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, -1); 
+                });
+                document.getElementById('arrow-down').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(0, 1); 
+                });
+                document.getElementById('arrow-left').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(-1, 0); 
+                });
+                document.getElementById('arrow-right').addEventListener('click', function(e) { 
+                    e.preventDefault(); 
+                    movePlayer(1, 0); 
+                });
+                
+                virtualControlsSetup = true;
+            }
+        }
+        
+        window.toggleMobileControls = function() {
+            var controls = document.getElementById('virtual-controls');
+            var button = document.getElementById('mobile-toggle');
+            
+            if (virtualControlsVisible) {
+                controls.style.display = 'none';
+                button.textContent = 'Show Mobile Controls';
+                virtualControlsVisible = false;
+            } else {
+                controls.style.display = 'block';
+                button.textContent = 'Hide Mobile Controls';
+                virtualControlsVisible = true;
+                setupVirtualControls();
+            }
+        };
+        
+        // Initialize the game
+        setupVirtualControls();
         window.mazeGameWon = false;
         drawMaze();
         window.addEventListener('keydown', handleKey);
