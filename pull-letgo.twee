@@ -107,7 +107,7 @@ a.link-internal, a.link-external {
 .char-choice .hidden-link {
     display: none;
 }
-.star-container { display: flex; font-size: 2em; gap: 0.5em; }
+.star-container { display: flex; justify-content: center; font-size: 2em; gap: 0.5em; }
 .star-grey { color: #ccc; }
 .star-c1 { color: #F09EA7; }
 .star-c2 { color: #F6CA94; }
@@ -129,7 +129,68 @@ a.link-internal, a.link-external {
 .achievements h3 { border-bottom: 1px solid #eee; padding-bottom: 0.5em; }
 .achievement-unlocked { font-size: 1.2em; }
 .achievement-locked { font-size: 1.2em; color: #888; }
+/* Secret Button and Message Styles */
+.secret-button-container {
+  text-align: center;
+  margin-top: 2.5em;
+  margin-bottom: 2em;
+}
 
+.secret-button-locked, .secret-button-unlocked {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border: none;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.secret-button-locked {
+  background-color: #555;
+  color: #888;
+  cursor: not-allowed;
+  border: 2px solid #444;
+}
+
+.secret-button-unlocked {
+  background: linear-gradient(45deg, #ffd700, #ffec80, #ffd700);
+  color: #4a2c00;
+  cursor: pointer;
+  border: 2px solid #e6c300;
+  animation: sparkle 1.5s infinite ease-in-out;
+  box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffec80;
+  text-decoration: none !important;
+}
+
+/* Ensure the link inside doesn't have default styling */
+.secret-button-unlocked a.link-internal {
+    color: inherit !important;
+    border-bottom: none !important;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffec80;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #ffd700, 0 0 25px #ffec80, 0 0 35px #fff7d1;
+  }
+}
+
+.npc-message {
+  margin-top: 2em;
+  padding: 25px;
+  background-color: rgba(20, 20, 20, 0.7);
+  border-left: 5px solid #ffd700;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-style: italic;
+  line-height: 1.7;
+}
 
 :: UI-Status [header]
 <div style="position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: visible;">
@@ -1146,7 +1207,6 @@ In their diary were entries filled with painful moments: being isolated, bullied
 Perhaps… each one of us is a murderer.
 <br>
 [[See Your Summary->Achievements]]
-
 :: Ending7
 (set: $currentEnding to "Ending7: Rescue and Retribution")
 (set: $endingsReached's "Ending7" to 1)
@@ -1158,50 +1218,42 @@ Perhaps… each one of us is a murderer.
 (set: _displaySeverity to it + (cond: $event2Choice is "ignore", 2, $event2Choice is "bully", 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is "ignore", 4, $event3Choice is "bully", 6, true, 0))
 
-(set: _imgState to (cond: (passage:)'s name contains "Ending1", "_golden", _displaySeverity >= 4, "_trauma", _displaySeverity >= 2, "_suffer", _displaySeverity > 0, "_isolated", $friendship >= 40, "_golden", $friendship >= 20, "_safe", true, "_isolated"))
+(set: _imgState to (cond:
+  (passage:)'s name contains "Ending1", "_golden",
+  _displaySeverity >= 4, "_trauma",
+  _displaySeverity >= 2, "_suffer",
+  _displaySeverity > 0, "_isolated",
+  $friendship >= 40, "_golden",
+  $friendship >= 20, "_safe",
+  true, "_isolated"
+))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+
 (set: _bullyCount to (cond: $event1Choice is "bully", 1, true, 0) + (cond: $event2Choice is "bully", 1, true, 0) + (cond: $event3Choice is "bully", 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is "help", 1, true, 0) + (cond: $event2Choice is "help", 1, true, 0) + (cond: $event3Choice is "help", 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is "ignore", 1, true, 0) + (cond: $event2Choice is "ignore", 1, true, 0) + (cond: $event3Choice is "ignore", 1, true, 0))
-<script>
-setTimeout(function() {
-    var State = window.State || (window.Harlowe && window.Harlowe.State);
-    if (!State) {
-        console.error('State not available');
-        return;
-    }
 
-    var timestamp = new Date().toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
-
-    var logEntry = {
-        name: State.variables.friendName,
-        imgPath: State.temporary.imgPath,
-        friendship: State.variables.friendship,
-        helpCount: State.variables.helpCount,
-        ignoreCount: State.variables.ignoreCount,
-        bullyCount: State.temporary.bullyCount,
-        bullyHelpCount: State.temporary.bullyHelpCount,
-        bullyIgnoreCount: State.temporary.bullyIgnoreCount,
-        severity: State.temporary.displaySeverity,
-        ending: State.variables.currentEnding,
-        timestamp: timestamp
-    };
-
-    State.variables.playthroughLogs.push(logEntry);
-
-    if (State.variables.playthroughLogs.length > 7) {
-        State.variables.playthroughLogs.shift();
-    }
-}, 10);
-</script>
+<div style="display:none;">
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + " " + (text: (current-time:)))
+(set: _logEntry to (dm:
+  "name", $friendName,
+  "imgPath", _imgPath,
+  "friendship", $friendship,
+  "helpCount", $helpCount,
+  "ignoreCount", $ignoreCount,
+  "bullyCount", _bullyCount,
+  "bullyHelpCount", _bullyHelpCount,
+  "bullyIgnoreCount", _bullyIgnoreCount,
+  "severity", _displaySeverity,
+  "ending", $currentEnding,
+  "timestamp", _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs's length > 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+</div>
 
 <h2>Ending7: Rescue and Retribution </h2>
 <img src="end7.png" style="width:100%; max-width:600px; display:block; margin:1em auto;">
@@ -1253,20 +1305,37 @@ if (window.State && window.State.variables) {
   <h3>Ending Collection</h3>
   <div class="star-container">
     (print: (cond: $endingsReached's "Ending1" is 1, '<span class="star-c1">★</span>', '<span class="star-grey">☆</span>'))
-    
     (print: (cond: $endingsReached's "Ending2" is 1, '<span class="star-c2">★</span>', '<span class="star-grey">☆</span>'))
-    
     (print: (cond: $endingsReached's "Ending3" is 1, '<span class="star-c3">★</span>', '<span class="star-grey">☆</span>'))
-    
     (print: (cond: $endingsReached's "Ending4" is 1, '<span class="star-c4">★</span>', '<span class="star-grey">☆</span>'))
-    
     (print: (cond: $endingsReached's "Ending5" is 1, '<span class="star-c5">★</span>', '<span class="star-grey">☆</span>'))
-    
     (print: (cond: $endingsReached's "Ending6" is 1, '<span class="star-c6">★</span>', '<span class="star-grey">☆</span>'))
-    
     (print: (cond: $endingsReached's "Ending7" is 1, '<span class="star-c7">★</span>', '<span class="star-grey">☆</span>'))
   </div>
 
+  <div class="secret-button-container">
+    (set: _allEndings to ($endingsReached's "Ending1" is 1) and ($endingsReached's "Ending2" is 1) and ($endingsReached's "Ending3" is 1) and ($endingsReached's "Ending4" is 1) and ($endingsReached's "Ending5" is 1) and ($endingsReached's "Ending6" is 1) and ($endingsReached's "Ending7" is 1))
+    
+    (if: _allEndings)[
+      <div class="secret-button-unlocked">
+        (link-reveal: "A Final Word")[
+          (show: ?secretMessage)
+        ]
+      </div>
+    ] (else:)[
+      <div class="secret-button-locked">Unlock</div>
+    ]
+  </div>
+  
+  (hidden:)|secretMessage>[
+    <div class="npc-message">
+      "Congratulations on completing all possible game outcomes...
+      <br><br>
+      You have seen every path, every joy, and every sorrow that could unfold. You've walked in the shoes of a steadfast friend, a distant bystander, and even a tormentor. It is my hope that through this journey, you've felt the weight of each choice and the ripple effect it creates.
+      <br><br>
+      Remember this always: When faced with the difficulties of others, every small act of kindness or indifference can profoundly change a person's destiny, and ultimately, determine your own future."
+    </div>
+  ]
   <h3>Special Achievements</h3>
   <table style="width: 100%; border-collapse: collapse; margin-top: 1em;">
     <tr>

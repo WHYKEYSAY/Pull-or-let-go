@@ -9,7 +9,7 @@
 </head>
 <body>
 <tw-story><noscript><tw-noscript>JavaScript needs to be enabled to play Pull or Let Go.</tw-noscript></noscript></tw-story>
-<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="8635F531-9E95-4544-B277-EF41919E4513" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
+<tw-storydata name="Pull or Let Go" startnode="6" creator="Twine" creator-version="2.10.0" format="Harlowe" format-version="3.3.9" ifid="EF0358E3-72BF-46EA-8E23-4D61EC02DD21" options="" tags="" zoom="1" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* Reset all spacing */
 html, body {
   margin: 0 !important;
   padding: 0 !important;
@@ -86,7 +86,7 @@ a.link-internal, a.link-external {
 .char-choice .hidden-link {
     display: none;
 }
-.star-container { display: flex; font-size: 2em; gap: 0.5em; }
+.star-container { display: flex; justify-content: center; font-size: 2em; gap: 0.5em; }
 .star-grey { color: #ccc; }
 .star-c1 { color: #F09EA7; }
 .star-c2 { color: #F6CA94; }
@@ -107,7 +107,69 @@ a.link-internal, a.link-external {
 .achievements { margin-top: 2em; }
 .achievements h3 { border-bottom: 1px solid #eee; padding-bottom: 0.5em; }
 .achievement-unlocked { font-size: 1.2em; }
-.achievement-locked { font-size: 1.2em; color: #888; }</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="GlobalInit" tags="header" position="150,25" size="100,100">(unless: $gameInitialized is true)[
+.achievement-locked { font-size: 1.2em; color: #888; }
+/* Secret Button and Message Styles */
+.secret-button-container {
+  text-align: center;
+  margin-top: 2.5em;
+  margin-bottom: 2em;
+}
+
+.secret-button-locked, .secret-button-unlocked {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border: none;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.secret-button-locked {
+  background-color: #555;
+  color: #888;
+  cursor: not-allowed;
+  border: 2px solid #444;
+}
+
+.secret-button-unlocked {
+  background: linear-gradient(45deg, #ffd700, #ffec80, #ffd700);
+  color: #4a2c00;
+  cursor: pointer;
+  border: 2px solid #e6c300;
+  animation: sparkle 1.5s infinite ease-in-out;
+  box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffec80;
+  text-decoration: none !important;
+}
+
+/* Ensure the link inside doesn't have default styling */
+.secret-button-unlocked a.link-internal {
+    color: inherit !important;
+    border-bottom: none !important;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffec80;
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #ffd700, 0 0 25px #ffec80, 0 0 35px #fff7d1;
+  }
+}
+
+.npc-message {
+  margin-top: 2em;
+  padding: 25px;
+  background-color: rgba(20, 20, 20, 0.7);
+  border-left: 5px solid #ffd700;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-style: italic;
+  line-height: 1.7;
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript"></script><tw-passagedata pid="1" name="StoryFormat" tags="" position="25,25" size="100,100">Harlowe 3</tw-passagedata><tw-passagedata pid="2" name="GlobalInit" tags="header" position="150,25" size="100,100">(unless: $gameInitialized is true)[
   (set: $friendship to 20)
   (set: $playerBullied to false)
   (set: $playerHelped to false)
@@ -958,50 +1020,42 @@ Perhaps… each one of us is a murderer.
 (set: _displaySeverity to it + (cond: $event2Choice is &quot;ignore&quot;, 2, $event2Choice is &quot;bully&quot;, 2.5, true, 0))
 (set: _displaySeverity to it + (cond: $event3Choice is &quot;ignore&quot;, 4, $event3Choice is &quot;bully&quot;, 6, true, 0))
 
-(set: _imgState to (cond: (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;, _displaySeverity &gt;= 4, &quot;_trauma&quot;, _displaySeverity &gt;= 2, &quot;_suffer&quot;, _displaySeverity &gt; 0, &quot;_isolated&quot;, $friendship &gt;= 40, &quot;_golden&quot;, $friendship &gt;= 20, &quot;_safe&quot;, true, &quot;_isolated&quot;))
+(set: _imgState to (cond:
+  (passage:)&#39;s name contains &quot;Ending1&quot;, &quot;_golden&quot;,
+  _displaySeverity &gt;= 4, &quot;_trauma&quot;,
+  _displaySeverity &gt;= 2, &quot;_suffer&quot;,
+  _displaySeverity &gt; 0, &quot;_isolated&quot;,
+  $friendship &gt;= 40, &quot;_golden&quot;,
+  $friendship &gt;= 20, &quot;_safe&quot;,
+  true, &quot;_isolated&quot;
+))
 (set: _imgPath to $friendImgBase + _imgState + $friendImgExt)
+
 (set: _bullyCount to (cond: $event1Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event2Choice is &quot;bully&quot;, 1, true, 0) + (cond: $event3Choice is &quot;bully&quot;, 1, true, 0))
 (set: _bullyHelpCount to (cond: $event1Choice is &quot;help&quot;, 1, true, 0) + (cond: $event2Choice is &quot;help&quot;, 1, true, 0) + (cond: $event3Choice is &quot;help&quot;, 1, true, 0))
 (set: _bullyIgnoreCount to (cond: $event1Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event2Choice is &quot;ignore&quot;, 1, true, 0) + (cond: $event3Choice is &quot;ignore&quot;, 1, true, 0))
-&lt;script&gt;
-setTimeout(function() {
-    var State = window.State || (window.Harlowe &amp;&amp; window.Harlowe.State);
-    if (!State) {
-        console.error(&#39;State not available&#39;);
-        return;
-    }
 
-    var timestamp = new Date().toLocaleString(&#39;en-US&#39;, {
-        year: &#39;numeric&#39;,
-        month: &#39;short&#39;,
-        day: &#39;numeric&#39;,
-        hour: &#39;2-digit&#39;,
-        minute: &#39;2-digit&#39;,
-        second: &#39;2-digit&#39;,
-        hour12: false
-    });
-
-    var logEntry = {
-        name: State.variables.friendName,
-        imgPath: State.temporary.imgPath,
-        friendship: State.variables.friendship,
-        helpCount: State.variables.helpCount,
-        ignoreCount: State.variables.ignoreCount,
-        bullyCount: State.temporary.bullyCount,
-        bullyHelpCount: State.temporary.bullyHelpCount,
-        bullyIgnoreCount: State.temporary.bullyIgnoreCount,
-        severity: State.temporary.displaySeverity,
-        ending: State.variables.currentEnding,
-        timestamp: timestamp
-    };
-
-    State.variables.playthroughLogs.push(logEntry);
-
-    if (State.variables.playthroughLogs.length &gt; 7) {
-        State.variables.playthroughLogs.shift();
-    }
-}, 10);
-&lt;/script&gt;
+&lt;div style=&quot;display:none;&quot;&gt;
+(set: _now to (current-date:))
+(set: _timestamp to (text: _now) + &quot; &quot; + (text: (current-time:)))
+(set: _logEntry to (dm:
+  &quot;name&quot;, $friendName,
+  &quot;imgPath&quot;, _imgPath,
+  &quot;friendship&quot;, $friendship,
+  &quot;helpCount&quot;, $helpCount,
+  &quot;ignoreCount&quot;, $ignoreCount,
+  &quot;bullyCount&quot;, _bullyCount,
+  &quot;bullyHelpCount&quot;, _bullyHelpCount,
+  &quot;bullyIgnoreCount&quot;, _bullyIgnoreCount,
+  &quot;severity&quot;, _displaySeverity,
+  &quot;ending&quot;, $currentEnding,
+  &quot;timestamp&quot;, _timestamp
+))
+(set: $playthroughLogs to it + (a: _logEntry))
+(if: $playthroughLogs&#39;s length &gt; 7)[
+  (set: $playthroughLogs to (subarray: $playthroughLogs, 2, 8))
+]
+&lt;/div&gt;
 
 &lt;h2&gt;Ending7: Rescue and Retribution &lt;/h2&gt;
 &lt;img src=&quot;end7.png&quot; style=&quot;width:100%; max-width:600px; display:block; margin:1em auto;&quot;&gt;
@@ -1050,20 +1104,37 @@ if (window.State &amp;&amp; window.State.variables) {
   &lt;h3&gt;Ending Collection&lt;/h3&gt;
   &lt;div class=&quot;star-container&quot;&gt;
     (print: (cond: $endingsReached&#39;s &quot;Ending1&quot; is 1, &#39;&lt;span class=&quot;star-c1&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
-    
     (print: (cond: $endingsReached&#39;s &quot;Ending2&quot; is 1, &#39;&lt;span class=&quot;star-c2&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
-    
     (print: (cond: $endingsReached&#39;s &quot;Ending3&quot; is 1, &#39;&lt;span class=&quot;star-c3&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
-    
     (print: (cond: $endingsReached&#39;s &quot;Ending4&quot; is 1, &#39;&lt;span class=&quot;star-c4&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
-    
     (print: (cond: $endingsReached&#39;s &quot;Ending5&quot; is 1, &#39;&lt;span class=&quot;star-c5&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
-    
     (print: (cond: $endingsReached&#39;s &quot;Ending6&quot; is 1, &#39;&lt;span class=&quot;star-c6&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
-    
     (print: (cond: $endingsReached&#39;s &quot;Ending7&quot; is 1, &#39;&lt;span class=&quot;star-c7&quot;&gt;★&lt;/span&gt;&#39;, &#39;&lt;span class=&quot;star-grey&quot;&gt;☆&lt;/span&gt;&#39;))
   &lt;/div&gt;
 
+  &lt;div class=&quot;secret-button-container&quot;&gt;
+    (set: _allEndings to ($endingsReached&#39;s &quot;Ending7&quot; is 1))
+    
+    (if: _allEndings)[
+      &lt;div class=&quot;secret-button-unlocked&quot;&gt;
+        (link-reveal: &quot;A Final Word&quot;)[
+          (show: ?secretMessage)
+        ]
+      &lt;/div&gt;
+    ] (else:)[
+      &lt;div class=&quot;secret-button-locked&quot;&gt;Unlock&lt;/div&gt;
+    ]
+  &lt;/div&gt;
+  
+  (hidden:)|secretMessage&gt;[
+    &lt;div class=&quot;npc-message&quot;&gt;
+      &quot;Congratulations on completing all possible game outcomes...
+      &lt;br&gt;&lt;br&gt;
+      You have seen every path, every joy, and every sorrow that could unfold. You&#39;ve walked in the shoes of a steadfast friend, a distant bystander, and even a tormentor. It is my hope that through this journey, you&#39;ve felt the weight of each choice and the ripple effect it creates.
+      &lt;br&gt;&lt;br&gt;
+      Remember this always: When faced with the difficulties of others, every small act of kindness or indifference can profoundly change a person&#39;s destiny, and ultimately, determine your own future.&quot;
+    &lt;/div&gt;
+  ]
   &lt;h3&gt;Special Achievements&lt;/h3&gt;
   &lt;table style=&quot;width: 100%; border-collapse: collapse; margin-top: 1em;&quot;&gt;
     &lt;tr&gt;
